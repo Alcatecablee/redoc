@@ -4,14 +4,39 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Loader2, FileText, ExternalLink, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 const Index = () => {
   const [url, setUrl] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [generatedDoc, setGeneratedDoc] = useState<any>(null);
   const { toast } = useToast();
+
+  const generateMutation = useMutation({
+    mutationFn: async (url: string) => {
+      return apiRequest("/api/generate-docs", {
+        method: "POST",
+        body: JSON.stringify({ url }),
+      });
+    },
+    onSuccess: (data) => {
+      setProgress(100);
+      setGeneratedDoc(data);
+      toast({
+        title: "Documentation Generated!",
+        description: "Your professional documentation is ready",
+      });
+    },
+    onError: (error: Error) => {
+      console.error('Error generating documentation:', error);
+      toast({
+        title: "Generation Failed",
+        description: error.message || "Failed to generate documentation. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleGenerate = async () => {
     if (!url) {
@@ -23,7 +48,6 @@ const Index = () => {
       return;
     }
 
-    setIsGenerating(true);
     setProgress(0);
     
     // Simulate progress
@@ -32,30 +56,9 @@ const Index = () => {
     }, 500);
 
     try {
-      const { data, error } = await supabase.functions.invoke('generate-docs', {
-        body: { url }
-      });
-
-      clearInterval(progressInterval);
-      setProgress(100);
-
-      if (error) throw error;
-
-      setGeneratedDoc(data);
-      toast({
-        title: "Documentation Generated!",
-        description: "Your professional documentation is ready",
-      });
-    } catch (error: any) {
-      console.error('Error generating documentation:', error);
-      toast({
-        title: "Generation Failed",
-        description: error.message || "Failed to generate documentation. Please try again.",
-        variant: "destructive",
-      });
+      await generateMutation.mutateAsync(url);
     } finally {
       clearInterval(progressInterval);
-      setIsGenerating(false);
     }
   };
 
@@ -99,15 +102,17 @@ const Index = () => {
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     className="flex-1 h-14 text-lg border-2 focus-visible:ring-primary focus-visible:ring-offset-2 transition-all"
-                    disabled={isGenerating}
+                    disabled={generateMutation.isPending}
+                    data-testid="input-url"
                   />
                   <Button
                     onClick={handleGenerate}
-                    disabled={isGenerating}
+                    disabled={generateMutation.isPending}
                     size="lg"
                     className="h-14 px-8 bg-gradient-primary hover:shadow-glow transition-all duration-300 text-lg font-semibold"
+                    data-testid="button-generate"
                   >
-                    {isGenerating ? (
+                    {generateMutation.isPending ? (
                       <>
                         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                         Generating...
@@ -122,7 +127,7 @@ const Index = () => {
                 </div>
 
                 {/* Progress Bar */}
-                {isGenerating && (
+                {generateMutation.isPending && (
                   <div className="space-y-2 animate-in fade-in duration-300">
                     <div className="h-2 bg-secondary rounded-full overflow-hidden">
                       <div
