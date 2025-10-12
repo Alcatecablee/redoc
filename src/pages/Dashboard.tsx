@@ -66,8 +66,8 @@ export default function Dashboard() {
       // ensure user session
       const { data } = await supabase.auth.getSession();
       if (!data?.session?.access_token) {
-        setShowSignIn(true);
         toast({ title: 'Sign in required', description: 'Please sign in to download files' });
+        navigate('/');
         return;
       }
 
