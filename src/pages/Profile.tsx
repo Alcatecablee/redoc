@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { apiRequest } from '@/lib/queryClient';
 
 export default function Profile() {
   const [user, setUser] = useState<any>(null);
@@ -21,12 +22,10 @@ export default function Profile() {
       setUser(data.user);
 
       try {
-        const res = await fetch('/api/documentations');
-        if (!res.ok) throw new Error('Failed to load documentations');
-        const json = await res.json();
+        const json = await apiRequest('/api/documentations');
         setDocs(json || []);
       } catch (e: any) {
-        toast({ title: 'Failed to load docs', description: e.message, variant: 'destructive' });
+        toast({ title: 'Failed to load docs', description: e.message || String(e), variant: 'destructive' });
       }
     })();
   }, []);
