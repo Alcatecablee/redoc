@@ -661,7 +661,8 @@ Return ONLY valid JSON.`
 // Get all documentations
 router.get("/api/documentations", verifySupabaseAuth, async (req, res) => {
   try {
-    const docs = await storage.getAllDocumentations();
+    const userId = req.user?.id || null;
+    const docs = await storage.getAllDocumentations(userId);
     res.json(docs);
   } catch (error) {
     console.error('Error fetching documentations:', error);
