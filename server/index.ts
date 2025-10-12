@@ -12,6 +12,28 @@ app.use(routes);
 
 const server = createServer(app);
 
+// Initialize background job queue (in-memory fallback)
+import { initInMemoryQueue } from './queue';
+import { generateDocumentationPipeline } from './generator';
+
+initInMemoryQueue(async (job: any) => {
+  try {
+    console.log('Processing job', job.id, job.name);
+    const { url, userId } = job.payload || {};
+    if (job.name === 'generate-docs' && url) {
+      const result = await generateDocumentationPipeline(url, userId || null);
+      job.result = { documentationId: result.documentation.id };
+      console.log('Job completed', job.id, job.result);
+    } else {
+      throw new Error('Unknown job or missing payload');
+    }
+  } catch (err: any) {
+    job.error = err?.message || String(err);
+    console.error('Job failed', job.id, job.error);
+    throw err;
+  }
+});
+
 async function start() {
   await setupVite(app, server);
   
