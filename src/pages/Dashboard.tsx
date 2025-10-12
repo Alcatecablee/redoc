@@ -93,9 +93,15 @@ export default function Dashboard() {
       <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
 
       {user && (
-        <div className="mb-6">
-          <p className="text-sm text-muted-foreground">Welcome back</p>
-          <p className="font-medium">{user.email}</p>
+        <div className="mb-6 flex items-center gap-4">
+          <img src="https://cdn.builder.io/api/v1/image/assets%2Fa5240755456c40cdba09a9a8d717364c%2F538d34938c2641918290a7fc5923f99d?format=webp&width=800" alt="avatar" className="h-12 w-12 rounded-full object-cover" />
+          <div className="flex-1">
+            <p className="text-sm text-muted-foreground">Welcome back</p>
+            <p className="font-medium">{user.email}</p>
+          </div>
+          <div>
+            <Button variant="secondary" size="sm" onClick={() => { supabase.auth.signOut(); navigate('/'); }}>Sign Out</Button>
+          </div>
         </div>
       )}
 
