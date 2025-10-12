@@ -27,6 +27,9 @@ interface ContentBlock {
   calloutType?: string;
   rows?: any[];
   columns?: string[];
+  url?: string;
+  alt?: string;
+  caption?: string;
 }
 
 interface Section {
@@ -159,6 +162,23 @@ export function DocumentationViewer({ title, description, sections }: Documentat
               </tbody>
             </table>
           </div>
+        );
+
+      case "image":
+        return (
+          <figure key={index} className="mb-6">
+            <img 
+              src={block.url} 
+              alt={block.alt || "Documentation image"} 
+              className="w-full max-w-3xl rounded-lg border shadow-md"
+              loading="lazy"
+            />
+            {block.caption && (
+              <figcaption className="mt-2 text-sm text-muted-foreground text-center">
+                {block.caption}
+              </figcaption>
+            )}
+          </figure>
         );
 
       default:

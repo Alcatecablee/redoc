@@ -34,6 +34,21 @@ router.post("/api/generate-docs", async (req, res) => {
     }
     const htmlContent = await websiteResponse.text();
 
+    // Extract images from HTML
+    const imageRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
+    const images: string[] = [];
+    let match;
+    while ((match = imageRegex.exec(htmlContent)) !== null) {
+      const imgSrc = match[1];
+      // Convert relative URLs to absolute
+      try {
+        const absoluteUrl = new URL(imgSrc, url).href;
+        images.push(absoluteUrl);
+      } catch {
+        // Skip invalid image URLs
+      }
+    }
+    
     // Extract text content from HTML (basic extraction)
     const textContent = htmlContent
       .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
@@ -121,8 +136,14 @@ Content types supported:
 - code: Code blocks with language
 - callout: Info/warning/tip boxes with type and text
 - table: Rows and columns
+- image: Images with url, alt text, and optional caption
 
-Make it professional, clear, and comprehensive. Return ONLY valid JSON.`
+For images, use this format:
+{ "type": "image", "url": "image_url_here", "alt": "description", "caption": "optional caption" }
+
+Available images from the website: ${images.slice(0, 10).join(', ')}
+
+Use relevant images throughout the documentation to enhance clarity. Make it professional, clear, and comprehensive. Return ONLY valid JSON.`
           },
           {
             role: 'user',
