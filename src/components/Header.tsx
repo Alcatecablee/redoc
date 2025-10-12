@@ -8,6 +8,7 @@ import SignInDialog from "@/components/SignInDialog";
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [showSignIn, setShowSignIn] = useState(false);
 
   const navLinks = [
     { name: "Features", href: "#features" },
