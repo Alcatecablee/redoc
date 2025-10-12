@@ -142,10 +142,10 @@ router.post("/api/generate-docs", async (req, res) => {
       .trim()
       .substring(0, 10000); // Limit content size for AI processing
 
-    console.log("Step 1: Analyzing structure...");
+    console.log("Stage 1: Extracting website structure...");
 
-    // Step 1: Generate Structured Documentation
-    const structureResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    // STAGE 1: Structure Understanding & Content Extraction
+    const stage1Response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${GROQ_API_KEY}`,
@@ -156,82 +156,105 @@ router.post("/api/generate-docs", async (req, res) => {
         messages: [
           {
             role: 'system',
-            content: `You are an expert technical writer creating enterprise-quality documentation like Microsoft or Twitter help centers. 
+            content: `You are an expert content analyzer specializing in extracting structured information from websites to create professional documentation.
 
-Analyze this website and create comprehensive, well-structured documentation in JSON format with these sections:
+Task: Analyze the provided website content and extract a comprehensive structure.
 
+Instructions:
+1. Classify the site type (SaaS, e-commerce, blog, portfolio, documentation, etc.)
+2. Identify navigation hierarchy from menus, headers, and site structure
+3. Extract visual elements (screenshots, diagrams, CTAs, demo videos) that should be referenced
+4. Map content sections to standard documentation categories
+5. Detect technical content (code snippets, API references, configuration examples)
+
+Return ONLY valid JSON in this format:
 {
-  "title": "Clear product/service name",
-  "description": "One-sentence description",
-  "sections": [
+  "site_classification": {
+    "type": "SaaS|e-commerce|blog|documentation|portfolio|other",
+    "primary_purpose": "Brief description",
+    "target_audience": "Who this is for"
+  },
+  "navigation_hierarchy": [
     {
-      "id": "overview",
-      "title": "Overview",
-      "icon": "BookOpen",
-      "content": [
-        { "type": "paragraph", "text": "..." },
-        { "type": "heading", "level": 3, "text": "..." },
-        { "type": "list", "items": ["..."] }
-      ]
-    },
-    {
-      "id": "getting-started", 
-      "title": "Getting Started",
-      "icon": "Rocket",
-      "content": [...]
-    },
-    {
-      "id": "key-features",
-      "title": "Key Features", 
-      "icon": "Star",
-      "content": [...]
-    },
-    {
-      "id": "how-it-works",
-      "title": "How It Works",
-      "icon": "Workflow",
-      "content": [...]
-    },
-    {
-      "id": "api-reference",
-      "title": "API Reference",
-      "icon": "Code",
-      "content": [...]
-    },
-    {
-      "id": "troubleshooting",
-      "title": "Troubleshooting",
-      "icon": "AlertCircle",
-      "content": [...]
-    },
-    {
-      "id": "faq",
-      "title": "FAQ",
-      "icon": "HelpCircle",
-      "content": [...]
+      "section": "Section name",
+      "subsections": ["Subsection 1", "Subsection 2"]
     }
-  ]
-}
-
-Content types supported:
-- paragraph: Regular text
-- heading: level 2-4 headings
-- list: Bullet points
-- code: Code blocks with language
-- callout: Info/warning/tip boxes with type and text
-- table: Rows and columns
-- image: Images with url, alt text, and optional caption
-
-For images, use this format:
-{ "type": "image", "url": "image_url_here", "alt": "description", "caption": "optional caption" }
-
-Available images from the website: ${images.slice(0, 10).join(', ')}
-
-Use relevant images throughout the documentation to enhance clarity. Make it professional, clear, and comprehensive. Return ONLY valid JSON.`
+  ],
+  "visual_elements": [
+    {
+      "type": "screenshot|diagram|video|cta",
+      "url": "image_url",
+      "description": "What it shows",
+      "importance": "high|medium|low"
+    }
+  ],
+  "content_structure": {
+    "overview": "High-level product/service description",
+    "features": [
+      {
+        "name": "Feature name",
+        "description": "What it does",
+        "benefits": ["Benefit 1", "Benefit 2"]
+      }
+    ],
+    "how_it_works": [
+      {
+        "step": 1,
+        "title": "Step title",
+        "description": "Detailed explanation"
+      }
+    ],
+    "technical_content": [
+      {
+        "type": "code|api|config|integration",
+        "language": "javascript|python|etc",
+        "content": "The actual code/config",
+        "context": "When/why to use this"
+      }
+    ],
+    "use_cases": [
+      {
+        "title": "Use case title",
+        "description": "Scenario description",
+        "solution": "How the product solves it"
+      }
+    ],
+    "troubleshooting": [
+      {
+        "issue": "Common problem",
+        "symptoms": ["Symptom 1"],
+        "solution": "Step-by-step fix",
+        "prevention": "How to avoid this"
+      }
+    ],
+    "faq": [
+      {
+        "question": "Frequently asked question",
+        "answer": "Clear, concise answer",
+        "category": "general|technical|billing|account"
+      }
+    ],
+    "prerequisites": ["Requirement 1"],
+    "terminology": [
+      {
+        "term": "Technical term",
+        "definition": "Clear explanation",
+        "example": "Usage example"
+      }
+    ]
+  },
+  "missing_sections": ["List sections that should exist but weren't found"],
+  "confidence_score": 0.85,
+  "extraction_notes": "Any challenges or assumptions made during extraction"
+}`
           },
           {
             role: 'user',
-            content: `Analyze and create documentation for: ${textContent}`
+            content: `Website URL: ${url}
+
+Website Content: ${textContent}
+
+Available images: ${images.slice(0, 10).join(', ')}`
           }
         ],
         temperature: 0.3,
@@ -239,47 +262,195 @@ Use relevant images throughout the documentation to enhance clarity. Make it pro
       }),
     });
 
-    if (!structureResponse.ok) {
-      const errorText = await structureResponse.text();
-      console.error('Structure analysis failed:', structureResponse.status, errorText);
-      return res.status(500).json({ error: `Structure analysis failed: ${structureResponse.statusText}` });
+    if (!stage1Response.ok) {
+      const errorText = await stage1Response.text();
+      console.error('Stage 1 failed:', stage1Response.status, errorText);
+      return res.status(500).json({ error: `Structure extraction failed: ${stage1Response.statusText}` });
     }
 
-    const structureData = await structureResponse.json();
-    const structuredJSON = structureData.choices?.[0]?.message?.content || '{}';
+    const stage1Data = await stage1Response.json();
+    const extractedStructure = JSON.parse(stage1Data.choices?.[0]?.message?.content || '{}');
     
-    // Parse the structured documentation
-    let structuredDoc;
-    try {
-      structuredDoc = JSON.parse(structuredJSON);
-    } catch (parseError) {
-      console.error('Failed to parse structured documentation:', parseError);
-      return res.status(500).json({ error: 'Failed to parse AI-generated documentation' });
+    console.log("Stage 2: Writing professional documentation...");
+
+    // STAGE 2: Professional Documentation Writing
+    const stage2Response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          {
+            role: 'system',
+            content: `You are a professional technical writer with expertise in creating Apple/Stripe-style documentation—clear, elegant, and accessible to all users.
+
+Task: Transform the extracted content structure into professional help center documentation.
+
+Writing Guidelines:
+
+Tone & Style:
+- Write in Apple/Stripe style: clear, concise, elegant, confident
+- Use active voice and present tense
+- Avoid jargon unless defined in terminology section
+- Write for a reading level of Grade 8-10 (accessible to all)
+- Be conversational but professional
+
+Structure Requirements:
+1. Progressive disclosure: Start with quick-start/overview, then details
+2. Scannable format: Use headings, bullets, numbered lists, and visual breaks
+3. Cross-references: Link related topics
+4. Action-oriented: Lead with what users can do, not what the product has
+
+Content Sections to Generate:
+1. Getting Started (Quick Start) - 3-5 steps to first success, assume zero prior knowledge
+2. Core Features (Detailed Guides) - What it is, Why use it, How to use it, Tips & best practices
+3. How It Works (Conceptual) - Explain underlying process, use analogies for complex concepts
+4. Use Cases & Examples - Real-world scenarios, show before/after or problem/solution
+5. Technical Reference (if applicable) - API documentation, configuration options, code examples
+6. Troubleshooting - Format as: Problem → Cause → Solution, include prevention tips
+7. FAQ - Group by category, lead with most common questions, keep answers under 100 words
+8. Glossary (if terminology exists) - Plain-language definitions
+
+Return structured JSON in this format:
+{
+  "title": "Documentation title",
+  "description": "Brief description",
+  "sections": [
+    {
+      "id": "section-id",
+      "title": "Section Title",
+      "icon": "Rocket|Star|Code|AlertCircle|HelpCircle|BookOpen|Workflow",
+      "content": [
+        { "type": "paragraph", "text": "..." },
+        { "type": "heading", "level": 3, "text": "..." },
+        { "type": "list", "items": ["..."] },
+        { "type": "code", "language": "javascript", "code": "...", "caption": "..." },
+        { "type": "callout", "calloutType": "info|warning|tip", "text": "..." },
+        { "type": "image", "url": "...", "alt": "...", "caption": "..." }
+      ]
+    }
+  ]
+}
+
+Use proper formatting, include relevant images, and make it professional and comprehensive. Return ONLY valid JSON.`
+          },
+          {
+            role: 'user',
+            content: `Source Data (Extracted Structure): ${JSON.stringify(extractedStructure)}`
+          }
+        ],
+        temperature: 0.4,
+        response_format: { type: "json_object" }
+      }),
+    });
+
+    if (!stage2Response.ok) {
+      const errorText = await stage2Response.text();
+      console.error('Stage 2 failed:', stage2Response.status, errorText);
+      return res.status(500).json({ error: `Documentation writing failed: ${stage2Response.statusText}` });
     }
 
-    const title = structuredDoc.title || 'Documentation';
-    const description = structuredDoc.description || '';
+    const stage2Data = await stage2Response.json();
+    const writtenDocs = JSON.parse(stage2Data.choices?.[0]?.message?.content || '{}');
     
-    // Add theme to the structured documentation
-    structuredDoc.theme = theme;
+    console.log("Stage 3: Generating metadata and SEO optimization...");
+
+    // STAGE 3: Metadata Generation & Export Formatting
+    const stage3Response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          {
+            role: 'system',
+            content: `You are a documentation engineer preparing content for production deployment in a professional help center.
+
+Task: Generate comprehensive metadata and enhance the documentation with SEO optimization.
+
+Return JSON with this structure:
+{
+  "metadata": {
+    "title": "Primary document title (SEO-optimized)",
+    "description": "150-160 character meta description for search engines",
+    "keywords": ["keyword1", "keyword2", "keyword3"],
+    "version": "1.0.0",
+    "language": "en",
+    "estimated_read_time": "8 minutes",
+    "site_source": "URL"
+  },
+  "searchability": {
+    "primary_tags": ["getting-started", "features", "api"],
+    "search_keywords": ["All important terms for search indexing"]
+  },
+  "enhanced_sections": []
+}
+
+The enhanced_sections should be the same sections from the input but with added SEO-friendly slugs and ordering.
+Return ONLY valid JSON.`
+          },
+          {
+            role: 'user',
+            content: `Documentation to enhance: ${JSON.stringify(writtenDocs)}
+            
+Source URL: ${url}`
+          }
+        ],
+        temperature: 0.2,
+        response_format: { type: "json_object" }
+      }),
+    });
+
+    if (!stage3Response.ok) {
+      const errorText = await stage3Response.text();
+      console.error('Stage 3 failed:', stage3Response.status, errorText);
+      return res.status(500).json({ error: `Metadata generation failed: ${stage3Response.statusText}` });
+    }
+
+    const stage3Data = await stage3Response.json();
+    const finalMetadata = JSON.parse(stage3Data.choices?.[0]?.message?.content || '{}');
+    
+    // Combine all stages into final documentation
+    const finalDoc = {
+      title: finalMetadata.metadata?.title || writtenDocs.title || 'Documentation',
+      description: finalMetadata.metadata?.description || writtenDocs.description || '',
+      sections: finalMetadata.enhanced_sections && finalMetadata.enhanced_sections.length > 0 
+        ? finalMetadata.enhanced_sections 
+        : writtenDocs.sections || [],
+      metadata: finalMetadata.metadata || {},
+      searchability: finalMetadata.searchability || {},
+      theme: theme,
+      extractedStructure: extractedStructure
+    };
+    
+    const title = finalDoc.title;
+    const description = finalDoc.description;
     
     // Save to database (store as JSON string for now)
     const documentation = await storage.createDocumentation({
       url,
       title,
-      content: JSON.stringify(structuredDoc),
+      content: JSON.stringify(finalDoc),
     });
 
-    console.log("Documentation generated successfully");
+    console.log("Documentation generated successfully with 3-stage AI pipeline");
 
     res.json({
       id: documentation.id,
       title: documentation.title,
       description: description,
-      sections: structuredDoc.sections || [],
+      sections: finalDoc.sections || [],
       url: documentation.url,
       generatedAt: documentation.generatedAt,
       theme: theme,
+      metadata: finalDoc.metadata,
+      searchability: finalDoc.searchability,
     });
   } catch (error) {
     console.error('Error in generate-docs:', error);
