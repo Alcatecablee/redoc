@@ -685,6 +685,11 @@ router.get("/api/documentations/:id", verifySupabaseAuth, async (req, res) => {
       return res.status(404).json({ error: "Documentation not found" });
     }
 
+    const userId = req.user?.id;
+    if (doc.user_id && userId && doc.user_id !== userId) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
     res.json(doc);
   } catch (error) {
     console.error('Error fetching documentation:', error);
@@ -707,8 +712,13 @@ router.get("/api/export/json/:id", verifySupabaseAuth, async (req, res) => {
       return res.status(404).json({ error: "Documentation not found" });
     }
 
+    const userId = req.user?.id;
+    if (doc.user_id && userId && doc.user_id !== userId) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
     const parsedContent = JSON.parse(doc.content);
-    
+
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Content-Disposition', `attachment; filename="${doc.title.replace(/[^a-z0-9]/gi, '_')}.json"`);
     res.json(parsedContent);
@@ -731,9 +741,14 @@ router.get("/api/export/markdown/:id", verifySupabaseAuth, async (req, res) => {
       return res.status(404).json({ error: "Documentation not found" });
     }
 
+    const userId = req.user?.id;
+    if (doc.user_id && userId && doc.user_id !== userId) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
     const parsedContent = JSON.parse(doc.content);
     const theme = parsedContent.theme || {};
-    
+
     // Add YAML frontmatter with theme metadata
     let markdown = `---\n`;
     markdown += `title: "${parsedContent.title}"\n`;
@@ -815,12 +830,17 @@ router.get("/api/export/html/:id", verifySupabaseAuth, async (req, res) => {
       return res.status(404).json({ error: "Documentation not found" });
     }
 
+    const userId = req.user?.id;
+    if (doc.user_id && userId && doc.user_id !== userId) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
     const parsedContent = JSON.parse(doc.content);
     const theme = parsedContent.theme || {};
     const primaryColor = theme.primaryColor || '#8B5CF6';
     const secondaryColor = theme.secondaryColor || '#6366F1';
     const primaryFont = theme.primaryFont || '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    
+
     let html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -945,9 +965,14 @@ router.get("/api/export/pdf/:id", verifySupabaseAuth, async (req, res) => {
       return res.status(404).json({ error: "Documentation not found" });
     }
 
+    const userId = req.user?.id;
+    if (doc.user_id && userId && doc.user_id !== userId) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
     const parsedContent = JSON.parse(doc.content);
     const theme = parsedContent.theme || {};
-    
+
     // Helper function to convert color to hex format for PDFKit
     const toHexColor = (color: string): string => {
       if (!color) return '#8B5CF6';
@@ -1074,6 +1099,11 @@ router.get("/api/export/docx/:id", verifySupabaseAuth, async (req, res) => {
       return res.status(404).json({ error: "Documentation not found" });
     }
 
+    const userId = req.user?.id;
+    if (docData.user_id && userId && docData.user_id !== userId) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
     const parsedContent = JSON.parse(docData.content);
     const paragraphs: any[] = [];
     
@@ -1164,9 +1194,14 @@ router.get('/api/export/batch/:id', verifySupabaseAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const docData = await storage.getDocumentation(parseInt(id, 10));
-    
+
     if (!docData) {
       return res.status(404).json({ error: 'Documentation not found' });
+    }
+
+    const userId = req.user?.id;
+    if (docData.user_id && userId && docData.user_id !== userId) {
+      return res.status(403).json({ error: "Forbidden" });
     }
 
     const archive = archiver('zip', { zlib: { level: 9 } });
