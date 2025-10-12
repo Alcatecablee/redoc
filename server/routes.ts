@@ -731,6 +731,36 @@ router.get("/api/documentations/:id", verifySupabaseAuth, async (req, res) => {
   }
 });
 
+// Delete documentation
+router.delete("/api/documentations/:id", verifySupabaseAuth, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ error: "Invalid ID" });
+    }
+
+    const existing = await storage.getDocumentation(id);
+    if (!existing) {
+      return res.status(404).json({ error: 'Documentation not found' });
+    }
+
+    const userId = req.user?.id;
+    if (existing.user_id && userId && existing.user_id !== userId) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    const deleted = await storage.deleteDocumentation(id, userId);
+    if (!deleted) {
+      return res.status(500).json({ error: 'Failed to delete documentation' });
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting documentation:', error);
+    res.status(500).json({ error: 'Failed to delete documentation' });
+  }
+});
+
 // Export documentation as JSON
 router.get("/api/export/json/:id", verifySupabaseAuth, async (req, res) => {
   try {

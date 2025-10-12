@@ -5,6 +5,7 @@ export interface IStorage {
   getDocumentation(id: number): Promise<Documentation | undefined>;
   getAllDocumentations(userId?: string): Promise<Documentation[]>;
   createDocumentation(data: InsertDocumentation): Promise<Documentation>;
+  deleteDocumentation(id: number, userId?: string): Promise<Documentation | undefined>;
 }
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -46,6 +47,17 @@ class SupabaseStorage implements IStorage {
     if (error) throw error;
     return inserted as Documentation;
   }
+
+  async deleteDocumentation(id: number, userId?: string): Promise<Documentation | undefined> {
+    // If userId provided, ensure deletion only affects that user's doc
+    let query = this.client.from('documentations').delete().eq('id', id).limit(1).select();
+    if (userId) {
+      query = query.eq('user_id', userId);
+    }
+    const { data, error } = await query;
+    if (error) throw error;
+    return (data && data[0]) as Documentation | undefined;
+  }
 }
 
 // Simple in-memory fallback
@@ -57,8 +69,9 @@ class InMemoryStorage implements IStorage {
     return this.docs.find((d) => d.id === id);
   }
 
-  async getAllDocumentations(): Promise<Documentation[]> {
-    return [...this.docs].sort((a, b) => new Date(b.generatedAt).getTime() - new Date(a.generatedAt).getTime());
+  async getAllDocumentations(userId?: string): Promise<Documentation[]> {
+    const docs = userId ? this.docs.filter(d => d.user_id === userId) : this.docs;
+    return [...docs].sort((a, b) => new Date((b as any).generatedAt || b.generatedAt).getTime() - new Date((a as any).generatedAt || a.generatedAt).getTime());
   }
 
   async createDocumentation(data: InsertDocumentation): Promise<Documentation> {
@@ -68,10 +81,18 @@ class InMemoryStorage implements IStorage {
       url: data.url,
       title: data.title,
       content: data.content,
+      user_id: (data as any).user_id || null,
       generatedAt: createdAt,
     };
     this.docs.push(doc);
     return doc as Documentation;
+  }
+
+  async deleteDocumentation(id: number, userId?: string): Promise<Documentation | undefined> {
+    const idx = this.docs.findIndex(d => d.id === id && (userId ? d.user_id === userId : true));
+    if (idx === -1) return undefined;
+    const [removed] = this.docs.splice(idx, 1);
+    return removed;
   }
 }
 
