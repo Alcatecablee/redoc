@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function SignInDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -35,6 +36,32 @@ export default function SignInDialog({ open, onOpenChange }: { open: boolean; on
     }
   };
 
+  const signUpWithEmail = async () => {
+    if (!email || !password) return toast({ title: 'Missing fields', description: 'Please provide email and password', variant: 'destructive' });
+    setLoading(true);
+    const { error } = await supabase.auth.signUp({ email, password });
+    setLoading(false);
+    if (error) {
+      toast({ title: 'Sign-up failed', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'Account created', description: `Check ${email} for confirmation or sign-in link` });
+      onOpenChange(false);
+    }
+  };
+
+  const signInWithEmailPassword = async () => {
+    if (!email || !password) return toast({ title: 'Missing fields', description: 'Please provide email and password', variant: 'destructive' });
+    setLoading(true);
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    setLoading(false);
+    if (error) {
+      toast({ title: 'Sign-in failed', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'Signed in', description: `Welcome ${data.user?.email}` });
+      onOpenChange(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
@@ -49,13 +76,28 @@ export default function SignInDialog({ open, onOpenChange }: { open: boolean; on
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
+          <Input
+            type="password"
+            placeholder="Create a password (min 6 chars)"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
           <div className="flex gap-2">
-            <Button onClick={sendMagicLink} disabled={loading} className="flex-1">
-              {loading ? 'Sending...' : 'Send Magic Link'}
+            <Button onClick={signInWithEmailPassword} disabled={loading} className="flex-1">
+              {loading ? 'Signing...' : 'Sign In'}
             </Button>
-            <Button variant="outline" onClick={() => { setEmail(''); onOpenChange(false); }}>
+            <Button variant="outline" onClick={() => { setEmail(''); setPassword(''); onOpenChange(false); }}>
               Cancel
+            </Button>
+          </div>
+
+          <div className="flex gap-2">
+            <Button onClick={signUpWithEmail} variant="ghost" className="flex-1">
+              Create account
+            </Button>
+            <Button onClick={sendMagicLink} variant="outline" className="flex-1">
+              Send Magic Link
             </Button>
           </div>
 
