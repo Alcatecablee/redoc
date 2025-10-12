@@ -21,9 +21,9 @@ router.post("/api/generate-docs", async (req, res) => {
       return res.status(400).json({ error: "Invalid URL format" });
     }
 
-    const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
-    if (!LOVABLE_API_KEY) {
-      return res.status(500).json({ error: "LOVABLE_API_KEY is not configured" });
+    const GROQ_API_KEY = process.env.GROQ_API_KEY;
+    if (!GROQ_API_KEY) {
+      return res.status(500).json({ error: "GROQ_API_KEY is not configured" });
     }
 
     // Fetch website content
@@ -41,46 +41,75 @@ router.post("/api/generate-docs", async (req, res) => {
       .replace(/<[^>]+>/g, ' ')
       .replace(/\s+/g, ' ')
       .trim()
-      .substring(0, 8000); // Limit content size for AI processing
+      .substring(0, 10000); // Limit content size for AI processing
 
-    console.log("Generating documentation with AI...");
+    console.log("Step 1: Analyzing structure...");
 
-    // Use Lovable AI to generate professional documentation
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    // Step 1: Structure Understanding
+    const structureResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'llama-3.3-70b-versatile',
         messages: [
           {
             role: 'system',
-            content: `You are a professional technical writer creating enterprise-quality documentation. 
-            Generate comprehensive, well-structured documentation in HTML format with:
-            - Clear sections (Overview, Features, Getting Started, FAQ, Support)
-            - Professional formatting with headings, bullet points, and paragraphs
-            - User-friendly language similar to Microsoft or Twitter help centers
-            - Proper HTML structure using semantic tags (h2, h3, p, ul, li, etc.)
-            - No markdown, only clean HTML`
+            content: `Analyze this website content. Identify its purpose, main features, user flows, and terminology. Output as JSON with keys: overview, features, how_it_works, troubleshooting, faq.`
           },
           {
             role: 'user',
-            content: `Create professional help center documentation for this website content:\n\n${textContent}`
+            content: textContent
           }
         ],
+        temperature: 0.3,
       }),
     });
 
-    if (!aiResponse.ok) {
-      const errorText = await aiResponse.text();
-      console.error('AI API error:', aiResponse.status, errorText);
-      return res.status(500).json({ error: `AI generation failed: ${aiResponse.statusText}` });
+    if (!structureResponse.ok) {
+      const errorText = await structureResponse.text();
+      console.error('Structure analysis failed:', structureResponse.status, errorText);
+      return res.status(500).json({ error: `Structure analysis failed: ${structureResponse.statusText}` });
     }
 
-    const aiData = await aiResponse.json();
-    const generatedContent = aiData.choices?.[0]?.message?.content || '';
+    const structureData = await structureResponse.json();
+    const structuredInfo = structureData.choices?.[0]?.message?.content || '';
+
+    console.log("Step 2: Writing documentation...");
+
+    // Step 2: Write Professional Docs
+    const docsResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          {
+            role: 'system',
+            content: `You are a professional technical writer. Rewrite this structured data into clear, human, Apple-style documentation. Use professional tone, consistent formatting, and HTML with semantic tags (h1, h2, h3, p, ul, li). Create beautiful, user-friendly documentation similar to Apple or Microsoft help centers.`
+          },
+          {
+            role: 'user',
+            content: `Transform this structured information into professional documentation:\n\n${structuredInfo}`
+          }
+        ],
+        temperature: 0.7,
+      }),
+    });
+
+    if (!docsResponse.ok) {
+      const errorText = await docsResponse.text();
+      console.error('Documentation writing failed:', docsResponse.status, errorText);
+      return res.status(500).json({ error: `Documentation writing failed: ${docsResponse.statusText}` });
+    }
+
+    const docsData = await docsResponse.json();
+    const generatedContent = docsData.choices?.[0]?.message?.content || '';
 
     // Extract title from content or use default
     const titleMatch = generatedContent.match(/<h1[^>]*>(.*?)<\/h1>/i);
