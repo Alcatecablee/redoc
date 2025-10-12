@@ -108,18 +108,25 @@ export default function Profile() {
           ) : (
             <ul className="space-y-3">
               {docs.map((d) => (
-                <li key={d.id} className="p-4 rounded-lg glass-effect flex justify-between items-center">
-                  <div>
-                    <div className="font-semibold">{d.title}</div>
-                    <div className="text-sm text-muted-foreground">{d.url}</div>
+                <li key={d.id} className="p-4 rounded-lg bg-[#0b0f17]/60 border border-white/6 flex justify-between items-center shadow-sm">
+                  <div className="min-w-0">
+                    <div className="font-semibold truncate">{d.title}</div>
+                    <div className="text-sm text-muted-foreground truncate">{d.url}</div>
+                    {d.generatedAt && <div className="text-xs text-muted-foreground">Generated: {new Date(d.generatedAt).toLocaleString()}</div>}
                   </div>
                   <div className="flex gap-2 items-center">
-                    <button onClick={() => openDoc(d.id)} className="text-sm underline">Open</button>
-                    <button onClick={() => downloadBlob(`/api/export/html/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.html`)} className="text-sm">HTML</button>
-                    <button onClick={() => downloadBlob(`/api/export/pdf/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.pdf`)} className="text-sm">PDF</button>
-                    <button onClick={() => downloadBlob(`/api/export/markdown/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.md`)} className="text-sm">MD</button>
-                    <button onClick={() => downloadBlob(`/api/export/docx/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.docx`)} className="text-sm">DOCX</button>
-                    <button onClick={() => deleteDoc(d.id)} className="text-sm text-red-600">Delete</button>
+                    <Button variant="ghost" size="sm" asChild>
+                      <a onClick={() => openDoc(d.id)} className="flex items-center gap-2"><FileText className="h-4 w-4"/>Open</a>
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => downloadBlob(`/api/export/html/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.html`)}>
+                      <ExternalLink className="h-4 w-4"/>HTML
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => downloadBlob(`/api/export/pdf/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.pdf`)}>
+                      <Download className="h-4 w-4"/>PDF
+                    </Button>
+                    <Button variant="destructive" size="sm" onClick={() => deleteDoc(d.id)}>
+                      <Trash2 className="h-4 w-4"/>Delete
+                    </Button>
                   </div>
                 </li>
               ))}
