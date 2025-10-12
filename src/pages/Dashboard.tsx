@@ -61,6 +61,31 @@ export default function Dashboard() {
     }
   };
 
+  const downloadBlob = async (path: string, filename: string) => {
+    try {
+      // ensure user session
+      const { data } = await supabase.auth.getSession();
+      if (!data?.session?.access_token) {
+        setShowSignIn(true);
+        toast({ title: 'Sign in required', description: 'Please sign in to download files' });
+        return;
+      }
+
+      const blob = await apiRequestBlob(path);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err: any) {
+      console.error('Download failed', err);
+      toast({ title: 'Download failed', description: err?.message || 'Failed to download file', variant: 'destructive' });
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-20">
       <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
