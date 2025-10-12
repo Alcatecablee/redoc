@@ -4,6 +4,14 @@
 
 DocSnap is an AI-powered web application that automatically generates professional documentation from any website. Users input a URL, and the system uses AI to analyze the website structure, extract content, and produce enterprise-quality documentation in multiple formats (PDF, DOCX, or web format). The application emphasizes Apple-style clarity and professional presentation, targeting users who need to create help center documentation quickly.
 
+## Recent Changes
+
+### Landing Page Enhancement (October 2025)
+- **Header Component**: Added professional sticky navigation with logo, menu items (Features, How it Works, Pricing, About), and action buttons (Sign In, Get Started). Fully responsive with mobile menu.
+- **Footer Component**: Comprehensive footer with brand information, link columns (Product, Company, Resources, Legal), and social media links (Twitter, GitHub, LinkedIn, Email).
+- **Enhanced Hero Section**: Improved visual hierarchy with AI-powered badge, refined headline "Transform Websites into Professional Docs", animated background gradients, and better messaging.
+- **Feature Cards**: Updated with better icons (Lightning Fast, Enterprise Quality, Multiple Formats) and improved descriptions.
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
