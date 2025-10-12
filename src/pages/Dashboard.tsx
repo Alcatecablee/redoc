@@ -106,9 +106,10 @@ export default function Dashboard() {
             <ul className="space-y-3">
               {docs.map((d) => (
                 <li key={d.id} className="p-4 rounded-lg glass-effect flex justify-between items-center">
-                  <div>
-                    <div className="font-semibold">{d.title}</div>
-                    <div className="text-sm text-muted-foreground">{d.url}</div>
+                  <div className="min-w-0">
+                    <div className="font-semibold truncate">{d.title}</div>
+                    <div className="text-sm text-muted-foreground truncate">{d.url}</div>
+                    {d.generatedAt && <div className="text-xs text-muted-foreground">Generated: {new Date(d.generatedAt).toLocaleString()}</div>}
                   </div>
                   <div className="flex gap-2 items-center">
                     <button onClick={() => openDoc(d.id)} className="text-sm underline">Open</button>
