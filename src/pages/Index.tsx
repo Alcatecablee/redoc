@@ -180,16 +180,13 @@ const Index = () => {
             </div>
             
             {/* Main heading */}
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-100">
-              <h1 className="text-6xl md:text-8xl font-bold tracking-tight">
-                Transform Websites into
-                <br />
-                <span className="text-gradient">Professional Docs</span>
+            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-100">
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+                Instant AI Docs
               </h1>
-              
-              <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-normal">
-                Simply paste a URL and let AI create beautiful, structured documentation instantly. 
-                Like Microsoft or Twitter help centers.
+
+              <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed font-normal">
+                Paste a URL — get polished documentation.
               </p>
             </div>
             
