@@ -658,6 +658,38 @@ Return ONLY valid JSON.`
   }
 });
 
+// Enqueue generate-docs (background)
+router.post("/api/generate-docs-enqueue", verifySupabaseAuth, async (req, res) => {
+  try {
+    const { url } = req.body;
+    if (!url) return res.status(400).json({ error: 'URL is required' });
+    try { new URL(url); } catch { return res.status(400).json({ error: 'Invalid URL format' }); }
+
+    const userId = req.user?.id || null;
+    const queue = require('./queue').getQueue();
+    const job = await queue.enqueue('generate-docs', { url, userId });
+
+    res.json({ jobId: job.id, status: job.status });
+  } catch (error) {
+    console.error('Failed to enqueue generate-docs job', error);
+    res.status(500).json({ error: 'Failed to enqueue job' });
+  }
+});
+
+// Job status endpoint
+router.get('/api/jobs/:id', verifySupabaseAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const queue = require('./queue').getQueue();
+    const job = queue.getJob(id);
+    if (!job) return res.status(404).json({ error: 'Job not found' });
+    res.json({ id: job.id, status: job.status, error: job.error, result: job.result });
+  } catch (err) {
+    console.error('Failed to fetch job', err);
+    res.status(500).json({ error: 'Failed to fetch job status' });
+  }
+});
+
 // Get all documentations
 router.get("/api/documentations", verifySupabaseAuth, async (req, res) => {
   try {
