@@ -91,11 +91,14 @@ export default function Profile() {
     <div className="container mx-auto px-4 py-20">
       <h1 className="text-3xl font-bold mb-6">Profile</h1>
       {user && (
-        <div className="mb-6">
-          <p className="text-sm text-muted-foreground">Signed in as</p>
-          <p className="font-medium">{user.email}</p>
-          <div className="mt-4">
-            <Button onClick={signOut}>Sign Out</Button>
+        <div className="mb-6 flex items-center gap-4">
+          <img src="https://cdn.builder.io/api/v1/image/assets%2Fa5240755456c40cdba09a9a8d717364c%2F538d34938c2641918290a7fc5923f99d?format=webp&width=800" alt="avatar" className="h-12 w-12 rounded-full object-cover" />
+          <div>
+            <p className="text-sm text-muted-foreground">Signed in as</p>
+            <p className="font-medium">{user.email}</p>
+            <div className="mt-2">
+              <Button onClick={signOut} size="sm">Sign Out</Button>
+            </div>
           </div>
         </div>
       )}
