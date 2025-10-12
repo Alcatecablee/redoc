@@ -137,43 +137,54 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="min-h-screen bg-background">
       <Header />
       
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-primary opacity-5" />
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-pulse delay-1000" />
+      <section className="relative overflow-hidden min-h-[90vh] flex items-center">
+        {/* Background gradient orbs */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/30 rounded-full blur-[128px] animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-purple-500/20 rounded-full blur-[128px] animate-pulse" style={{ animationDelay: '1s' }} />
         </div>
-        <div className="container mx-auto px-4 py-20 md:py-32 relative z-10">
-          <div className="max-w-4xl mx-auto text-center space-y-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border bg-background/50 backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-1000">
-              <Zap className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">AI-Powered Documentation Generator</span>
+
+        <div className="container mx-auto px-4 py-20 relative z-10">
+          <div className="max-w-5xl mx-auto text-center space-y-12">
+            
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full glass-effect animate-in fade-in slide-in-from-bottom-4 duration-1000 group hover:scale-105 transition-transform cursor-pointer">
+              <div className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+              </div>
+              <span className="text-sm font-medium">AI-Powered Documentation</span>
+              <Zap className="h-4 w-4 text-primary group-hover:rotate-12 transition-transform" />
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-bold bg-gradient-primary bg-clip-text text-transparent animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-100">
-              Transform Websites into
-              <br />
-              <span className="text-primary">Professional Docs</span>
-            </h1>
-            
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-200">
-              Simply paste a URL and let AI create beautiful, structured documentation instantly. Like Microsoft or Twitter help centers.
-            </p>
+            {/* Main heading */}
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-100">
+              <h1 className="text-6xl md:text-8xl font-bold tracking-tight">
+                Transform Websites into
+                <br />
+                <span className="text-gradient">Professional Docs</span>
+              </h1>
+              
+              <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-normal">
+                Simply paste a URL and let AI create beautiful, structured documentation instantly. 
+                Like Microsoft or Twitter help centers.
+              </p>
+            </div>
             
             {/* URL Input Card */}
-            <Card className="p-8 shadow-elegant backdrop-blur-sm bg-gradient-glass border-2 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
-              <div className="space-y-6">
+            <div className="max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-200">
+              <div className="glass-effect rounded-2xl p-8 space-y-6">
                 <div className="flex flex-col md:flex-row gap-4">
                   <Input
                     type="url"
                     placeholder="https://yourapp.com"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
-                    className="flex-1 h-14 text-lg border-2 focus-visible:ring-primary focus-visible:ring-offset-2 transition-all"
+                    className="flex-1 h-14 text-base bg-background/50 border-white/10 focus-visible:border-primary/50 focus-visible:ring-primary/20 transition-all rounded-xl"
                     disabled={generateMutation.isPending}
                     data-testid="input-url"
                   />
@@ -181,7 +192,7 @@ const Index = () => {
                     onClick={handleGenerate}
                     disabled={generateMutation.isPending}
                     size="lg"
-                    className="h-14 px-8 bg-gradient-primary hover:shadow-glow transition-all duration-300 text-lg font-semibold"
+                    className="h-14 px-10 bg-gradient-primary hover:shadow-glow transition-all duration-300 text-base font-semibold rounded-xl border-0 hover:scale-[1.02]"
                     data-testid="button-generate"
                   >
                     {generateMutation.isPending ? (
@@ -200,8 +211,8 @@ const Index = () => {
 
                 {/* Enhanced 3-Stage Progress */}
                 {generateMutation.isPending && (
-                  <div className="space-y-4 animate-in fade-in duration-300">
-                    <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                  <div className="space-y-6 animate-in fade-in duration-300">
+                    <div className="h-2 bg-white/5 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-gradient-primary transition-all duration-500 ease-out"
                         style={{ width: `${progress}%` }}
@@ -209,14 +220,14 @@ const Index = () => {
                     </div>
                     
                     {/* Stage Indicators */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       {stages.map((stage) => (
                         <div
                           key={stage.id}
-                          className={`flex items-start gap-2 p-3 rounded-lg border transition-all ${
+                          className={`flex items-start gap-2 p-3 rounded-xl border transition-all ${
                             currentStage >= stage.id
-                              ? 'border-primary bg-primary/5'
-                              : 'border-border bg-muted/30'
+                              ? 'border-primary/50 bg-primary/10'
+                              : 'border-white/10 bg-white/5'
                           }`}
                         >
                           <div className="mt-0.5">
@@ -225,11 +236,11 @@ const Index = () => {
                             ) : currentStage === stage.id ? (
                               <Loader2 className="h-5 w-5 text-primary animate-spin" />
                             ) : (
-                              <div className="h-5 w-5 rounded-full border-2 border-muted-foreground/30" />
+                              <div className="h-5 w-5 rounded-full border-2 border-white/20" />
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className={`text-sm font-medium ${currentStage >= stage.id ? 'text-primary' : 'text-muted-foreground'}`}>
+                            <p className={`text-sm font-medium ${currentStage >= stage.id ? 'text-foreground' : 'text-muted-foreground'}`}>
                               {stage.name}
                             </p>
                             <p className="text-xs text-muted-foreground truncate">
@@ -242,7 +253,7 @@ const Index = () => {
                   </div>
                 )}
               </div>
-            </Card>
+            </div>
           </div>
         </div>
       </section>
@@ -250,9 +261,9 @@ const Index = () => {
       {/* Results Section */}
       {generatedDoc && (
         <section className="container mx-auto px-4 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-              <h3 className="text-lg font-semibold">Export Documentation</h3>
+          <div className="mb-8 glass-effect rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+              <h3 className="text-xl font-semibold">Export Documentation</h3>
               <div className="flex gap-2 flex-wrap">
                 <BrandKitExtractor
                   onThemeGenerated={(theme) => {
@@ -274,7 +285,7 @@ const Index = () => {
               <Button 
                 variant="default" 
                 size="lg" 
-                className="gap-2 bg-gradient-primary hover:shadow-glow"
+                className="gap-2 bg-gradient-primary hover:shadow-glow rounded-xl hover:scale-[1.02] transition-all"
                 onClick={handleBatchExport}
               >
                 <Download className="h-5 w-5" />
@@ -283,7 +294,7 @@ const Index = () => {
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="gap-2"
+                className="gap-2 border-white/10 bg-white/5 hover:bg-white/10 rounded-xl hover:scale-[1.02] transition-all"
                 onClick={handleDownloadPDF}
               >
                 <Download className="h-5 w-5" />
@@ -292,7 +303,7 @@ const Index = () => {
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="gap-2"
+                className="gap-2 border-white/10 bg-white/5 hover:bg-white/10 rounded-xl hover:scale-[1.02] transition-all"
                 onClick={handleDownloadDOCX}
               >
                 <Download className="h-5 w-5" />
@@ -301,7 +312,7 @@ const Index = () => {
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="gap-2"
+                className="gap-2 border-white/10 bg-white/5 hover:bg-white/10 rounded-xl hover:scale-[1.02] transition-all"
                 onClick={handleDownloadMarkdown}
               >
                 <Download className="h-5 w-5" />
@@ -310,7 +321,7 @@ const Index = () => {
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="gap-2"
+                className="gap-2 border-white/10 bg-white/5 hover:bg-white/10 rounded-xl hover:scale-[1.02] transition-all"
                 onClick={handleDownloadHTML}
               >
                 <Download className="h-5 w-5" />
@@ -319,7 +330,7 @@ const Index = () => {
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="gap-2"
+                className="gap-2 border-white/10 bg-white/5 hover:bg-white/10 rounded-xl hover:scale-[1.02] transition-all"
                 onClick={handleDownloadJSON}
               >
                 <Download className="h-5 w-5" />
@@ -339,39 +350,39 @@ const Index = () => {
 
       {/* Features Section */}
       {!generatedDoc && (
-        <section id="features" className="container mx-auto px-4 pb-20">
+        <section id="features" className="container mx-auto px-4 pb-24">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose DocSnap?</h2>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6">Why Choose DocSnap?</h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                 Everything you need to create professional documentation in seconds
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Card className="p-8 hover:shadow-elegant transition-all duration-300 border-2 hover:border-primary/50">
-                <div className="h-12 w-12 rounded-xl bg-gradient-primary flex items-center justify-center mb-6 shadow-glow">
-                  <Zap className="h-6 w-6 text-primary-foreground" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="glass-effect rounded-2xl p-8 hover:scale-[1.02] transition-all duration-300 group">
+                <div className="h-14 w-14 rounded-2xl bg-gradient-primary flex items-center justify-center mb-6 shadow-glow group-hover:shadow-glow transition-shadow">
+                  <Zap className="h-7 w-7 text-primary-foreground" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">Lightning Fast</h3>
-                <p className="text-muted-foreground">Generate complete documentation in under 30 seconds. AI-powered extraction and structuring.</p>
-              </Card>
+                <h3 className="text-2xl font-semibold mb-3">Lightning Fast</h3>
+                <p className="text-muted-foreground leading-relaxed">Generate complete documentation in under 30 seconds. AI-powered extraction and structuring.</p>
+              </div>
               
-              <Card className="p-8 hover:shadow-elegant transition-all duration-300 border-2 hover:border-primary/50">
-                <div className="h-12 w-12 rounded-xl bg-gradient-primary flex items-center justify-center mb-6 shadow-glow">
-                  <Shield className="h-6 w-6 text-primary-foreground" />
+              <div className="glass-effect rounded-2xl p-8 hover:scale-[1.02] transition-all duration-300 group">
+                <div className="h-14 w-14 rounded-2xl bg-gradient-primary flex items-center justify-center mb-6 shadow-glow group-hover:shadow-glow transition-shadow">
+                  <Shield className="h-7 w-7 text-primary-foreground" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">Enterprise Quality</h3>
-                <p className="text-muted-foreground">Professional formatting that matches industry leaders like Microsoft and Twitter.</p>
-              </Card>
+                <h3 className="text-2xl font-semibold mb-3">Enterprise Quality</h3>
+                <p className="text-muted-foreground leading-relaxed">Professional formatting that matches industry leaders like Microsoft and Twitter.</p>
+              </div>
               
-              <Card className="p-8 hover:shadow-elegant transition-all duration-300 border-2 hover:border-primary/50">
-                <div className="h-12 w-12 rounded-xl bg-gradient-primary flex items-center justify-center mb-6 shadow-glow">
-                  <Download className="h-6 w-6 text-primary-foreground" />
+              <div className="glass-effect rounded-2xl p-8 hover:scale-[1.02] transition-all duration-300 group">
+                <div className="h-14 w-14 rounded-2xl bg-gradient-primary flex items-center justify-center mb-6 shadow-glow group-hover:shadow-glow transition-shadow">
+                  <Download className="h-7 w-7 text-primary-foreground" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">Multiple Formats</h3>
-                <p className="text-muted-foreground">Export to PDF, DOCX, or publish as a live web page. Your choice, your format.</p>
-              </Card>
+                <h3 className="text-2xl font-semibold mb-3">Multiple Formats</h3>
+                <p className="text-muted-foreground leading-relaxed">Export to PDF, DOCX, or publish as a live web page. Your choice, your format.</p>
+              </div>
             </div>
           </div>
         </section>
