@@ -1,6 +1,5 @@
-import { documentations, type Documentation, type InsertDocumentation } from "@shared/schema";
-import { db } from "./db";
-import { eq, desc } from "drizzle-orm";
+import { type Documentation, type InsertDocumentation } from "@shared/schema";
+import { createClient } from '@supabase/supabase-js';
 
 export interface IStorage {
   getDocumentation(id: number): Promise<Documentation | undefined>;
@@ -8,30 +7,44 @@ export interface IStorage {
   createDocumentation(data: InsertDocumentation): Promise<Documentation>;
 }
 
-// Storage backed by the real database (Drizzle) - only used when db is available
-export class DatabaseStorage implements IStorage {
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+
+let supabaseClient: ReturnType<typeof createClient> | null = null;
+if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+  supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: false },
+  });
+} else {
+  console.warn('SUPABASE_URL or SUPABASE_ANON_KEY not set; Supabase storage disabled.');
+}
+
+class SupabaseStorage implements IStorage {
+  private client: ReturnType<typeof createClient>;
+  constructor(client: ReturnType<typeof createClient>) {
+    this.client = client;
+  }
+
   async getDocumentation(id: number): Promise<Documentation | undefined> {
-    if (!db) throw new Error('Database not initialized');
-    const [doc] = await db.select().from(documentations).where(eq(documentations.id, id));
-    return doc || undefined;
+    const { data, error } = await this.client.from('documentations').select('*').eq('id', id).limit(1).single();
+    if (error) throw error;
+    return data as Documentation | undefined;
   }
 
   async getAllDocumentations(): Promise<Documentation[]> {
-    if (!db) throw new Error('Database not initialized');
-    return db.select().from(documentations).orderBy(desc(documentations.generatedAt));
+    const { data, error } = await this.client.from('documentations').select('*').order('generated_at', { ascending: false });
+    if (error) throw error;
+    return (data as any) || [];
   }
 
   async createDocumentation(data: InsertDocumentation): Promise<Documentation> {
-    if (!db) throw new Error('Database not initialized');
-    const [doc] = await db
-      .insert(documentations)
-      .values(data)
-      .returning();
-    return doc;
+    const { data: inserted, error } = await this.client.from('documentations').insert([{ ...data }]).select().single();
+    if (error) throw error;
+    return inserted as Documentation;
   }
 }
 
-// In-memory fallback storage for development when DATABASE_URL is not provided
+// Simple in-memory fallback
 class InMemoryStorage implements IStorage {
   private docs: Documentation[] = [];
   private nextId = 1;
@@ -41,7 +54,6 @@ class InMemoryStorage implements IStorage {
   }
 
   async getAllDocumentations(): Promise<Documentation[]> {
-    // Return a shallow copy sorted by generatedAt desc
     return [...this.docs].sort((a, b) => new Date(b.generatedAt).getTime() - new Date(a.generatedAt).getTime());
   }
 
@@ -59,4 +71,4 @@ class InMemoryStorage implements IStorage {
   }
 }
 
-export const storage: IStorage = db ? new DatabaseStorage() : new InMemoryStorage();
+export const storage: IStorage = supabaseClient ? new SupabaseStorage(supabaseClient) : new InMemoryStorage();
