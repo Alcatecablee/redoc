@@ -8,7 +8,8 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@shared/*": ["./shared/*"]
+      "@shared/*": ["./shared/*"],
+      "@shared/schema": ["./shared/schema"]
     }
   },
   "include": ["server/**/*", "shared/**/*"]
