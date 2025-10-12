@@ -109,7 +109,7 @@ async function parseJSONWithRetry(apiKey: string, content: string, retryPrompt: 
 }
 
 // Generate documentation endpoint
-router.post("/api/generate-docs", async (req, res) => {
+router.post("/api/generate-docs", verifySupabaseAuth, async (req, res) => {
   try {
     const { url } = req.body;
 
@@ -658,7 +658,7 @@ Return ONLY valid JSON.`
 });
 
 // Get all documentations
-router.get("/api/documentations", async (req, res) => {
+router.get("/api/documentations", verifySupabaseAuth, async (req, res) => {
   try {
     const docs = await storage.getAllDocumentations();
     res.json(docs);
@@ -671,7 +671,7 @@ router.get("/api/documentations", async (req, res) => {
 });
 
 // Get single documentation
-router.get("/api/documentations/:id", async (req, res) => {
+router.get("/api/documentations/:id", verifySupabaseAuth, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     if (isNaN(id)) {
@@ -693,7 +693,7 @@ router.get("/api/documentations/:id", async (req, res) => {
 });
 
 // Export documentation as JSON
-router.get("/api/export/json/:id", async (req, res) => {
+router.get("/api/export/json/:id", verifySupabaseAuth, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     if (isNaN(id)) {
@@ -717,7 +717,7 @@ router.get("/api/export/json/:id", async (req, res) => {
 });
 
 // Export documentation as Markdown
-router.get("/api/export/markdown/:id", async (req, res) => {
+router.get("/api/export/markdown/:id", verifySupabaseAuth, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     if (isNaN(id)) {
@@ -801,7 +801,7 @@ router.get("/api/export/markdown/:id", async (req, res) => {
 });
 
 // Export documentation as HTML
-router.get("/api/export/html/:id", async (req, res) => {
+router.get("/api/export/html/:id", verifySupabaseAuth, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     if (isNaN(id)) {
@@ -930,7 +930,7 @@ router.get("/api/export/html/:id", async (req, res) => {
 });
 
 // Export documentation as PDF
-router.get("/api/export/pdf/:id", async (req, res) => {
+router.get("/api/export/pdf/:id", verifySupabaseAuth, async (req, res) => {
   try {
     const PDFDocument = require('pdfkit');
     const id = parseInt(req.params.id);
@@ -1059,7 +1059,7 @@ router.get("/api/export/pdf/:id", async (req, res) => {
 });
 
 // Export documentation as DOCX
-router.get("/api/export/docx/:id", async (req, res) => {
+router.get("/api/export/docx/:id", verifySupabaseAuth, async (req, res) => {
   try {
     const { Document, Packer, Paragraph, TextRun, HeadingLevel } = require('docx');
     const id = parseInt(req.params.id);
@@ -1158,7 +1158,7 @@ router.get("/api/export/docx/:id", async (req, res) => {
   }
 });
 
-router.get('/api/export/batch/:id', async (req, res) => {
+router.get('/api/export/batch/:id', verifySupabaseAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const docData = await storage.getDocumentation(parseInt(id, 10));
