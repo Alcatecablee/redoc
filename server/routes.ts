@@ -111,30 +111,51 @@ async function parseJSONWithRetry(apiKey: string, content: string, retryPrompt: 
 // Generate documentation endpoint
 router.post("/api/generate-docs", verifySupabaseAuth, async (req, res) => {
   try {
+    // Log incoming request for debugging
+    console.log('/api/generate-docs called', {
+      headers: Object.keys(req.headers).reduce((acc: any, key) => ({ ...acc, [key]: req.headers[key] }), {}),
+      body: req.body,
+      ip: req.ip,
+    });
+
     const { url } = req.body;
 
     if (!url) {
+      console.warn('generate-docs: missing url in request body');
       return res.status(400).json({ error: "URL is required" });
     }
 
     // Validate URL format
     try {
       new URL(url);
-    } catch {
-      return res.status(400).json({ error: "Invalid URL format" });
+    } catch (err) {
+      console.warn('generate-docs: invalid url format', url, err?.message || err);
+      return res.status(400).json({ error: "Invalid URL format", details: String(url) });
     }
 
     const GROQ_API_KEY = process.env.GROQ_API_KEY;
     if (!GROQ_API_KEY) {
+      console.error('generate-docs: GROQ_API_KEY not configured');
       return res.status(500).json({ error: "GROQ_API_KEY is not configured" });
     }
 
     // Fetch website content
-    console.log("Fetching website content...");
-    const websiteResponse = await fetch(url);
-    if (!websiteResponse.ok) {
-      return res.status(500).json({ error: `Failed to fetch website: ${websiteResponse.statusText}` });
+    console.log("Fetching website content for:", url);
+    const websiteResponse = await fetch(url).catch((fetchErr) => {
+      console.error('generate-docs: fetch failed', fetchErr?.message || fetchErr);
+      return null as any;
+    });
+
+    if (!websiteResponse) {
+      return res.status(500).json({ error: 'Failed to fetch website: network error' });
     }
+
+    if (!websiteResponse.ok) {
+      const text = await websiteResponse.text().catch(() => websiteResponse.statusText);
+      console.error('generate-docs: fetch returned non-ok', websiteResponse.status, text);
+      return res.status(500).json({ error: `Failed to fetch website: ${websiteResponse.status} ${websiteResponse.statusText}`, details: text });
+    }
+
     const htmlContent = await websiteResponse.text();
 
     // Extract images from HTML
