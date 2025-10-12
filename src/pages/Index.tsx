@@ -7,6 +7,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import Header from "@/components/Header";
+import SignInDialog from "@/components/SignInDialog";
+import { supabase } from "@/lib/supabaseClient";
 import Footer from "@/components/Footer";
 import { DocumentationViewer } from "@/components/DocumentationViewer";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
