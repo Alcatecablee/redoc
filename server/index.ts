@@ -7,6 +7,14 @@ const app = express();
 const port = process.env.PORT || 5000;
 console.log('ENV: DATABASE_URL set:', !!process.env.DATABASE_URL, ' SUPABASE_URL set:', !!process.env.SUPABASE_URL, ' GROQ_API_KEY set:', !!process.env.GROQ_API_KEY);
 
+// Log incoming HTTP requests for debugging
+app.use((req, res, next) => {
+  try {
+    console.log('[HTTP]', req.method, req.originalUrl, 'from', req.ip);
+  } catch (e) {}
+  next();
+});
+
 app.use(express.json());
 app.use(routes);
 
