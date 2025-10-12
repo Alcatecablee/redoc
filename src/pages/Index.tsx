@@ -158,115 +158,78 @@ const Index = () => {
       <Header />
       <SignInDialog open={showSignIn} onOpenChange={setShowSignIn} />
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden min-h-[90vh] flex items-center">
-        {/* Background gradient orbs */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/30 rounded-full blur-[128px] animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-cyan-500/20 rounded-full blur-[128px] animate-pulse" style={{ animationDelay: '1s' }} />
-        </div>
-
-        <div className="container mx-auto px-4 py-20 relative z-10">
-          <div className="max-w-5xl mx-auto text-center space-y-12">
-            
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full glass-effect animate-in fade-in slide-in-from-bottom-4 duration-1000 group hover:scale-105 transition-transform cursor-pointer">
-              <div className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
-              </div>
-              <span className="text-sm font-medium">AI-Powered Documentation</span>
-              <Zap className="h-4 w-4 text-primary group-hover:rotate-12 transition-transform" />
+      {/* Hero Section (Lovable-style) */}
+      <section
+        className="relative overflow-hidden min-h-[80vh] flex items-center"
+        style={{
+          backgroundImage: `linear-gradient(rgba(6,8,15,0.65), rgba(6,8,15,0.65)), url('https://cdn.builder.io/api/v1/image/assets%2Fb32fda297508435ebd82d93e54858120%2Ff1c80caff8724b01aaa51af9ecfc9c41?format=webp&width=1600')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        <div className="container mx-auto px-4 py-24 relative z-10">
+          <div className="max-w-4xl mx-auto text-center">
+            {/* Compact top badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/6 backdrop-blur text-sm text-white/90 mb-6">
+              <Zap className="h-4 w-4 text-yellow-300" />
+              <span>AI-Powered Documentation</span>
             </div>
-            
-            {/* Main heading */}
-            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-100">
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
-                Instant AI Docs
-              </h1>
 
-              <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed font-normal">
-                Paste a URL — get polished documentation.
-              </p>
-            </div>
-            
-            {/* URL Input Card */}
-            <div className="max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-200">
-              <div className="glass-effect rounded-2xl p-8 space-y-6">
-                <div className="flex flex-col md:flex-row gap-4">
-                  <Input
-                    type="url"
-                    placeholder="https://yourapp.com"
-                    value={url}
-                    onChange={(e) => setUrl(e.target.value)}
-                    className="flex-1 h-14 text-base bg-background/50 border-white/10 focus-visible:border-primary/50 focus-visible:ring-primary/20 transition-all rounded-xl"
-                    disabled={generateMutation.isPending}
-                    data-testid="input-url"
-                  />
-                  <Button
-                    onClick={handleGenerate}
-                    disabled={generateMutation.isPending}
-                    size="lg"
-                    className="h-14 px-10 bg-primary hover:bg-primary/90 hover:shadow-glow transition-all duration-300 text-base font-semibold rounded-xl border-0 hover:scale-[1.02]"
-                    data-testid="button-generate"
-                  >
-                    {generateMutation.isPending ? (
-                      <>
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                        Generating...
-                      </>
-                    ) : (
-                      <>
-                        <FileText className="mr-2 h-5 w-5" />
-                        Generate Docs
-                      </>
-                    )}
-                  </Button>
+            {/* Centered large input card */}
+            <div className="mt-6">
+              <div className="mx-auto max-w-3xl bg-[#0b0f17]/70 backdrop-blur rounded-2xl shadow-xl border border-white/6 p-6">
+                <div className="text-left md:text-center">
+                  <h1 className="text-3xl md:text-4xl font-bold text-white">Instant AI Docs</h1>
+                  <p className="text-sm text-white/80 mt-2">Paste a URL — get polished documentation.</p>
                 </div>
 
-                {/* Enhanced 3-Stage Progress */}
-                {generateMutation.isPending && (
-                  <div className="space-y-6 animate-in fade-in duration-300">
-                    <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-primary transition-all duration-500 ease-out"
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                    
-                    {/* Stage Indicators */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {stages.map((stage) => (
-                        <div
-                          key={stage.id}
-                          className={`flex items-start gap-2 p-3 rounded-xl border transition-all ${
-                            currentStage >= stage.id
-                              ? 'border-primary/50 bg-primary/10'
-                              : 'border-white/10 bg-white/5'
-                          }`}
-                        >
-                          <div className="mt-0.5">
-                            {currentStage > stage.id ? (
-                              <CheckCircle2 className="h-5 w-5 text-primary" />
-                            ) : currentStage === stage.id ? (
-                              <Loader2 className="h-5 w-5 text-primary animate-spin" />
-                            ) : (
-                              <div className="h-5 w-5 rounded-full border-2 border-white/20" />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className={`text-sm font-medium ${currentStage >= stage.id ? 'text-foreground' : 'text-muted-foreground'}`}>
-                              {stage.name}
-                            </p>
-                            <p className="text-xs text-muted-foreground truncate">
-                              {stage.description}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                <div className="mt-6">
+                  <div className="flex items-center gap-3">
+                    <Input
+                      type="url"
+                      placeholder="https://yourapp.com"
+                      value={url}
+                      onChange={(e) => setUrl(e.target.value)}
+                      className="flex-1 h-14 text-base bg-white/5 placeholder-white/60 border border-white/8 focus-visible:border-primary/60 focus-visible:ring-primary/20 transition-all rounded-lg px-4"
+                      disabled={generateMutation.isPending}
+                      data-testid="input-url"
+                    />
+                    <Button
+                      onClick={handleGenerate}
+                      disabled={generateMutation.isPending}
+                      size="lg"
+                      className="h-14 px-6 bg-primary hover:bg-primary/90 text-white font-semibold rounded-lg"
+                      data-testid="button-generate"
+                    >
+                      {generateMutation.isPending ? (
+                        <>
+                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <FileText className="mr-2 h-5 w-5" />
+                          Generate
+                        </>
+                      )}
+                    </Button>
                   </div>
-                )}
+
+                  {/* small helper text */}
+                  <div className="text-xs text-white/70 mt-3 text-left md:text-center">
+                    Works best with public sites. Sign in to save your docs.
+                  </div>
+
+                  {/* Progress strip */}
+                  {generateMutation.isPending && (
+                    <div className="mt-4">
+                      <div className="h-2 bg-white/8 rounded-full overflow-hidden">
+                        <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
