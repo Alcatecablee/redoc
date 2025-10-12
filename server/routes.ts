@@ -581,9 +581,11 @@ router.get("/api/export/pdf/:id", async (req, res) => {
     // Helper function to convert color to hex format for PDFKit
     const toHexColor = (color: string): string => {
       if (!color) return '#8B5CF6';
+      
       // If already hex, return as is
       if (color.startsWith('#')) return color;
-      // If rgb/rgba, convert to hex (basic conversion)
+      
+      // If rgb/rgba, convert to hex
       if (color.startsWith('rgb')) {
         const matches = color.match(/\d+/g);
         if (matches && matches.length >= 3) {
@@ -593,6 +595,40 @@ router.get("/api/export/pdf/:id", async (req, res) => {
           return `#${r}${g}${b}`;
         }
       }
+      
+      // If hsl/hsla, convert to hex
+      if (color.startsWith('hsl')) {
+        const matches = color.match(/[\d.]+/g);
+        if (matches && matches.length >= 3) {
+          const h = parseFloat(matches[0]) / 360;
+          const s = parseFloat(matches[1]) / 100;
+          const l = parseFloat(matches[2]) / 100;
+          
+          // HSL to RGB conversion
+          let r, g, b;
+          if (s === 0) {
+            r = g = b = l;
+          } else {
+            const hue2rgb = (p: number, q: number, t: number) => {
+              if (t < 0) t += 1;
+              if (t > 1) t -= 1;
+              if (t < 1/6) return p + (q - p) * 6 * t;
+              if (t < 1/2) return q;
+              if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+              return p;
+            };
+            const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+            const p = 2 * l - q;
+            r = hue2rgb(p, q, h + 1/3);
+            g = hue2rgb(p, q, h);
+            b = hue2rgb(p, q, h - 1/3);
+          }
+          
+          const toHex = (x: number) => Math.round(x * 255).toString(16).padStart(2, '0');
+          return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+        }
+      }
+      
       return '#8B5CF6';
     };
     
