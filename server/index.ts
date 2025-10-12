@@ -4,7 +4,7 @@ import routes from "./routes";
 import { setupVite } from "./vite";
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3001;
 console.log('ENV: DATABASE_URL set:', !!process.env.DATABASE_URL, ' SUPABASE_URL set:', !!process.env.SUPABASE_URL, ' GROQ_API_KEY set:', !!process.env.GROQ_API_KEY);
 
 // Log incoming HTTP requests for debugging
