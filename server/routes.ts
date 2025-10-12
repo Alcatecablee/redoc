@@ -45,7 +45,7 @@ router.post("/api/generate-docs", async (req, res) => {
 
     console.log("Step 1: Analyzing structure...");
 
-    // Step 1: Structure Understanding
+    // Step 1: Generate Structured Documentation
     const structureResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -57,14 +57,80 @@ router.post("/api/generate-docs", async (req, res) => {
         messages: [
           {
             role: 'system',
-            content: `Analyze this website content. Identify its purpose, main features, user flows, and terminology. Output as JSON with keys: overview, features, how_it_works, troubleshooting, faq.`
+            content: `You are an expert technical writer creating enterprise-quality documentation like Microsoft or Twitter help centers. 
+
+Analyze this website and create comprehensive, well-structured documentation in JSON format with these sections:
+
+{
+  "title": "Clear product/service name",
+  "description": "One-sentence description",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Overview",
+      "icon": "BookOpen",
+      "content": [
+        { "type": "paragraph", "text": "..." },
+        { "type": "heading", "level": 3, "text": "..." },
+        { "type": "list", "items": ["..."] }
+      ]
+    },
+    {
+      "id": "getting-started", 
+      "title": "Getting Started",
+      "icon": "Rocket",
+      "content": [...]
+    },
+    {
+      "id": "key-features",
+      "title": "Key Features", 
+      "icon": "Star",
+      "content": [...]
+    },
+    {
+      "id": "how-it-works",
+      "title": "How It Works",
+      "icon": "Workflow",
+      "content": [...]
+    },
+    {
+      "id": "api-reference",
+      "title": "API Reference",
+      "icon": "Code",
+      "content": [...]
+    },
+    {
+      "id": "troubleshooting",
+      "title": "Troubleshooting",
+      "icon": "AlertCircle",
+      "content": [...]
+    },
+    {
+      "id": "faq",
+      "title": "FAQ",
+      "icon": "HelpCircle",
+      "content": [...]
+    }
+  ]
+}
+
+Content types supported:
+- paragraph: Regular text
+- heading: level 2-4 headings
+- list: Bullet points
+- code: Code blocks with language
+- callout: Info/warning/tip boxes with type and text
+- table: Rows and columns
+
+Make it professional, clear, and comprehensive. Return ONLY valid JSON.`
           },
           {
             role: 'user',
-            content: textContent
+            content: `Analyze and create documentation for: ${textContent}`
           }
         ],
         temperature: 0.3,
+        response_format: { type: "json_object" }
       }),
     });
 
@@ -75,85 +141,25 @@ router.post("/api/generate-docs", async (req, res) => {
     }
 
     const structureData = await structureResponse.json();
-    const structuredInfo = structureData.choices?.[0]?.message?.content || '';
-
-    console.log("Step 2: Writing documentation...");
-
-    // Step 2: Write Professional Docs
-    const docsResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${GROQ_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [
-          {
-            role: 'system',
-            content: `You are a professional technical writer. Rewrite this structured data into clear, human, Apple-style documentation. Use professional tone, consistent formatting, and HTML with semantic tags (h1, h2, h3, p, ul, li). Create beautiful, user-friendly documentation similar to Apple or Microsoft help centers.`
-          },
-          {
-            role: 'user',
-            content: `Transform this structured information into professional documentation:\n\n${structuredInfo}`
-          }
-        ],
-        temperature: 0.7,
-      }),
-    });
-
-    if (!docsResponse.ok) {
-      const errorText = await docsResponse.text();
-      console.error('Documentation writing failed:', docsResponse.status, errorText);
-      return res.status(500).json({ error: `Documentation writing failed: ${docsResponse.statusText}` });
+    const structuredJSON = structureData.choices?.[0]?.message?.content || '{}';
+    
+    // Parse the structured documentation
+    let structuredDoc;
+    try {
+      structuredDoc = JSON.parse(structuredJSON);
+    } catch (parseError) {
+      console.error('Failed to parse structured documentation:', parseError);
+      return res.status(500).json({ error: 'Failed to parse AI-generated documentation' });
     }
 
-    const docsData = await docsResponse.json();
-    const rawDocs = docsData.choices?.[0]?.message?.content || '';
-
-    console.log("Step 3: Formatting for export...");
-
-    // Step 3: Format for Export
-    const formatResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${GROQ_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [
-          {
-            role: 'system',
-            content: `Format this documentation for web export. Ensure clean HTML with proper structure, metadata-ready format. Polish the formatting, ensure consistent spacing, proper heading hierarchy (h1, h2, h3), and professional presentation. Return only the formatted HTML content.`
-          },
-          {
-            role: 'user',
-            content: rawDocs
-          }
-        ],
-        temperature: 0.3,
-      }),
-    });
-
-    if (!formatResponse.ok) {
-      const errorText = await formatResponse.text();
-      console.error('Formatting failed:', formatResponse.status, errorText);
-      return res.status(500).json({ error: `Formatting failed: ${formatResponse.statusText}` });
-    }
-
-    const formatData = await formatResponse.json();
-    const generatedContent = formatData.choices?.[0]?.message?.content || '';
-
-    // Extract title from content or use default
-    const titleMatch = generatedContent.match(/<h1[^>]*>(.*?)<\/h1>/i);
-    const title = titleMatch ? titleMatch[1].replace(/<[^>]+>/g, '') : 'Documentation';
-
-    // Save to database
+    const title = structuredDoc.title || 'Documentation';
+    const description = structuredDoc.description || '';
+    
+    // Save to database (store as JSON string for now)
     const documentation = await storage.createDocumentation({
       url,
       title,
-      content: generatedContent,
+      content: JSON.stringify(structuredDoc),
     });
 
     console.log("Documentation generated successfully");
@@ -161,7 +167,8 @@ router.post("/api/generate-docs", async (req, res) => {
     res.json({
       id: documentation.id,
       title: documentation.title,
-      content: documentation.content,
+      description: description,
+      sections: structuredDoc.sections || [],
       url: documentation.url,
       generatedAt: documentation.generatedAt,
     });

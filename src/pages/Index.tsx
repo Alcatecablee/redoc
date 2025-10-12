@@ -2,12 +2,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Loader2, FileText, ExternalLink, Download, Zap, Shield, Clock } from "lucide-react";
+import { Loader2, FileText, ExternalLink, Download, Zap, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { DocumentationViewer } from "@/components/DocumentationViewer";
 
 const Index = () => {
   const [url, setUrl] = useState("");
@@ -165,62 +166,36 @@ const Index = () => {
       {/* Results Section */}
       {generatedDoc && (
         <section className="container mx-auto px-4 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-          <div className="max-w-4xl mx-auto space-y-6">
-            <h2 className="text-3xl font-bold text-center mb-8">Your Documentation</h2>
-            
-            {/* Output Options */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card className="p-6 hover:shadow-elegant transition-all duration-300 cursor-pointer border-2 hover:border-primary group">
-                <div className="space-y-4">
-                  <div className="h-12 w-12 rounded-lg bg-gradient-primary flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <ExternalLink className="h-6 w-6 text-primary-foreground" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg mb-1">Web Preview</h3>
-                    <p className="text-sm text-muted-foreground">View live documentation in browser</p>
-                  </div>
-                </div>
-              </Card>
-
-              <Card 
-                className="p-6 hover:shadow-elegant transition-all duration-300 cursor-pointer border-2 hover:border-primary group"
-                onClick={handleDownloadPDF}
-              >
-                <div className="space-y-4">
-                  <div className="h-12 w-12 rounded-lg bg-gradient-primary flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Download className="h-6 w-6 text-primary-foreground" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg mb-1">Download PDF</h3>
-                    <p className="text-sm text-muted-foreground">Professional PDF document</p>
-                  </div>
-                </div>
-              </Card>
-
-              <Card 
-                className="p-6 hover:shadow-elegant transition-all duration-300 cursor-pointer border-2 hover:border-primary group"
-                onClick={handleDownloadDOCX}
-              >
-                <div className="space-y-4">
-                  <div className="h-12 w-12 rounded-lg bg-gradient-primary flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Download className="h-6 w-6 text-primary-foreground" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg mb-1">Download DOCX</h3>
-                    <p className="text-sm text-muted-foreground">Editable Word document</p>
-                  </div>
-                </div>
-              </Card>
-            </div>
-
-            {/* Preview Content */}
-            <Card className="p-8 shadow-elegant">
-              <div className="prose prose-lg max-w-none">
-                <h1>{generatedDoc.title || "Documentation"}</h1>
-                <div dangerouslySetInnerHTML={{ __html: generatedDoc.content || "<p>No content generated</p>" }} />
-              </div>
-            </Card>
+          <div className="mb-8 flex flex-wrap gap-4 justify-center">
+            <Button variant="outline" size="lg" className="gap-2">
+              <ExternalLink className="h-5 w-5" />
+              Share Documentation
+            </Button>
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="gap-2"
+              onClick={handleDownloadPDF}
+            >
+              <Download className="h-5 w-5" />
+              Download PDF
+            </Button>
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="gap-2"
+              onClick={handleDownloadDOCX}
+            >
+              <Download className="h-5 w-5" />
+              Download DOCX
+            </Button>
           </div>
+
+          <DocumentationViewer
+            title={generatedDoc.title}
+            description={generatedDoc.description}
+            sections={generatedDoc.sections || []}
+          />
         </section>
       )}
 
