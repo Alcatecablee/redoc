@@ -66,14 +66,19 @@ const Header = () => {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-6">
               {navLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-                >
-                  {link.name}
-                </a>
-              ))}
+              <a
+                key={link.name}
+                href={link.href}
+                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+              >
+                {link.name}
+              </a>
+            ))}
+            {user && (
+              <a href="/profile" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                Profile
+              </a>
+            )}
             </nav>
 
             {/* CTA Buttons */}
