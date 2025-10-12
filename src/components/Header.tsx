@@ -38,15 +38,8 @@ const Header = () => {
     };
   }, []);
 
-  const signIn = async () => {
-    const email = window.prompt('Enter your email to sign in (magic link):');
-    if (!email) return;
-    const { error } = await supabase.auth.signInWithOtp({ email });
-    if (error) {
-      alert('Failed to send sign-in link: ' + error.message);
-    } else {
-      alert('Magic link sent to ' + email);
-    }
+  const signIn = () => {
+    setShowSignIn(true);
   };
 
   const signOut = async () => {
