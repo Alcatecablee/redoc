@@ -7,6 +7,7 @@ export const documentations = pgTable("documentations", {
   url: text("url").notNull(),
   title: text("title").notNull(),
   content: text("content").notNull(),
+  user_id: text("user_id"),
   generatedAt: timestamp("generated_at").notNull().defaultNow(),
 });
 
