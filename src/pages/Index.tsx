@@ -10,6 +10,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { DocumentationViewer } from "@/components/DocumentationViewer";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { ThemeBuilder } from "@/components/ThemeBuilder";
+import { BrandKitExtractor } from "@/components/BrandKitExtractor";
 import { getDefaultTheme, Theme } from "../../shared/themes";
 
 function convertToViewerTheme(theme: Theme) {
@@ -34,7 +36,8 @@ const Index = () => {
   const stages = [
     { id: 1, name: "Extracting Content", description: "Analyzing website structure and content" },
     { id: 2, name: "Writing Documentation", description: "Creating professional documentation" },
-    { id: 3, name: "Adding Metadata", description: "Optimizing for SEO and deployment" }
+    { id: 3, name: "Adding Metadata", description: "Optimizing for SEO and deployment" },
+    { id: 4, name: "Quality Check", description: "Validating and refining content" }
   ];
 
   const generateMutation = useMutation({
@@ -75,11 +78,12 @@ const Index = () => {
     setProgress(0);
     setCurrentStage(0);
     
-    // Simulate 3-stage progress
+    // Simulate 4-stage progress
     const stageTimings = [
-      { stage: 1, progress: 33, duration: 3000 },
-      { stage: 2, progress: 66, duration: 3000 },
-      { stage: 3, progress: 90, duration: 3000 }
+      { stage: 1, progress: 25, duration: 3000 },
+      { stage: 2, progress: 50, duration: 3000 },
+      { stage: 3, progress: 75, duration: 3000 },
+      { stage: 4, progress: 90, duration: 2000 }
     ];
 
     let currentTimeout: NodeJS.Timeout;
@@ -205,7 +209,7 @@ const Index = () => {
                     </div>
                     
                     {/* Stage Indicators */}
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {stages.map((stage) => (
                         <div
                           key={stage.id}
@@ -247,12 +251,24 @@ const Index = () => {
       {generatedDoc && (
         <section className="container mx-auto px-4 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-1000">
           <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
               <h3 className="text-lg font-semibold">Export Documentation</h3>
-              <ThemeSwitcher
-                currentTheme={selectedTheme}
-                onThemeChange={setSelectedTheme}
-              />
+              <div className="flex gap-2 flex-wrap">
+                <BrandKitExtractor
+                  onThemeGenerated={(theme) => {
+                    setSelectedTheme(theme);
+                  }}
+                />
+                <ThemeBuilder 
+                  onThemeCreated={(theme) => {
+                    setSelectedTheme(theme);
+                  }}
+                />
+                <ThemeSwitcher
+                  currentTheme={selectedTheme}
+                  onThemeChange={setSelectedTheme}
+                />
+              </div>
             </div>
             <div className="flex flex-wrap gap-3 justify-center">
               <Button 

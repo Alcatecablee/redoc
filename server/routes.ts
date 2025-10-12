@@ -6,6 +6,69 @@ import archiver from "archiver";
 
 const router = Router();
 
+// Helper function to parse JSON with retry logic
+async function parseJSONWithRetry(apiKey: string, content: string, retryPrompt: string, maxRetries = 2): Promise<any> {
+  let lastError: Error | null = null;
+  
+  // First, try to parse the content directly
+  try {
+    return JSON.parse(content);
+  } catch (error) {
+    console.log('Initial JSON parse failed, attempting to clean and retry...');
+    
+    // Try to extract JSON from markdown code blocks or other formatting
+    const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/) || content.match(/```\s*([\s\S]*?)\s*```/);
+    if (jsonMatch) {
+      try {
+        return JSON.parse(jsonMatch[1]);
+      } catch (e) {
+        console.log('Extracted JSON parse failed');
+      }
+    }
+    
+    // If still failing, retry with AI to fix the JSON
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        console.log(`Retry attempt ${i + 1} to fix JSON...`);
+        
+        const retryResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'llama-3.3-70b-versatile',
+            messages: [
+              {
+                role: 'system',
+                content: 'You are a JSON formatting expert. Fix the provided content to be valid JSON. Return ONLY valid JSON, no markdown formatting or explanations.'
+              },
+              {
+                role: 'user',
+                content: `Fix this JSON:\n\n${content}\n\n${retryPrompt}`
+              }
+            ],
+            temperature: 0.1,
+            response_format: { type: "json_object" }
+          }),
+        });
+        
+        if (retryResponse.ok) {
+          const retryData = await retryResponse.json();
+          const fixedContent = retryData.choices?.[0]?.message?.content || '{}';
+          return JSON.parse(fixedContent);
+        }
+      } catch (retryError) {
+        lastError = retryError as Error;
+        console.log(`Retry ${i + 1} failed:`, retryError);
+      }
+    }
+    
+    throw lastError || new Error('Failed to parse JSON after retries');
+  }
+}
+
 // Generate documentation endpoint
 router.post("/api/generate-docs", async (req, res) => {
   try {
@@ -270,7 +333,11 @@ Available images: ${images.slice(0, 10).join(', ')}`
     }
 
     const stage1Data = await stage1Response.json();
-    const extractedStructure = JSON.parse(stage1Data.choices?.[0]?.message?.content || '{}');
+    const extractedStructure = await parseJSONWithRetry(
+      GROQ_API_KEY,
+      stage1Data.choices?.[0]?.message?.content || '{}',
+      'Ensure the output is valid JSON matching the structure extraction format'
+    );
     
     console.log("Stage 2: Writing professional documentation...");
 
@@ -355,7 +422,11 @@ Use proper formatting, include relevant images, and make it professional and com
     }
 
     const stage2Data = await stage2Response.json();
-    const writtenDocs = JSON.parse(stage2Data.choices?.[0]?.message?.content || '{}');
+    const writtenDocs = await parseJSONWithRetry(
+      GROQ_API_KEY,
+      stage2Data.choices?.[0]?.message?.content || '{}',
+      'Ensure the output is valid JSON with proper documentation structure'
+    );
     
     console.log("Stage 3: Generating metadata and SEO optimization...");
 
@@ -415,17 +486,103 @@ Source URL: ${url}`
     }
 
     const stage3Data = await stage3Response.json();
-    const finalMetadata = JSON.parse(stage3Data.choices?.[0]?.message?.content || '{}');
+    const finalMetadata = await parseJSONWithRetry(
+      GROQ_API_KEY,
+      stage3Data.choices?.[0]?.message?.content || '{}',
+      'Ensure the output is valid JSON with metadata and searchability fields'
+    );
     
-    // Combine all stages into final documentation
-    const finalDoc = {
+    console.log("Stage 4: Quality validation and refinement...");
+
+    // STAGE 4: Validation & Refinement (Quality Checks)
+    const documentationForValidation = {
       title: finalMetadata.metadata?.title || writtenDocs.title || 'Documentation',
       description: finalMetadata.metadata?.description || writtenDocs.description || '',
       sections: finalMetadata.enhanced_sections && finalMetadata.enhanced_sections.length > 0 
         ? finalMetadata.enhanced_sections 
         : writtenDocs.sections || [],
       metadata: finalMetadata.metadata || {},
+    };
+
+    const stage4Response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          {
+            role: 'system',
+            content: `You are a quality assurance specialist for technical documentation.
+
+Task: Review the generated documentation and validate quality, then apply refinements if needed.
+
+Validation Checklist:
+✓ Logical Flow: Does each section flow naturally? Are prerequisites mentioned before they're needed?
+✓ Clarity: Can a beginner understand without external help? No undefined jargon?
+✓ Completeness: Are all features documented? Do troubleshooting sections address common issues?
+✓ Consistency: Is terminology used consistently? Is formatting uniform?
+✓ Accessibility: Are instructions specific and actionable?
+
+Return JSON with this structure:
+{
+  "validation_results": {
+    "logical_flow": { "score": 0-100, "issues": [] },
+    "clarity": { "score": 0-100, "issues": [] },
+    "completeness": { "score": 0-100, "issues": [] },
+    "consistency": { "score": 0-100, "issues": [] },
+    "accessibility": { "score": 0-100, "issues": [] },
+    "overall_score": 0-100
+  },
+  "refined_sections": [],
+  "improvements_made": []
+}
+
+The refined_sections should be the improved version of the input sections. Only make changes if validation finds issues (score < 85).
+Return ONLY valid JSON.`
+          },
+          {
+            role: 'user',
+            content: `Documentation to validate: ${JSON.stringify(documentationForValidation)}`
+          }
+        ],
+        temperature: 0.3,
+        response_format: { type: "json_object" }
+      }),
+    });
+
+    let validationResults = null;
+    let refinedSections = documentationForValidation.sections;
+
+    if (stage4Response.ok) {
+      const stage4Data = await stage4Response.json();
+      const validationData = await parseJSONWithRetry(
+        GROQ_API_KEY,
+        stage4Data.choices?.[0]?.message?.content || '{}',
+        'Ensure the output is valid JSON with validation results and refined sections'
+      );
+      validationResults = validationData.validation_results;
+      
+      // Use refined sections if validation found issues
+      if (validationData.refined_sections && validationData.refined_sections.length > 0 && 
+          validationResults?.overall_score < 85) {
+        refinedSections = validationData.refined_sections;
+        console.log(`Quality improvements applied (score: ${validationResults?.overall_score})`);
+      }
+    } else {
+      console.log('Stage 4 validation skipped due to API error, using original content');
+    }
+    
+    // Combine all stages into final documentation
+    const finalDoc = {
+      title: documentationForValidation.title,
+      description: documentationForValidation.description,
+      sections: refinedSections,
+      metadata: finalMetadata.metadata || {},
       searchability: finalMetadata.searchability || {},
+      validation: validationResults,
       theme: theme,
       extractedStructure: extractedStructure
     };
@@ -440,7 +597,7 @@ Source URL: ${url}`
       content: JSON.stringify(finalDoc),
     });
 
-    console.log("Documentation generated successfully with 3-stage AI pipeline");
+    console.log("Documentation generated successfully with 4-stage AI pipeline (Extract → Write → Metadata → Quality Check)");
 
     res.json({
       id: documentation.id,

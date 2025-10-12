@@ -65,6 +65,46 @@ DocSnap is an AI-powered web application that automatically generates profession
 - **Prominent UI Button**: Featured "Download All (ZIP)" button with gradient styling for easy access
 - **Theme-Aware Exports**: All formats include theme data and styling information
 
+### 4-Stage AI Pipeline with Quality Validation (October 12, 2025)
+- **Stage 4: Validation & Refinement**: Added quality assurance layer to the AI pipeline
+  - Logical Flow Check: Validates section sequencing and prerequisite placement
+  - Clarity Assessment: Ensures beginner-friendly language and no undefined jargon
+  - Completeness Verification: Confirms all features are documented
+  - Consistency Validation: Checks terminology and formatting uniformity
+  - Accessibility Review: Validates actionable instructions
+- **Quality Scoring**: Each category receives a score (0-100) with overall score calculation
+- **Auto-Refinement**: Content is automatically improved if quality score falls below 85
+- **Enhanced Progress Tracking**: Updated to show all 4 stages (Extract → Write → Metadata → Quality Check)
+
+### Advanced Theme Creation Tools (October 12, 2025)
+- **Custom Theme Builder**: Full-featured UI for creating custom themes from scratch
+  - Color Palette Editor: 12 semantic colors with visual color pickers and hex input
+  - Typography Controls: Customizable body font, heading font, and code font
+  - Real-Time Preview: See theme changes instantly before applying
+  - WCAG Accessibility Checker: Live contrast ratio validation (AA/AAA compliance)
+  - Theme Export: Download custom themes as JSON files for sharing
+  - Theme Import: Upload and apply previously exported theme files
+  
+- **Brand Kit Integration**: Automatic color extraction from logos
+  - Logo Upload: Support for PNG, JPG, SVG formats
+  - Color Detection: Advanced algorithm extracts 5 dominant colors from uploaded images
+  - One-Click Theme Generation: Instantly creates theme using brand colors
+  - Smart Color Mapping: Primary, secondary, and accent colors auto-assigned from logo
+
+### Enhanced Error Handling (October 12, 2025)
+- **JSON Parsing Retry Logic**: Intelligent error recovery for AI responses
+  - Automatic markdown code block extraction
+  - AI-powered JSON fixing with retry mechanism (up to 2 retries)
+  - Graceful fallback to prevent generation failures
+  - Detailed error logging for debugging
+
+### Accessibility & Quality Standards (October 12, 2025)
+- **Contrast Ratio Validation**: WCAG 2.1 compliance checking
+  - Level AA (4.5:1) and Level AAA (7:1) ratio calculations
+  - Text-on-background and primary-on-background checks
+  - Real-time feedback in theme builder
+  - Automatic pass/fail indicators
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
