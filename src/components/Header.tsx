@@ -3,6 +3,7 @@ import { FileText, Menu, X, LogIn, LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/lib/supabaseClient";
+import SignInDialog from "@/components/SignInDialog";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
