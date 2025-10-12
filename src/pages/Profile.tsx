@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 import { apiRequest, apiRequestBlob } from '@/lib/queryClient';
 import { DocumentationViewer } from '@/components/DocumentationViewer';
 import { BrandKitExtractor } from '@/components/BrandKitExtractor';
-import { Button } from '@/components/ui/button';
 import { Download, FileText, ExternalLink, Trash2 } from 'lucide-react';
 
 export default function Profile() {
