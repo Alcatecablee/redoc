@@ -7,6 +7,7 @@ DocSnap is an AI-powered web application that generates professional documentati
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Design preferences: Clean cyan-blue color scheme like Replit (no purple), solid colors only (no gradients), dark theme, modern glassmorphism effects.
 
 ## System Architecture
 
@@ -17,7 +18,7 @@ Preferred communication style: Simple, everyday language.
 **State Management**: TanStack Query for server state.
 **Routing**: React Router for client-side navigation.
 **Form Handling**: React Hook Form with Zod validation.
-**Design Philosophy**: Modern, elegant design with custom HSL color scheme, smooth transitions, and glass morphism effects, prioritizing visual polish with custom gradients, shadows, and animations.
+**Design Philosophy**: Modern, elegant design inspired by Replit with cyan-blue color scheme (HSL 200 100% 50%), dark theme (rgb 17, 17, 20), Inter font family, glassmorphism effects with backdrop blur, and solid colors (no gradients). Professional and tech-focused aesthetic with smooth transitions and subtle shadows.
 
 ### Backend Architecture
 
@@ -47,7 +48,7 @@ Preferred communication style: Simple, everyday language.
 
 ### UI/UX Decisions
 
-*   **Design System**: Modern, elegant system with custom HSL color scheme, smooth transitions, and glass morphism effects.
+*   **Design System**: Modern, elegant system with cyan-blue color scheme (inspired by Replit), dark background, Inter typography, glassmorphism effects, and solid colors (no gradients).
 *   **Theme Presets**: 5 professional themes (Apple Light, GitHub Dark, Stripe Modern, Notion Default, Modern Light) with dynamic application.
 *   **Live Theme Switcher**: Interactive UI to switch themes in real-time.
 *   **Custom Theme Builder**: UI for creating custom themes with color palette editor, typography controls, real-time preview, WCAG accessibility checker, and import/export.
