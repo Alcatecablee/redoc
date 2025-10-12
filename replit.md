@@ -6,6 +6,20 @@ DocSnap is an AI-powered web application that automatically generates profession
 
 ## Recent Changes
 
+### Comprehensive Export System with Theme Extraction (October 12, 2025)
+- **Enhanced Theme Extraction**: Advanced color and font detection from websites
+  - Supports hex, RGB/RGBA, and HSL/HSLA color formats
+  - Detects CSS variables and custom properties
+  - Extracts colors from background-color, color, and border-color properties
+  - Identifies font families from CSS and @font-face rules
+  - Filters out generic fonts for better brand consistency
+- **Theme-Aware HTML Export**: Standalone HTML files with extracted theme colors and fonts applied via CSS variables
+- **Theme-Aware PDF Export**: PDF documents using PDFKit with theme colors for headings, titles, and structure
+  - Includes HSL-to-RGB color conversion for comprehensive color support
+- **Enhanced Markdown Export**: Includes YAML frontmatter with complete theme metadata (colors, fonts, design tokens)
+- **JSON Export**: Full documentation data including extracted theme information
+- **Theme Persistence**: Theme data now stored with documentation content in database for consistent export across all formats
+
 ### Image Support Enhancement (October 12, 2025)
 - **Image Extraction**: Backend now extracts all image URLs from website HTML and converts relative URLs to absolute paths
 - **AI-Powered Image Integration**: Updated Groq AI prompt to intelligently select and place relevant images throughout documentation
