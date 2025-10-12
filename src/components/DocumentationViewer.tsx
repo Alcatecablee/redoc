@@ -39,10 +39,20 @@ interface Section {
   content: ContentBlock[];
 }
 
+interface Theme {
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+  colors: string[];
+  fonts: string[];
+  primaryFont: string;
+}
+
 interface DocumentationViewerProps {
   title: string;
   description?: string;
   sections: Section[];
+  theme?: Theme;
 }
 
 const iconMap: Record<string, any> = {
@@ -69,8 +79,13 @@ const calloutStyles: Record<string, string> = {
   note: "bg-gray-50 border-gray-200 text-gray-900",
 };
 
-export function DocumentationViewer({ title, description, sections }: DocumentationViewerProps) {
+export function DocumentationViewer({ title, description, sections, theme }: DocumentationViewerProps) {
   const [activeSection, setActiveSection] = useState(sections[0]?.id || "");
+  
+  // Apply theme colors dynamically
+  const primaryColor = theme?.primaryColor || '#8B5CF6';
+  const secondaryColor = theme?.secondaryColor || '#6366F1';
+  const primaryFont = theme?.primaryFont || 'Inter, system-ui, sans-serif';
 
   const renderContent = (block: ContentBlock, index: number) => {
     switch (block.type) {
@@ -214,9 +229,10 @@ export function DocumentationViewer({ title, description, sections }: Documentat
                     onClick={() => setActiveSection(section.id)}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       isActive
-                        ? "bg-primary text-primary-foreground"
+                        ? "text-white"
                         : "hover:bg-accent text-muted-foreground"
                     }`}
+                    style={isActive ? { backgroundColor: primaryColor } : {}}
                   >
                     <Icon className="h-4 w-4 flex-shrink-0" />
                     <span className="text-sm font-medium">{section.title}</span>
@@ -235,7 +251,7 @@ export function DocumentationViewer({ title, description, sections }: Documentat
                 <div className="flex items-center gap-3 mb-6">
                   {(() => {
                     const Icon = iconMap[activeContent.icon] || BookOpen;
-                    return <Icon className="h-6 w-6 text-primary" />;
+                    return <Icon className="h-6 w-6" style={{ color: primaryColor }} />;
                   })()}
                   <h2 className="text-3xl font-bold">{activeContent.title}</h2>
                 </div>

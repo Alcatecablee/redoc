@@ -66,19 +66,28 @@ const Index = () => {
   };
 
   const handleDownloadPDF = () => {
-    // TODO: Implement PDF download
-    toast({
-      title: "Coming Soon",
-      description: "PDF download will be available soon",
-    });
+    if (!generatedDoc?.id) return;
+    window.open(`/api/export/pdf/${generatedDoc.id}`, '_blank');
   };
 
   const handleDownloadDOCX = () => {
-    // TODO: Implement DOCX download
-    toast({
-      title: "Coming Soon",
-      description: "DOCX download will be available soon",
-    });
+    if (!generatedDoc?.id) return;
+    window.open(`/api/export/docx/${generatedDoc.id}`, '_blank');
+  };
+
+  const handleDownloadMarkdown = () => {
+    if (!generatedDoc?.id) return;
+    window.open(`/api/export/markdown/${generatedDoc.id}`, '_blank');
+  };
+
+  const handleDownloadHTML = () => {
+    if (!generatedDoc?.id) return;
+    window.open(`/api/export/html/${generatedDoc.id}`, '_blank');
+  };
+
+  const handleDownloadJSON = () => {
+    if (!generatedDoc?.id) return;
+    window.open(`/api/export/json/${generatedDoc.id}`, '_blank');
   };
 
   return (
@@ -166,35 +175,62 @@ const Index = () => {
       {/* Results Section */}
       {generatedDoc && (
         <section className="container mx-auto px-4 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-          <div className="mb-8 flex flex-wrap gap-4 justify-center">
-            <Button variant="outline" size="lg" className="gap-2">
-              <ExternalLink className="h-5 w-5" />
-              Share Documentation
-            </Button>
-            <Button 
-              variant="outline" 
-              size="lg" 
-              className="gap-2"
-              onClick={handleDownloadPDF}
-            >
-              <Download className="h-5 w-5" />
-              Download PDF
-            </Button>
-            <Button 
-              variant="outline" 
-              size="lg" 
-              className="gap-2"
-              onClick={handleDownloadDOCX}
-            >
-              <Download className="h-5 w-5" />
-              Download DOCX
-            </Button>
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold mb-4 text-center">Export Documentation</h3>
+            <div className="flex flex-wrap gap-3 justify-center">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="gap-2"
+                onClick={handleDownloadPDF}
+              >
+                <Download className="h-5 w-5" />
+                PDF
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="gap-2"
+                onClick={handleDownloadDOCX}
+              >
+                <Download className="h-5 w-5" />
+                DOCX
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="gap-2"
+                onClick={handleDownloadMarkdown}
+              >
+                <Download className="h-5 w-5" />
+                Markdown
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="gap-2"
+                onClick={handleDownloadHTML}
+              >
+                <Download className="h-5 w-5" />
+                HTML
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="gap-2"
+                onClick={handleDownloadJSON}
+              >
+                <Download className="h-5 w-5" />
+                JSON
+              </Button>
+            </div>
           </div>
 
           <DocumentationViewer
             title={generatedDoc.title}
             description={generatedDoc.description}
             sections={generatedDoc.sections || []}
+            theme={generatedDoc.theme}
           />
         </section>
       )}
