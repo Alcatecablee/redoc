@@ -125,6 +125,22 @@ const Index = () => {
 
   const downloadBlob = async (path: string, filename: string) => {
     try {
+      // Ensure user is signed in and we have an access token
+      try {
+        const { data } = await supabase.auth.getSession();
+        const token = data?.session?.access_token;
+        if (!token) {
+          setShowSignIn(true);
+          toast({ title: 'Sign in required', description: 'Please sign in to download generated files' });
+          return;
+        }
+      } catch (err) {
+        console.warn('Failed to get supabase session before download', err);
+        setShowSignIn(true);
+        toast({ title: 'Sign in required', description: 'Please sign in to download generated files' });
+        return;
+      }
+
       const blob = await apiRequestBlob(path);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
