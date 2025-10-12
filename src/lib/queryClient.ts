@@ -64,6 +64,54 @@ export async function apiRequest(url: string, options?: RequestInit) {
   }
 }
 
+/**
+ * Fetch a binary response (Blob) and attach Supabase auth token when available.
+ */
+export async function apiRequestBlob(url: string, options?: RequestInit) {
+  let fetchUrl = url;
+  try {
+    if (typeof window !== 'undefined') {
+      if (url.startsWith('/')) {
+        fetchUrl = `${window.location.origin}${url}`;
+      }
+    }
+  } catch (e) {}
+
+  let token: string | undefined = undefined;
+  try {
+    const { data } = await supabase.auth.getSession();
+    token = data?.session?.access_token as string | undefined;
+  } catch (e) {}
+
+  try {
+    const res = await fetch(fetchUrl, {
+      ...options,
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...options?.headers,
+      },
+    });
+
+    if (!res.ok) {
+      const errorBody = await res.text().catch(() => res.statusText);
+      let message = res.statusText;
+      try {
+        const parsed = JSON.parse(errorBody as string);
+        message = parsed.error || parsed.message || JSON.stringify(parsed);
+      } catch (e) {
+        message = String(errorBody);
+      }
+      throw new Error(`Request failed (${res.status}): ${message}`);
+    }
+
+    const blob = await res.blob();
+    return blob;
+  } catch (err: any) {
+    const message = err?.message || String(err);
+    throw new Error(`Network request failed: ${message}`);
+  }
+}
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
