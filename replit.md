@@ -6,6 +6,14 @@ DocSnap is an AI-powered web application that automatically generates profession
 
 ## Recent Changes
 
+### 3-Stage AI Knowledge Base Generator System (October 12, 2025)
+- **Comprehensive AI Pipeline**: Upgraded from single-prompt to professional 3-stage AI system using enterprise-quality prompt engineering
+- **Stage 1 - Structure Extraction**: Analyzes websites to extract site classification, navigation hierarchy, visual elements, features, use cases, troubleshooting, FAQ, prerequisites, and terminology with confidence scoring
+- **Stage 2 - Professional Writing**: Transforms extracted structure into Apple/Stripe-style documentation with clear, elegant, accessible writing (Grade 8-10 reading level, active voice, scannable format)
+- **Stage 3 - Metadata & SEO**: Adds comprehensive metadata (SEO-optimized titles, descriptions, keywords), searchability optimization (tags, search keywords), and production-ready formatting
+- **Enhanced Output**: Documentation now includes metadata, searchability fields, and extracted structure alongside polished content sections
+- **Quality Improvements**: Progressive disclosure structure, action-oriented content, cross-references, code examples with syntax highlighting, and professional callouts/tips
+
 ### Comprehensive Export System with Theme Extraction (October 12, 2025)
 - **Enhanced Theme Extraction**: Advanced color and font detection from websites
   - Supports hex, RGB/RGBA, and HSL/HSLA color formats
@@ -76,17 +84,48 @@ Preferred communication style: Simple, everyday language.
 
 ### AI Integration
 
-**Provider**: Groq API for AI-powered content generation
-- **Multi-step Pipeline**: Three-phase AI processing approach
-  1. Structure Analysis: Extracts website components and organization
-  2. Content Generation: Writes professional documentation with Apple-style clarity
-  3. Format Export: Structures output with metadata (title, description, version, sections)
+**Provider**: Groq API (llama-3.3-70b-versatile model) for AI-powered content generation
+
+**Comprehensive 3-Stage AI Pipeline**: Professional knowledge base generation system using enterprise-quality prompt engineering
+
+**Stage 1: Structure Understanding & Content Extraction**
+- **Purpose**: Analyze website and extract comprehensive structured content
+- **Process**: 
+  - Classifies site type (SaaS, e-commerce, blog, documentation, portfolio, etc.)
+  - Identifies navigation hierarchy from menus, headers, and site structure
+  - Extracts visual elements (screenshots, diagrams, CTAs, demo videos)
+  - Maps content to standard documentation categories
+  - Detects technical content (code snippets, API references, configuration examples)
+- **Output**: Structured JSON with site classification, navigation hierarchy, visual elements, content structure (overview, features, how-it-works, use cases, troubleshooting, FAQ, prerequisites, terminology), confidence scores, and extraction notes
+
+**Stage 2: Professional Documentation Writing**
+- **Purpose**: Transform extracted structure into Apple/Stripe-style polished documentation
+- **Writing Guidelines**:
+  - Tone & Style: Clear, concise, elegant, confident, conversational but professional
+  - Active voice, present tense, Grade 8-10 reading level
+  - Progressive disclosure: Quick-start → Overview → Detailed guides
+  - Scannable format with headings, bullets, numbered lists
+  - Action-oriented content leading with what users can do
+- **Content Sections**: Getting Started, Core Features, How It Works, Use Cases & Examples, Technical Reference, Troubleshooting, FAQ, Glossary
+- **Output**: Structured JSON with sections containing multiple content types (paragraph, heading, list, code, callout, image, table)
+
+**Stage 3: Metadata Generation & SEO Optimization**
+- **Purpose**: Package documentation with professional metadata for production deployment
+- **Enhancements**:
+  - Comprehensive metadata (SEO-optimized title, meta description, keywords, version, language, estimated read time)
+  - Searchability optimization (primary tags, search keywords, synonyms)
+  - SEO-friendly section slugs and ordering
+  - Content validation and quality checks
+- **Output**: Enhanced documentation with metadata, searchability fields, and production-ready formatting
 
 **Processing Flow**:
-- Fetches HTML content from user-provided URL
-- Strips scripts/styles and extracts text (limited to 10,000 chars)
-- Sends to Groq API for structured analysis and documentation generation
-- Stores results in database for retrieval
+1. Fetches HTML content from user-provided URL
+2. Extracts images and theme (colors, fonts) from HTML/CSS
+3. Strips scripts/styles and extracts text content (limited to 10,000 chars)
+4. **Stage 1**: Sends to Groq API for structure extraction → Returns comprehensive content structure
+5. **Stage 2**: Feeds extracted structure to Groq API → Returns professionally written documentation
+6. **Stage 3**: Enhances documentation with Groq API → Returns final package with metadata and SEO
+7. Combines all stages with theme data and stores complete enhanced documentation in database
 
 ### External Dependencies
 
