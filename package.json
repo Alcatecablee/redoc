@@ -73,6 +73,7 @@
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "tsx": "^4.20.6",
+    "@supabase/supabase-js": "^2.29.0",
     "turndown": "^7.2.1",
     "vaul": "^0.9.9",
     "ws": "^8.18.3",
