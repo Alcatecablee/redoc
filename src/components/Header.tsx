@@ -75,9 +75,14 @@ const Header = () => {
               </a>
             ))}
             {user && (
-              <a href="/profile" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-                Profile
-              </a>
+              <>
+                <a href="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                  Dashboard
+                </a>
+                <a href="/profile" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                  Profile
+                </a>
+              </>
             )}
             </nav>
 
@@ -86,6 +91,7 @@ const Header = () => {
               {user ? (
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-muted-foreground">{user.email}</span>
+                  <a href="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors ml-4">Dashboard</a>
                   <Button variant="ghost" size="sm" onClick={signOut}>
                     <LogOut className="mr-2 h-4 w-4" /> Sign Out
                   </Button>
