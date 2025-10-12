@@ -3,30 +3,11 @@ import { FileText, Twitter, Github, Linkedin, Mail } from "lucide-react";
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
+  // Simplified footer
   const footerLinks = {
-    product: [
-      { name: "Features", href: "#features" },
-      { name: "Pricing", href: "#pricing" },
-      { name: "Documentation", href: "#docs" },
-      { name: "API", href: "#api" },
-    ],
-    company: [
-      { name: "About", href: "#about" },
-      { name: "Blog", href: "#blog" },
-      { name: "Careers", href: "#careers" },
-      { name: "Contact", href: "#contact" },
-    ],
-    resources: [
-      { name: "Help Center", href: "#help" },
-      { name: "Community", href: "#community" },
-      { name: "Tutorials", href: "#tutorials" },
-      { name: "Status", href: "#status" },
-    ],
-    legal: [
-      { name: "Privacy", href: "#privacy" },
-      { name: "Terms", href: "#terms" },
-      { name: "Security", href: "#security" },
-      { name: "Cookies", href: "#cookies" },
+    main: [
+      { name: "Docs", href: "/" },
+      { name: "Privacy", href: "/privacy" },
     ],
   };
 
