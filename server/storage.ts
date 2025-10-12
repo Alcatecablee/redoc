@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 
 export interface IStorage {
   getDocumentation(id: number): Promise<Documentation | undefined>;
-  getAllDocumentations(): Promise<Documentation[]>;
+  getAllDocumentations(userId?: string): Promise<Documentation[]>;
   createDocumentation(data: InsertDocumentation): Promise<Documentation>;
 }
 
