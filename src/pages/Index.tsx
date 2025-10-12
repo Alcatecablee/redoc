@@ -34,6 +34,7 @@ const Index = () => {
   const [generatedDoc, setGeneratedDoc] = useState<any>(null);
   const [selectedTheme, setSelectedTheme] = useState<Theme>(getDefaultTheme());
   const { toast } = useToast();
+  const [showSignIn, setShowSignIn] = useState(false);
 
   const stages = [
     { id: 1, name: "Extracting Content", description: "Analyzing website structure and content" },
