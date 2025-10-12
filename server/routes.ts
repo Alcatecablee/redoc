@@ -49,12 +49,12 @@ router.post("/api/generate-docs", async (req, res) => {
       }
     }
     
-    // Extract theme colors from HTML/CSS
+    // Extract theme colors from HTML/CSS with enhanced detection
     const extractTheme = (html: string) => {
       const colors: string[] = [];
       const fonts: string[] = [];
       
-      // Extract hex colors
+      // Extract hex colors (including 3 and 6 digit)
       const hexRegex = /#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})\b/g;
       let hexMatch;
       while ((hexMatch = hexRegex.exec(html)) !== null) {
@@ -68,7 +68,34 @@ router.post("/api/generate-docs", async (req, res) => {
         colors.push(rgbMatch[0]);
       }
       
-      // Extract font families
+      // Extract hsl/hsla colors
+      const hslRegex = /hsla?\(\s*\d+\s*,\s*[\d.]+%\s*,\s*[\d.]+%\s*(?:,\s*[\d.]+\s*)?\)/g;
+      let hslMatch;
+      while ((hslMatch = hslRegex.exec(html)) !== null) {
+        colors.push(hslMatch[0]);
+      }
+      
+      // Extract colors from background-color, color properties
+      const colorPropRegex = /(?:background-color|color|border-color):\s*([^;}"']+)/gi;
+      let colorMatch;
+      while ((colorMatch = colorPropRegex.exec(html)) !== null) {
+        const colorValue = colorMatch[1].trim();
+        if (colorValue && !colorValue.includes('var(') && !colorValue.includes('inherit') && !colorValue.includes('transparent')) {
+          colors.push(colorValue);
+        }
+      }
+      
+      // Extract CSS custom properties (CSS variables)
+      const cssVarRegex = /--[a-zA-Z0-9-]+:\s*([#a-zA-Z0-9(),.\s%]+);/g;
+      let cssVarMatch;
+      while ((cssVarMatch = cssVarRegex.exec(html)) !== null) {
+        const value = cssVarMatch[1].trim();
+        if (value.match(/^#[0-9A-Fa-f]{3,6}$/) || value.match(/^rgb/) || value.match(/^hsl/)) {
+          colors.push(value);
+        }
+      }
+      
+      // Extract font families from multiple sources
       const fontRegex = /font-family:\s*([^;}"']+)/gi;
       let fontMatch;
       while ((fontMatch = fontRegex.exec(html)) !== null) {
@@ -78,9 +105,20 @@ router.post("/api/generate-docs", async (req, res) => {
         }
       }
       
-      // Get unique values and limit
-      const uniqueColors = [...new Set(colors)].slice(0, 10);
-      const uniqueFonts = [...new Set(fonts)].slice(0, 5);
+      // Extract fonts from @font-face rules
+      const fontFaceRegex = /font-family:\s*["']([^"']+)["']/gi;
+      let fontFaceMatch;
+      while ((fontFaceMatch = fontFaceRegex.exec(html)) !== null) {
+        const fontName = fontFaceMatch[1].trim();
+        if (fontName && fontName.length < 50) {
+          fonts.push(fontName);
+        }
+      }
+      
+      // Get unique values and filter out common generic fonts
+      const genericFonts = ['serif', 'sans-serif', 'monospace', 'cursive', 'fantasy', 'system-ui'];
+      const uniqueColors = [...new Set(colors)].filter(c => c && c.length > 0).slice(0, 15);
+      const uniqueFonts = [...new Set(fonts)].filter(f => !genericFonts.includes(f.toLowerCase())).slice(0, 8);
       
       return {
         primaryColor: uniqueColors[0] || '#8B5CF6',
@@ -222,6 +260,9 @@ Use relevant images throughout the documentation to enhance clarity. Make it pro
     const title = structuredDoc.title || 'Documentation';
     const description = structuredDoc.description || '';
     
+    // Add theme to the structured documentation
+    structuredDoc.theme = theme;
+    
     // Save to database (store as JSON string for now)
     const documentation = await storage.createDocumentation({
       url,
@@ -321,7 +362,34 @@ router.get("/api/export/markdown/:id", async (req, res) => {
     }
 
     const parsedContent = JSON.parse(doc.content);
-    let markdown = `# ${parsedContent.title}\n\n`;
+    const theme = parsedContent.theme || {};
+    
+    // Add YAML frontmatter with theme metadata
+    let markdown = `---\n`;
+    markdown += `title: "${parsedContent.title}"\n`;
+    if (parsedContent.description) {
+      markdown += `description: "${parsedContent.description}"\n`;
+    }
+    markdown += `theme:\n`;
+    markdown += `  primaryColor: "${theme.primaryColor || '#8B5CF6'}"\n`;
+    markdown += `  secondaryColor: "${theme.secondaryColor || '#6366F1'}"\n`;
+    markdown += `  accentColor: "${theme.accentColor || '#8B5CF6'}"\n`;
+    markdown += `  primaryFont: "${theme.primaryFont || 'Inter, system-ui, sans-serif'}"\n`;
+    if (theme.colors && theme.colors.length > 0) {
+      markdown += `  colors:\n`;
+      theme.colors.forEach((color: string) => {
+        markdown += `    - "${color}"\n`;
+      });
+    }
+    if (theme.fonts && theme.fonts.length > 0) {
+      markdown += `  fonts:\n`;
+      theme.fonts.forEach((font: string) => {
+        markdown += `    - "${font}"\n`;
+      });
+    }
+    markdown += `---\n\n`;
+    
+    markdown += `# ${parsedContent.title}\n\n`;
     
     if (parsedContent.description) {
       markdown += `${parsedContent.description}\n\n`;
@@ -378,6 +446,11 @@ router.get("/api/export/html/:id", async (req, res) => {
     }
 
     const parsedContent = JSON.parse(doc.content);
+    const theme = parsedContent.theme || {};
+    const primaryColor = theme.primaryColor || '#8B5CF6';
+    const secondaryColor = theme.secondaryColor || '#6366F1';
+    const primaryFont = theme.primaryFont || '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    
     let html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -385,13 +458,62 @@ router.get("/api/export/html/:id", async (req, res) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${parsedContent.title}</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; max-width: 900px; margin: 0 auto; padding: 20px; color: #333; }
-    h1 { border-bottom: 3px solid #8B5CF6; padding-bottom: 10px; }
-    h2 { color: #8B5CF6; margin-top: 30px; }
-    code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; }
-    pre { background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 5px; overflow-x: auto; }
-    img { max-width: 100%; height: auto; border-radius: 8px; }
-    ul { padding-left: 20px; }
+    :root {
+      --primary-color: ${primaryColor};
+      --secondary-color: ${secondaryColor};
+      --primary-font: ${primaryFont};
+    }
+    body { 
+      font-family: var(--primary-font); 
+      line-height: 1.6; 
+      max-width: 900px; 
+      margin: 0 auto; 
+      padding: 20px; 
+      color: #333; 
+    }
+    h1 { 
+      border-bottom: 3px solid var(--primary-color); 
+      padding-bottom: 10px; 
+      color: var(--primary-color);
+    }
+    h2 { 
+      color: var(--primary-color); 
+      margin-top: 30px; 
+    }
+    h3 { 
+      color: var(--secondary-color); 
+    }
+    code { 
+      background: #f4f4f4; 
+      padding: 2px 6px; 
+      border-radius: 3px; 
+      font-family: 'Courier New', monospace; 
+    }
+    pre { 
+      background: #1e1e1e; 
+      color: #d4d4d4; 
+      padding: 15px; 
+      border-radius: 5px; 
+      overflow-x: auto; 
+    }
+    img { 
+      max-width: 100%; 
+      height: auto; 
+      border-radius: 8px; 
+    }
+    ul { 
+      padding-left: 20px; 
+    }
+    a { 
+      color: var(--primary-color); 
+    }
+    .callout {
+      border-left: 4px solid var(--primary-color);
+      padding: 12px 16px;
+      margin: 16px 0;
+      border-radius: 4px;
+      background: #f8f9fa;
+    }
   </style>
 </head>
 <body>
@@ -454,6 +576,29 @@ router.get("/api/export/pdf/:id", async (req, res) => {
     }
 
     const parsedContent = JSON.parse(doc.content);
+    const theme = parsedContent.theme || {};
+    
+    // Helper function to convert color to hex format for PDFKit
+    const toHexColor = (color: string): string => {
+      if (!color) return '#8B5CF6';
+      // If already hex, return as is
+      if (color.startsWith('#')) return color;
+      // If rgb/rgba, convert to hex (basic conversion)
+      if (color.startsWith('rgb')) {
+        const matches = color.match(/\d+/g);
+        if (matches && matches.length >= 3) {
+          const r = parseInt(matches[0]).toString(16).padStart(2, '0');
+          const g = parseInt(matches[1]).toString(16).padStart(2, '0');
+          const b = parseInt(matches[2]).toString(16).padStart(2, '0');
+          return `#${r}${g}${b}`;
+        }
+      }
+      return '#8B5CF6';
+    };
+    
+    const primaryColor = toHexColor(theme.primaryColor || '#8B5CF6');
+    const secondaryColor = toHexColor(theme.secondaryColor || '#6366F1');
+    
     const pdfDoc = new PDFDocument();
     
     res.setHeader('Content-Type', 'application/pdf');
@@ -461,41 +606,39 @@ router.get("/api/export/pdf/:id", async (req, res) => {
     
     pdfDoc.pipe(res);
     
-    // Title
-    pdfDoc.fontSize(24).text(parsedContent.title, { align: 'left' });
+    // Title with theme color
+    pdfDoc.fontSize(24).fillColor(primaryColor).text(parsedContent.title, { align: 'left' });
     pdfDoc.moveDown();
     
     // Description
     if (parsedContent.description) {
-      pdfDoc.fontSize(12).text(parsedContent.description, { align: 'left' });
+      pdfDoc.fontSize(12).fillColor('#333333').text(parsedContent.description, { align: 'left' });
       pdfDoc.moveDown();
     }
     
     // Sections
     parsedContent.sections?.forEach((section: any) => {
-      pdfDoc.fontSize(18).text(section.title, { underline: true });
+      pdfDoc.fontSize(18).fillColor(primaryColor).text(section.title, { underline: true });
       pdfDoc.moveDown(0.5);
       
       section.content?.forEach((block: any) => {
         switch (block.type) {
           case 'paragraph':
-            pdfDoc.fontSize(11).text(block.text, { align: 'left' });
+            pdfDoc.fontSize(11).fillColor('#333333').text(block.text, { align: 'left' });
             pdfDoc.moveDown(0.5);
             break;
           case 'heading':
-            pdfDoc.fontSize(14).text(block.text, { bold: true });
+            pdfDoc.fontSize(14).fillColor(secondaryColor).text(block.text, { bold: true });
             pdfDoc.moveDown(0.3);
             break;
           case 'list':
             block.items?.forEach((item: string) => {
-              pdfDoc.fontSize(11).text(`• ${item}`, { indent: 20 });
+              pdfDoc.fontSize(11).fillColor('#333333').text(`• ${item}`, { indent: 20 });
             });
             pdfDoc.moveDown(0.5);
             break;
           case 'code':
-            pdfDoc.fontSize(9).font('Courier').text(block.code || block.text, {
-              fill: '#1e1e1e'
-            });
+            pdfDoc.fontSize(9).fillColor('#1e1e1e').font('Courier').text(block.code || block.text);
             pdfDoc.font('Helvetica');
             pdfDoc.moveDown(0.5);
             break;
