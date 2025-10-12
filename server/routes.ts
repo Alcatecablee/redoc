@@ -687,7 +687,8 @@ router.post("/api/generate-docs-enqueue", verifySupabaseAuth, async (req, res) =
     try { new URL(url); } catch { return res.status(400).json({ error: 'Invalid URL format' }); }
 
     const userId = req.user?.id || null;
-    const queue = require('./queue').getQueue();
+    const queueModule = await import('./queue');
+    const queue = queueModule.getQueue();
     const job = await queue.enqueue('generate-docs', { url, userId });
 
     res.json({ jobId: job.id, status: job.status });
@@ -701,7 +702,8 @@ router.post("/api/generate-docs-enqueue", verifySupabaseAuth, async (req, res) =
 router.get('/api/jobs/:id', verifySupabaseAuth, async (req, res) => {
   try {
     const { id } = req.params;
-    const queue = require('./queue').getQueue();
+    const queueModule = await import('./queue');
+    const queue = queueModule.getQueue();
     const job = queue.getJob(id);
     if (!job) return res.status(404).json({ error: 'Job not found' });
     res.json({ id: job.id, status: job.status, error: job.error, result: job.result });
@@ -1037,7 +1039,8 @@ router.get("/api/export/html/:id", verifySupabaseAuth, async (req, res) => {
 // Export documentation as PDF
 router.get("/api/export/pdf/:id", verifySupabaseAuth, async (req, res) => {
   try {
-    const PDFDocument = require('pdfkit');
+    const pdfModule = await import('pdfkit');
+    const PDFDocument = (pdfModule && (pdfModule.default || pdfModule)) as any;
     const id = parseInt(req.params.id);
     if (isNaN(id)) {
       return res.status(400).json({ error: "Invalid ID" });
@@ -1171,7 +1174,8 @@ router.get("/api/export/pdf/:id", verifySupabaseAuth, async (req, res) => {
 // Export documentation as DOCX
 router.get("/api/export/docx/:id", verifySupabaseAuth, async (req, res) => {
   try {
-    const { Document, Packer, Paragraph, TextRun, HeadingLevel } = require('docx');
+    const docxModule = await import('docx');
+    const { Document, Packer, Paragraph, TextRun, HeadingLevel } = docxModule as any;
     const id = parseInt(req.params.id);
     if (isNaN(id)) {
       return res.status(400).json({ error: "Invalid ID" });
