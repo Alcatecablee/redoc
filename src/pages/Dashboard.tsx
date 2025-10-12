@@ -107,7 +107,7 @@ export default function Dashboard() {
           ) : (
             <ul className="space-y-3">
               {docs.map((d) => (
-                <li key={d.id} className="p-4 rounded-lg glass-effect flex justify-between items-center">
+                <li key={d.id} className="p-4 rounded-lg bg-[#0b0f17]/60 border border-white/6 flex justify-between items-center shadow-sm">
                   <div className="min-w-0">
                     <div className="font-semibold truncate">{d.title}</div>
                     <div className="text-sm text-muted-foreground truncate">{d.url}</div>
