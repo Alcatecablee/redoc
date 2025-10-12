@@ -31,8 +31,12 @@ class SupabaseStorage implements IStorage {
     return data as Documentation | undefined;
   }
 
-  async getAllDocumentations(): Promise<Documentation[]> {
-    const { data, error } = await this.client.from('documentations').select('*').order('generated_at', { ascending: false });
+  async getAllDocumentations(userId?: string): Promise<Documentation[]> {
+    let query = this.client.from('documentations').select('*').order('generated_at', { ascending: false });
+    if (userId) {
+      query = query.eq('user_id', userId);
+    }
+    const { data, error } = await query;
     if (error) throw error;
     return (data as any) || [];
   }
