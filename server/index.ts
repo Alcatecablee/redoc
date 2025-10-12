@@ -46,7 +46,9 @@ initInMemoryQueue(async (job: any) => {
 
 async function start() {
   await setupVite(app, server);
-  
+  // Register application routes after Vite middleware to ensure HMR endpoints are handled correctly
+  app.use(routes);
+
   server.listen(Number(port), "0.0.0.0", () => {
     console.log(`Server running on port ${port}`);
   });
