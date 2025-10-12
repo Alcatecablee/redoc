@@ -69,6 +69,20 @@ const Index = () => {
   });
 
   const handleGenerate = async () => {
+    // Check auth
+    try {
+      const { data } = await supabase.auth.getUser();
+      if (!data?.user) {
+        setShowSignIn(true);
+        toast({ title: 'Sign in required', description: 'Please sign in to generate documentation' });
+        return;
+      }
+    } catch (e) {
+      console.warn('Auth check failed', e);
+      setShowSignIn(true);
+      return;
+    }
+
     if (!url) {
       toast({
         title: "URL Required",
@@ -80,7 +94,7 @@ const Index = () => {
 
     setProgress(0);
     setCurrentStage(0);
-    
+
     // Simulate 4-stage progress
     const stageTimings = [
       { stage: 1, progress: 25, duration: 3000 },
@@ -90,7 +104,7 @@ const Index = () => {
     ];
 
     let currentTimeout: NodeJS.Timeout;
-    
+
     const simulateProgress = (index: number) => {
       if (index < stageTimings.length) {
         const { stage, progress, duration } = stageTimings[index];
