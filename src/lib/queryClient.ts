@@ -15,11 +15,23 @@ export const queryClient = new QueryClient({
   },
 });
 
+import { supabase } from '@/lib/supabaseClient';
+
 export async function apiRequest(url: string, options?: RequestInit) {
+  // Attach Supabase access token if available
+  let token = undefined;
+  try {
+    const { data } = await supabase.auth.getSession();
+    token = data?.session?.access_token;
+  } catch (e) {
+    // ignore
+  }
+
   const res = await fetch(url, {
     ...options,
     headers: {
       "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options?.headers,
     },
   });
