@@ -123,34 +123,57 @@ const Index = () => {
     }
   };
 
+  const downloadBlob = async (path: string, filename: string) => {
+    try {
+      const blob = await apiRequestBlob(path);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err: any) {
+      console.error('Download failed', err);
+      toast({ title: 'Download failed', description: err?.message || 'Failed to download file', variant: 'destructive' });
+    }
+  };
+
   const handleDownloadPDF = () => {
     if (!generatedDoc?.id) return;
-    window.open(`/api/export/pdf/${generatedDoc.id}`, '_blank');
+    const filename = `${generatedDoc.title ? generatedDoc.title.replace(/[^a-z0-9]/gi, '_') : 'documentation'}.pdf`;
+    downloadBlob(`/api/export/pdf/${generatedDoc.id}`, filename);
   };
 
   const handleDownloadDOCX = () => {
     if (!generatedDoc?.id) return;
-    window.open(`/api/export/docx/${generatedDoc.id}`, '_blank');
+    const filename = `${generatedDoc.title ? generatedDoc.title.replace(/[^a-z0-9]/gi, '_') : 'documentation'}.docx`;
+    downloadBlob(`/api/export/docx/${generatedDoc.id}`, filename);
   };
 
   const handleDownloadMarkdown = () => {
     if (!generatedDoc?.id) return;
-    window.open(`/api/export/markdown/${generatedDoc.id}`, '_blank');
+    const filename = `${generatedDoc.title ? generatedDoc.title.replace(/[^a-z0-9]/gi, '_') : 'documentation'}.md`;
+    downloadBlob(`/api/export/markdown/${generatedDoc.id}`, filename);
   };
 
   const handleDownloadHTML = () => {
     if (!generatedDoc?.id) return;
-    window.open(`/api/export/html/${generatedDoc.id}`, '_blank');
+    const filename = `${generatedDoc.title ? generatedDoc.title.replace(/[^a-z0-9]/gi, '_') : 'documentation'}.html`;
+    downloadBlob(`/api/export/html/${generatedDoc.id}`, filename);
   };
 
   const handleDownloadJSON = () => {
     if (!generatedDoc?.id) return;
-    window.open(`/api/export/json/${generatedDoc.id}`, '_blank');
+    const filename = `${generatedDoc.title ? generatedDoc.title.replace(/[^a-z0-9]/gi, '_') : 'documentation'}.json`;
+    downloadBlob(`/api/export/json/${generatedDoc.id}`, filename);
   };
 
   const handleBatchExport = () => {
     if (!generatedDoc?.id) return;
-    window.open(`/api/export/batch/${generatedDoc.id}`, '_blank');
+    const filename = `${generatedDoc.title ? generatedDoc.title.replace(/[^a-z0-9]/gi, '_') : 'documentation'}_documentation.zip`;
+    downloadBlob(`/api/export/batch/${generatedDoc.id}`, filename);
   };
 
   return (
