@@ -10,11 +10,9 @@ const Header = () => {
   const [user, setUser] = useState<any>(null);
   const [showSignIn, setShowSignIn] = useState(false);
 
+  // Minimal nav
   const navLinks = [
-    { name: "Features", href: "#features" },
-    { name: "How it Works", href: "#how-it-works" },
-    { name: "Pricing", href: "#pricing" },
-    { name: "About", href: "#about" },
+    { name: "Home", href: "/" },
   ];
 
   useEffect(() => {
@@ -63,48 +61,27 @@ const Header = () => {
               </span>
             </div>
 
-            {/* Desktop Navigation */}
+            {/* Desktop Navigation: minimal */}
             <nav className="hidden md:flex items-center gap-6">
-              {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-              >
-                {link.name}
-              </a>
-            ))}
-            {user && (
-              <>
-                <a href="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-                  Dashboard
-                </a>
-                <a href="/profile" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-                  Profile
-                </a>
-              </>
-            )}
+              <a href="/" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Home</a>
+              {user ? (
+                <a href="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Dashboard</a>
+              ) : null}
             </nav>
 
-            {/* CTA Buttons */}
+            {/* CTA Buttons (minimal) */}
             <div className="hidden md:flex items-center gap-4">
               {user ? (
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-muted-foreground">{user.email}</span>
-                  <a href="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors ml-4">Dashboard</a>
                   <Button variant="ghost" size="sm" onClick={signOut}>
                     <LogOut className="mr-2 h-4 w-4" /> Sign Out
                   </Button>
                 </div>
               ) : (
-                <>
-                  <Button variant="ghost" size="sm" onClick={signIn}>
-                    <LogIn className="mr-2 h-4 w-4" /> Sign In
-                  </Button>
-                  <Button size="sm" className="bg-gradient-primary hover:shadow-glow" onClick={signIn}>
-                    Get Started
-                  </Button>
-                </>
+                <Button size="sm" className="bg-gradient-primary" onClick={signIn}>
+                  Get Started
+                </Button>
               )}
             </div>
 
@@ -117,30 +94,19 @@ const Header = () => {
               </SheetTrigger>
               <SheetContent side="right" className="w-[280px]">
                 <div className="flex flex-col gap-4 mt-8">
-                  {navLinks.map((link) => (
-                    <a
-                      key={link.name}
-                      href={link.href}
-                      onClick={() => setIsOpen(false)}
-                      className="text-base font-medium text-muted-foreground hover:text-primary transition-colors py-2"
-                    >
-                      {link.name}
-                    </a>
-                  ))}
+                  <a href="/" onClick={() => setIsOpen(false)} className="text-base font-medium text-muted-foreground hover:text-primary transition-colors py-2">Home</a>
                   <div className="flex flex-col gap-3 mt-4 pt-4 border-t">
                     {user ? (
-                      <Button variant="outline" className="w-full" onClick={signOut}>
-                        <LogOut className="mr-2 h-4 w-4" /> Sign Out
-                      </Button>
-                    ) : (
                       <>
-                        <Button variant="outline" className="w-full" onClick={signIn}>
-                          <LogIn className="mr-2 h-4 w-4" /> Sign In
-                        </Button>
-                        <Button className="w-full bg-gradient-primary" onClick={signIn}>
-                          Get Started
+                        <a href="/dashboard" onClick={() => setIsOpen(false)} className="text-base font-medium text-muted-foreground py-2">Dashboard</a>
+                        <Button variant="outline" className="w-full" onClick={signOut}>
+                          <LogOut className="mr-2 h-4 w-4" /> Sign Out
                         </Button>
                       </>
+                    ) : (
+                      <Button variant="outline" className="w-full" onClick={signIn}>
+                        Get Started
+                      </Button>
                     )}
                   </div>
                 </div>
