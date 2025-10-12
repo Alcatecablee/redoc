@@ -145,7 +145,7 @@ const Index = () => {
         {/* Background gradient orbs */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/30 rounded-full blur-[128px] animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-purple-500/20 rounded-full blur-[128px] animate-pulse" style={{ animationDelay: '1s' }} />
+          <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-cyan-500/20 rounded-full blur-[128px] animate-pulse" style={{ animationDelay: '1s' }} />
         </div>
 
         <div className="container mx-auto px-4 py-20 relative z-10">
@@ -192,7 +192,7 @@ const Index = () => {
                     onClick={handleGenerate}
                     disabled={generateMutation.isPending}
                     size="lg"
-                    className="h-14 px-10 bg-gradient-primary hover:shadow-glow transition-all duration-300 text-base font-semibold rounded-xl border-0 hover:scale-[1.02]"
+                    className="h-14 px-10 bg-primary hover:bg-primary/90 hover:shadow-glow transition-all duration-300 text-base font-semibold rounded-xl border-0 hover:scale-[1.02]"
                     data-testid="button-generate"
                   >
                     {generateMutation.isPending ? (
@@ -214,7 +214,7 @@ const Index = () => {
                   <div className="space-y-6 animate-in fade-in duration-300">
                     <div className="h-2 bg-white/5 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-gradient-primary transition-all duration-500 ease-out"
+                        className="h-full bg-primary transition-all duration-500 ease-out"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
@@ -285,7 +285,7 @@ const Index = () => {
               <Button 
                 variant="default" 
                 size="lg" 
-                className="gap-2 bg-gradient-primary hover:shadow-glow rounded-xl hover:scale-[1.02] transition-all"
+                className="gap-2 bg-primary hover:bg-primary/90 hover:shadow-glow rounded-xl hover:scale-[1.02] transition-all"
                 onClick={handleBatchExport}
               >
                 <Download className="h-5 w-5" />
@@ -361,7 +361,7 @@ const Index = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="glass-effect rounded-2xl p-8 hover:scale-[1.02] transition-all duration-300 group">
-                <div className="h-14 w-14 rounded-2xl bg-gradient-primary flex items-center justify-center mb-6 shadow-glow group-hover:shadow-glow transition-shadow">
+                <div className="h-14 w-14 rounded-2xl bg-primary flex items-center justify-center mb-6 shadow-glow group-hover:shadow-glow transition-shadow">
                   <Zap className="h-7 w-7 text-primary-foreground" />
                 </div>
                 <h3 className="text-2xl font-semibold mb-3">Lightning Fast</h3>
@@ -369,7 +369,7 @@ const Index = () => {
               </div>
               
               <div className="glass-effect rounded-2xl p-8 hover:scale-[1.02] transition-all duration-300 group">
-                <div className="h-14 w-14 rounded-2xl bg-gradient-primary flex items-center justify-center mb-6 shadow-glow group-hover:shadow-glow transition-shadow">
+                <div className="h-14 w-14 rounded-2xl bg-primary flex items-center justify-center mb-6 shadow-glow group-hover:shadow-glow transition-shadow">
                   <Shield className="h-7 w-7 text-primary-foreground" />
                 </div>
                 <h3 className="text-2xl font-semibold mb-3">Enterprise Quality</h3>
@@ -377,7 +377,7 @@ const Index = () => {
               </div>
               
               <div className="glass-effect rounded-2xl p-8 hover:scale-[1.02] transition-all duration-300 group">
-                <div className="h-14 w-14 rounded-2xl bg-gradient-primary flex items-center justify-center mb-6 shadow-glow group-hover:shadow-glow transition-shadow">
+                <div className="h-14 w-14 rounded-2xl bg-primary flex items-center justify-center mb-6 shadow-glow group-hover:shadow-glow transition-shadow">
                   <Download className="h-7 w-7 text-primary-foreground" />
                 </div>
                 <h3 className="text-2xl font-semibold mb-3">Multiple Formats</h3>
