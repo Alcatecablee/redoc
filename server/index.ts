@@ -16,7 +16,9 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
-app.use(routes);
+
+// Note: routes are registered after Vite is setup in start() to ensure Vite HMR endpoints and middleware
+// are mounted before application routes, avoiding HMR ping/fetch failures behind proxies.
 
 const server = createServer(app);
 
