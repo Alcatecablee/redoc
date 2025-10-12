@@ -170,12 +170,6 @@ const Index = () => {
       >
         <div className="container mx-auto px-4 py-24 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            {/* Compact top badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/6 backdrop-blur text-sm text-white/90 mb-6">
-              <Zap className="h-4 w-4 text-yellow-300" />
-              <span>AI-Powered Documentation</span>
-            </div>
-
             {/* Centered large input card */}
             <div className="mt-6">
               <div className="mx-auto max-w-3xl bg-[#0b0f17]/70 backdrop-blur rounded-2xl shadow-xl border border-white/6 p-6">
