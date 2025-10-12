@@ -156,7 +156,8 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+      <SignInDialog open={showSignIn} onOpenChange={setShowSignIn} />
+
       {/* Hero Section */}
       <section className="relative overflow-hidden min-h-[90vh] flex items-center">
         {/* Background gradient orbs */}
