@@ -105,7 +105,11 @@ export function DocumentationViewer({ title, description, sections, theme }: Doc
         }[block.level || 3];
         
         return (
-          <HeadingTag key={index} className={headingClasses}>
+          <HeadingTag 
+            key={index} 
+            className={headingClasses}
+            style={{ color: block.level === 2 ? primaryColor : secondaryColor }}
+          >
             {block.text}
           </HeadingTag>
         );
@@ -115,7 +119,10 @@ export function DocumentationViewer({ title, description, sections, theme }: Doc
           <ul key={index} className="space-y-2 mb-4 ml-6">
             {block.items?.map((item, i) => (
               <li key={i} className="flex items-start gap-2">
-                <ChevronRight className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                <ChevronRight 
+                  className="h-5 w-5 mt-0.5 flex-shrink-0" 
+                  style={{ color: primaryColor }}
+                />
                 <span className="text-muted-foreground">{item}</span>
               </li>
             ))}
@@ -204,10 +211,10 @@ export function DocumentationViewer({ title, description, sections, theme }: Doc
   const activeContent = sections.find((s) => s.id === activeSection);
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto" style={{ fontFamily: primaryFont }}>
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-3">{title}</h1>
+        <h1 className="text-4xl font-bold mb-3" style={{ color: primaryColor }}>{title}</h1>
         {description && (
           <p className="text-xl text-muted-foreground">{description}</p>
         )}
@@ -234,7 +241,7 @@ export function DocumentationViewer({ title, description, sections, theme }: Doc
                     }`}
                     style={isActive ? { backgroundColor: primaryColor } : {}}
                   >
-                    <Icon className="h-4 w-4 flex-shrink-0" />
+                    <Icon className="h-4 w-4 flex-shrink-0" style={isActive ? {} : { color: primaryColor }} />
                     <span className="text-sm font-medium">{section.title}</span>
                   </button>
                 );
@@ -253,7 +260,7 @@ export function DocumentationViewer({ title, description, sections, theme }: Doc
                     const Icon = iconMap[activeContent.icon] || BookOpen;
                     return <Icon className="h-6 w-6" style={{ color: primaryColor }} />;
                   })()}
-                  <h2 className="text-3xl font-bold">{activeContent.title}</h2>
+                  <h2 className="text-3xl font-bold" style={{ color: primaryColor }}>{activeContent.title}</h2>
                 </div>
                 <Separator className="mb-6" />
                 <div className="prose prose-slate max-w-none">

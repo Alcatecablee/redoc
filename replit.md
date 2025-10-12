@@ -40,6 +40,31 @@ DocSnap is an AI-powered web application that automatically generates profession
 - **Enhanced Hero Section**: Improved visual hierarchy with AI-powered badge, refined headline "Transform Websites into Professional Docs", animated background gradients, and better messaging.
 - **Feature Cards**: Updated with better icons (Lightning Fast, Enterprise Quality, Multiple Formats) and improved descriptions.
 
+### Advanced Theme System (October 12, 2025)
+- **Professional Theme Presets**: Created 5 comprehensive theme presets matching industry leaders:
+  - Apple Light: iOS-style design with SF Pro fonts and blue accent colors
+  - GitHub Dark: Developer-focused dark theme with monospace fonts
+  - Stripe Modern: Clean, modern design with purple accents
+  - Notion Default: Minimalist productivity-focused theme
+  - Modern Light: Default theme with balanced colors and Inter font
+- **Live Theme Switcher**: Interactive dropdown UI to switch between themes in real-time while viewing documentation
+- **Dynamic Theme Application**: DocumentationViewer now applies theme colors to headings, icons, buttons, and typography, with fonts applied globally
+- **Theme Structure**: Each preset includes colors (12 semantic colors), typography (fonts, sizes, weights), spacing, and styling properties
+
+### Enhanced Progress Tracking (October 12, 2025)
+- **3-Stage Visual Progress**: Generation progress now shows all 3 AI pipeline stages with individual progress indicators:
+  - Stage 1: Extracting Content (analyzing website structure)
+  - Stage 2: Writing Documentation (creating professional content)
+  - Stage 3: Adding Metadata (SEO optimization and deployment prep)
+- **Visual Stage Indicators**: Each stage shows completion status with checkmarks, loading spinners, or pending states
+- **Improved UX**: Users can see exactly which AI stage is currently processing their documentation
+
+### Batch Export System (October 12, 2025)
+- **Download All (ZIP)**: New batch export endpoint that packages multiple formats into a single ZIP file
+- **Multi-Format Bundle**: Includes Markdown, HTML, and JSON exports in one download
+- **Prominent UI Button**: Featured "Download All (ZIP)" button with gradient styling for easy access
+- **Theme-Aware Exports**: All formats include theme data and styling information
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.

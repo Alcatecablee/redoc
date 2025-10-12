@@ -2,6 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { storage } from "./storage";
 import { insertDocumentationSchema } from "@shared/schema";
+import archiver from "archiver";
 
 const router = Router();
 
@@ -958,6 +959,149 @@ router.get("/api/export/docx/:id", async (req, res) => {
   } catch (error) {
     console.error('Error exporting DOCX:', error);
     res.status(500).json({ error: 'Failed to export DOCX' });
+  }
+});
+
+router.get('/api/export/batch/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const docData = await storage.getDocumentation(parseInt(id, 10));
+    
+    if (!docData) {
+      return res.status(404).json({ error: 'Documentation not found' });
+    }
+
+    const archive = archiver('zip', { zlib: { level: 9 } });
+    const filename = docData.title.replace(/[^a-z0-9]/gi, '_');
+    
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}_documentation.zip"`);
+    
+    archive.pipe(res);
+
+    const theme = docData.theme || {};
+    
+    const generateMarkdown = () => {
+      let markdown = `---\ntitle: ${docData.title}\n`;
+      
+      if (theme.colors?.length > 0) {
+        markdown += `theme:\n  primaryColor: ${theme.primaryColor || theme.colors[0]}\n`;
+        markdown += `  colors: ${JSON.stringify(theme.colors)}\n`;
+      }
+      if (theme.fonts?.length > 0) {
+        markdown += `  fonts: ${JSON.stringify(theme.fonts)}\n`;
+      }
+      
+      markdown += `---\n\n# ${docData.title}\n\n`;
+      
+      if (docData.description) {
+        markdown += `${docData.description}\n\n`;
+      }
+      
+      docData.sections?.forEach((section: any) => {
+        markdown += `## ${section.title}\n\n`;
+        
+        section.content?.forEach((block: any) => {
+          switch (block.type) {
+            case 'paragraph':
+              markdown += `${block.text}\n\n`;
+              break;
+            case 'heading':
+              const level = '#'.repeat(Math.min(block.level || 2, 6));
+              markdown += `${level} ${block.text}\n\n`;
+              break;
+            case 'list':
+              block.items?.forEach((item: string) => {
+                markdown += `- ${item}\n`;
+              });
+              markdown += '\n';
+              break;
+            case 'code':
+              markdown += `\`\`\`${block.language || ''}\n${block.code || block.text}\n\`\`\`\n\n`;
+              break;
+          }
+        });
+      });
+      
+      return markdown;
+    };
+
+    const generateHTML = () => {
+      const primaryColor = theme.primaryColor || '#8B5CF6';
+      const secondaryColor = theme.secondaryColor || '#6366F1';
+      const primaryFont = theme.primaryFont || 'Inter, system-ui, sans-serif';
+      
+      let html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${docData.title}</title>
+  <style>
+    :root {
+      --primary-color: ${primaryColor};
+      --secondary-color: ${secondaryColor};
+      --font-family: ${primaryFont};
+    }
+    body {
+      font-family: var(--font-family);
+      line-height: 1.6;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+      color: #333;
+    }
+    h1 { color: var(--primary-color); font-size: 2.5rem; margin-bottom: 1rem; }
+    h2 { color: var(--primary-color); font-size: 2rem; margin-top: 2rem; border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; }
+    h3 { color: var(--secondary-color); font-size: 1.5rem; margin-top: 1.5rem; }
+    code { background: #f4f4f4; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.9em; }
+    pre { background: #f4f4f4; padding: 1rem; border-radius: 8px; overflow-x: auto; }
+    pre code { background: none; padding: 0; }
+  </style>
+</head>
+<body>
+  <h1>${docData.title}</h1>`;
+      
+      if (docData.description) {
+        html += `<p>${docData.description}</p>`;
+      }
+      
+      docData.sections?.forEach((section: any) => {
+        html += `<h2>${section.title}</h2>`;
+        section.content?.forEach((block: any) => {
+          if (block.type === 'paragraph') {
+            html += `<p>${block.text}</p>`;
+          } else if (block.type === 'code') {
+            html += `<pre><code>${block.code || block.text}</code></pre>`;
+          }
+        });
+      });
+      
+      html += '</body></html>';
+      return html;
+    };
+
+    const generateJSON = () => {
+      return JSON.stringify({
+        title: docData.title,
+        description: docData.description,
+        sections: docData.sections,
+        theme: theme,
+        metadata: {
+          generatedAt: docData.generatedAt,
+          sourceUrl: docData.url
+        }
+      }, null, 2);
+    };
+
+    archive.append(generateMarkdown(), { name: `${filename}.md` });
+    archive.append(generateHTML(), { name: `${filename}.html` });
+    archive.append(generateJSON(), { name: `${filename}.json` });
+    
+    await archive.finalize();
+  } catch (error) {
+    console.error('Error creating batch export:', error);
+    res.status(500).json({ error: 'Failed to create batch export' });
   }
 });
 

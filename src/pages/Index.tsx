@@ -2,19 +2,40 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Loader2, FileText, ExternalLink, Download, Zap, Shield } from "lucide-react";
+import { Loader2, FileText, ExternalLink, Download, Zap, Shield, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { DocumentationViewer } from "@/components/DocumentationViewer";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { getDefaultTheme, Theme } from "../../shared/themes";
+
+function convertToViewerTheme(theme: Theme) {
+  return {
+    primaryColor: theme.colors.primary,
+    secondaryColor: theme.colors.secondary,
+    accentColor: theme.colors.accent,
+    colors: Object.values(theme.colors),
+    fonts: [theme.typography.font_family, theme.typography.heading_font, theme.typography.code_font],
+    primaryFont: theme.typography.font_family
+  };
+}
 
 const Index = () => {
   const [url, setUrl] = useState("");
   const [progress, setProgress] = useState(0);
+  const [currentStage, setCurrentStage] = useState<number>(0);
   const [generatedDoc, setGeneratedDoc] = useState<any>(null);
+  const [selectedTheme, setSelectedTheme] = useState<Theme>(getDefaultTheme());
   const { toast } = useToast();
+
+  const stages = [
+    { id: 1, name: "Extracting Content", description: "Analyzing website structure and content" },
+    { id: 2, name: "Writing Documentation", description: "Creating professional documentation" },
+    { id: 3, name: "Adding Metadata", description: "Optimizing for SEO and deployment" }
+  ];
 
   const generateMutation = useMutation({
     mutationFn: async (url: string) => {
@@ -52,16 +73,32 @@ const Index = () => {
     }
 
     setProgress(0);
+    setCurrentStage(0);
     
-    // Simulate progress
-    const progressInterval = setInterval(() => {
-      setProgress(prev => Math.min(prev + 10, 90));
-    }, 500);
+    // Simulate 3-stage progress
+    const stageTimings = [
+      { stage: 1, progress: 33, duration: 3000 },
+      { stage: 2, progress: 66, duration: 3000 },
+      { stage: 3, progress: 90, duration: 3000 }
+    ];
+
+    let currentTimeout: NodeJS.Timeout;
+    
+    const simulateProgress = (index: number) => {
+      if (index < stageTimings.length) {
+        const { stage, progress, duration } = stageTimings[index];
+        setCurrentStage(stage);
+        setProgress(progress);
+        currentTimeout = setTimeout(() => simulateProgress(index + 1), duration);
+      }
+    };
+
+    simulateProgress(0);
 
     try {
       await generateMutation.mutateAsync(url);
     } finally {
-      clearInterval(progressInterval);
+      if (currentTimeout) clearTimeout(currentTimeout);
     }
   };
 
@@ -88,6 +125,11 @@ const Index = () => {
   const handleDownloadJSON = () => {
     if (!generatedDoc?.id) return;
     window.open(`/api/export/json/${generatedDoc.id}`, '_blank');
+  };
+
+  const handleBatchExport = () => {
+    if (!generatedDoc?.id) return;
+    window.open(`/api/export/batch/${generatedDoc.id}`, '_blank');
   };
 
   return (
@@ -152,18 +194,47 @@ const Index = () => {
                   </Button>
                 </div>
 
-                {/* Progress Bar */}
+                {/* Enhanced 3-Stage Progress */}
                 {generateMutation.isPending && (
-                  <div className="space-y-2 animate-in fade-in duration-300">
+                  <div className="space-y-4 animate-in fade-in duration-300">
                     <div className="h-2 bg-secondary rounded-full overflow-hidden">
                       <div
                         className="h-full bg-gradient-primary transition-all duration-500 ease-out"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
-                    <p className="text-sm text-muted-foreground text-center">
-                      Analyzing content and generating documentation...
-                    </p>
+                    
+                    {/* Stage Indicators */}
+                    <div className="grid grid-cols-3 gap-4">
+                      {stages.map((stage) => (
+                        <div
+                          key={stage.id}
+                          className={`flex items-start gap-2 p-3 rounded-lg border transition-all ${
+                            currentStage >= stage.id
+                              ? 'border-primary bg-primary/5'
+                              : 'border-border bg-muted/30'
+                          }`}
+                        >
+                          <div className="mt-0.5">
+                            {currentStage > stage.id ? (
+                              <CheckCircle2 className="h-5 w-5 text-primary" />
+                            ) : currentStage === stage.id ? (
+                              <Loader2 className="h-5 w-5 text-primary animate-spin" />
+                            ) : (
+                              <div className="h-5 w-5 rounded-full border-2 border-muted-foreground/30" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm font-medium ${currentStage >= stage.id ? 'text-primary' : 'text-muted-foreground'}`}>
+                              {stage.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {stage.description}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -176,8 +247,23 @@ const Index = () => {
       {generatedDoc && (
         <section className="container mx-auto px-4 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-1000">
           <div className="mb-8">
-            <h3 className="text-lg font-semibold mb-4 text-center">Export Documentation</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Export Documentation</h3>
+              <ThemeSwitcher
+                currentTheme={selectedTheme}
+                onThemeChange={setSelectedTheme}
+              />
+            </div>
             <div className="flex flex-wrap gap-3 justify-center">
+              <Button 
+                variant="default" 
+                size="lg" 
+                className="gap-2 bg-gradient-primary hover:shadow-glow"
+                onClick={handleBatchExport}
+              >
+                <Download className="h-5 w-5" />
+                Download All (ZIP)
+              </Button>
               <Button 
                 variant="outline" 
                 size="lg" 
@@ -230,7 +316,7 @@ const Index = () => {
             title={generatedDoc.title}
             description={generatedDoc.description}
             sections={generatedDoc.sections || []}
-            theme={generatedDoc.theme}
+            theme={convertToViewerTheme(selectedTheme)}
           />
         </section>
       )}
