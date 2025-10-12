@@ -162,7 +162,7 @@ const Index = () => {
       <section
         className="relative overflow-hidden min-h-[80vh] flex items-center"
         style={{
-          backgroundImage: `linear-gradient(rgba(6,8,15,0.65), rgba(6,8,15,0.65)), url('https://cdn.builder.io/api/v1/image/assets%2Fb32fda297508435ebd82d93e54858120%2Ff1c80caff8724b01aaa51af9ecfc9c41?format=webp&width=1600')`,
+          backgroundImage: `linear-gradient(rgba(6,8,15,0.65), rgba(6,8,15,0.65)), url('https://cdn.builder.io/api/v1/image/assets%2Fa5240755456c40cdba09a9a8d717364c%2F1f853cf5f2c84b1fbfe37b8beeaf6e15?format=webp&width=800')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
