@@ -1,10 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { FileText, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { FileText, Menu, X, LogIn, LogOut } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { supabase } from "@/lib/supabaseClient";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
   const navLinks = [
     { name: "Features", href: "#features" },
@@ -12,6 +14,43 @@ const Header = () => {
     { name: "Pricing", href: "#pricing" },
     { name: "About", href: "#about" },
   ];
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const { data } = await supabase.auth.getUser();
+        if (mounted) setUser(data.user ?? null);
+      } catch (e) {
+        console.warn('Failed to get supabase user', e);
+      }
+    })();
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => {
+      mounted = false;
+      listener?.subscription.unsubscribe();
+    };
+  }, []);
+
+  const signIn = async () => {
+    const email = window.prompt('Enter your email to sign in (magic link):');
+    if (!email) return;
+    const { error } = await supabase.auth.signInWithOtp({ email });
+    if (error) {
+      alert('Failed to send sign-in link: ' + error.message);
+    } else {
+      alert('Magic link sent to ' + email);
+    }
+  };
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -42,12 +81,23 @@ const Header = () => {
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center gap-4">
-            <Button variant="ghost" size="sm">
-              Sign In
-            </Button>
-            <Button size="sm" className="bg-gradient-primary hover:shadow-glow">
-              Get Started
-            </Button>
+            {user ? (
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-muted-foreground">{user.email}</span>
+                <Button variant="ghost" size="sm" onClick={signOut}>
+                  <LogOut className="mr-2 h-4 w-4" /> Sign Out
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" onClick={signIn}>
+                  <LogIn className="mr-2 h-4 w-4" /> Sign In
+                </Button>
+                <Button size="sm" className="bg-gradient-primary hover:shadow-glow" onClick={signIn}>
+                  Get Started
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu */}
@@ -70,12 +120,20 @@ const Header = () => {
                   </a>
                 ))}
                 <div className="flex flex-col gap-3 mt-4 pt-4 border-t">
-                  <Button variant="outline" className="w-full">
-                    Sign In
-                  </Button>
-                  <Button className="w-full bg-gradient-primary">
-                    Get Started
-                  </Button>
+                  {user ? (
+                    <Button variant="outline" className="w-full" onClick={signOut}>
+                      <LogOut className="mr-2 h-4 w-4" /> Sign Out
+                    </Button>
+                  ) : (
+                    <>
+                      <Button variant="outline" className="w-full" onClick={signIn}>
+                        <LogIn className="mr-2 h-4 w-4" /> Sign In
+                      </Button>
+                      <Button className="w-full bg-gradient-primary" onClick={signIn}>
+                        Get Started
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
             </SheetContent>
