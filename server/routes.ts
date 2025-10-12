@@ -109,7 +109,41 @@ router.post("/api/generate-docs", async (req, res) => {
     }
 
     const docsData = await docsResponse.json();
-    const generatedContent = docsData.choices?.[0]?.message?.content || '';
+    const rawDocs = docsData.choices?.[0]?.message?.content || '';
+
+    console.log("Step 3: Formatting for export...");
+
+    // Step 3: Format for Export
+    const formatResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          {
+            role: 'system',
+            content: `Format this documentation for web export. Ensure clean HTML with proper structure, metadata-ready format. Polish the formatting, ensure consistent spacing, proper heading hierarchy (h1, h2, h3), and professional presentation. Return only the formatted HTML content.`
+          },
+          {
+            role: 'user',
+            content: rawDocs
+          }
+        ],
+        temperature: 0.3,
+      }),
+    });
+
+    if (!formatResponse.ok) {
+      const errorText = await formatResponse.text();
+      console.error('Formatting failed:', formatResponse.status, errorText);
+      return res.status(500).json({ error: `Formatting failed: ${formatResponse.statusText}` });
+    }
+
+    const formatData = await formatResponse.json();
+    const generatedContent = formatData.choices?.[0]?.message?.content || '';
 
     // Extract title from content or use default
     const titleMatch = generatedContent.match(/<h1[^>]*>(.*?)<\/h1>/i);
