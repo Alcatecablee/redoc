@@ -634,6 +634,7 @@ Return ONLY valid JSON.`
       url,
       title,
       content: JSON.stringify(finalDoc),
+      user_id: req.user?.id || null,
     });
 
     console.log("Documentation generated successfully with 4-stage AI pipeline (Extract → Write → Metadata → Quality Check)");
