@@ -2,108 +2,7 @@
 
 ## Overview
 
-DocSnap is an AI-powered web application that automatically generates professional documentation from any website. Users input a URL, and the system uses AI to analyze the website structure, extract content, and produce enterprise-quality documentation in multiple formats (PDF, DOCX, or web format). The application emphasizes Apple-style clarity and professional presentation, targeting users who need to create help center documentation quickly.
-
-## Recent Changes
-
-### 3-Stage AI Knowledge Base Generator System (October 12, 2025)
-- **Comprehensive AI Pipeline**: Upgraded from single-prompt to professional 3-stage AI system using enterprise-quality prompt engineering
-- **Stage 1 - Structure Extraction**: Analyzes websites to extract site classification, navigation hierarchy, visual elements, features, use cases, troubleshooting, FAQ, prerequisites, and terminology with confidence scoring
-- **Stage 2 - Professional Writing**: Transforms extracted structure into Apple/Stripe-style documentation with clear, elegant, accessible writing (Grade 8-10 reading level, active voice, scannable format)
-- **Stage 3 - Metadata & SEO**: Adds comprehensive metadata (SEO-optimized titles, descriptions, keywords), searchability optimization (tags, search keywords), and production-ready formatting
-- **Enhanced Output**: Documentation now includes metadata, searchability fields, and extracted structure alongside polished content sections
-- **Quality Improvements**: Progressive disclosure structure, action-oriented content, cross-references, code examples with syntax highlighting, and professional callouts/tips
-
-### Comprehensive Export System with Theme Extraction (October 12, 2025)
-- **Enhanced Theme Extraction**: Advanced color and font detection from websites
-  - Supports hex, RGB/RGBA, and HSL/HSLA color formats
-  - Detects CSS variables and custom properties
-  - Extracts colors from background-color, color, and border-color properties
-  - Identifies font families from CSS and @font-face rules
-  - Filters out generic fonts for better brand consistency
-- **Theme-Aware HTML Export**: Standalone HTML files with extracted theme colors and fonts applied via CSS variables
-- **Theme-Aware PDF Export**: PDF documents using PDFKit with theme colors for headings, titles, and structure
-  - Includes HSL-to-RGB color conversion for comprehensive color support
-- **Enhanced Markdown Export**: Includes YAML frontmatter with complete theme metadata (colors, fonts, design tokens)
-- **JSON Export**: Full documentation data including extracted theme information
-- **Theme Persistence**: Theme data now stored with documentation content in database for consistent export across all formats
-
-### Image Support Enhancement (October 12, 2025)
-- **Image Extraction**: Backend now extracts all image URLs from website HTML and converts relative URLs to absolute paths
-- **AI-Powered Image Integration**: Updated Groq AI prompt to intelligently select and place relevant images throughout documentation
-- **Image Rendering**: DocumentationViewer supports image content blocks with lazy loading, alt text, and optional captions
-- **Enterprise Layout**: Complete documentation viewer with sidebar table of contents, navigation tabs, and professional formatting matching Microsoft/Twitter help centers
-
-### Landing Page Enhancement (October 2025)
-- **Header Component**: Added professional sticky navigation with logo, menu items (Features, How it Works, Pricing, About), and action buttons (Sign In, Get Started). Fully responsive with mobile menu.
-- **Footer Component**: Comprehensive footer with brand information, link columns (Product, Company, Resources, Legal), and social media links (Twitter, GitHub, LinkedIn, Email).
-- **Enhanced Hero Section**: Improved visual hierarchy with AI-powered badge, refined headline "Transform Websites into Professional Docs", animated background gradients, and better messaging.
-- **Feature Cards**: Updated with better icons (Lightning Fast, Enterprise Quality, Multiple Formats) and improved descriptions.
-
-### Advanced Theme System (October 12, 2025)
-- **Professional Theme Presets**: Created 5 comprehensive theme presets matching industry leaders:
-  - Apple Light: iOS-style design with SF Pro fonts and blue accent colors
-  - GitHub Dark: Developer-focused dark theme with monospace fonts
-  - Stripe Modern: Clean, modern design with purple accents
-  - Notion Default: Minimalist productivity-focused theme
-  - Modern Light: Default theme with balanced colors and Inter font
-- **Live Theme Switcher**: Interactive dropdown UI to switch between themes in real-time while viewing documentation
-- **Dynamic Theme Application**: DocumentationViewer now applies theme colors to headings, icons, buttons, and typography, with fonts applied globally
-- **Theme Structure**: Each preset includes colors (12 semantic colors), typography (fonts, sizes, weights), spacing, and styling properties
-
-### Enhanced Progress Tracking (October 12, 2025)
-- **3-Stage Visual Progress**: Generation progress now shows all 3 AI pipeline stages with individual progress indicators:
-  - Stage 1: Extracting Content (analyzing website structure)
-  - Stage 2: Writing Documentation (creating professional content)
-  - Stage 3: Adding Metadata (SEO optimization and deployment prep)
-- **Visual Stage Indicators**: Each stage shows completion status with checkmarks, loading spinners, or pending states
-- **Improved UX**: Users can see exactly which AI stage is currently processing their documentation
-
-### Batch Export System (October 12, 2025)
-- **Download All (ZIP)**: New batch export endpoint that packages multiple formats into a single ZIP file
-- **Multi-Format Bundle**: Includes Markdown, HTML, and JSON exports in one download
-- **Prominent UI Button**: Featured "Download All (ZIP)" button with gradient styling for easy access
-- **Theme-Aware Exports**: All formats include theme data and styling information
-
-### 4-Stage AI Pipeline with Quality Validation (October 12, 2025)
-- **Stage 4: Validation & Refinement**: Added quality assurance layer to the AI pipeline
-  - Logical Flow Check: Validates section sequencing and prerequisite placement
-  - Clarity Assessment: Ensures beginner-friendly language and no undefined jargon
-  - Completeness Verification: Confirms all features are documented
-  - Consistency Validation: Checks terminology and formatting uniformity
-  - Accessibility Review: Validates actionable instructions
-- **Quality Scoring**: Each category receives a score (0-100) with overall score calculation
-- **Auto-Refinement**: Content is automatically improved if quality score falls below 85
-- **Enhanced Progress Tracking**: Updated to show all 4 stages (Extract → Write → Metadata → Quality Check)
-
-### Advanced Theme Creation Tools (October 12, 2025)
-- **Custom Theme Builder**: Full-featured UI for creating custom themes from scratch
-  - Color Palette Editor: 12 semantic colors with visual color pickers and hex input
-  - Typography Controls: Customizable body font, heading font, and code font
-  - Real-Time Preview: See theme changes instantly before applying
-  - WCAG Accessibility Checker: Live contrast ratio validation (AA/AAA compliance)
-  - Theme Export: Download custom themes as JSON files for sharing
-  - Theme Import: Upload and apply previously exported theme files
-  
-- **Brand Kit Integration**: Automatic color extraction from logos
-  - Logo Upload: Support for PNG, JPG, SVG formats
-  - Color Detection: Advanced algorithm extracts 5 dominant colors from uploaded images
-  - One-Click Theme Generation: Instantly creates theme using brand colors
-  - Smart Color Mapping: Primary, secondary, and accent colors auto-assigned from logo
-
-### Enhanced Error Handling (October 12, 2025)
-- **JSON Parsing Retry Logic**: Intelligent error recovery for AI responses
-  - Automatic markdown code block extraction
-  - AI-powered JSON fixing with retry mechanism (up to 2 retries)
-  - Graceful fallback to prevent generation failures
-  - Detailed error logging for debugging
-
-### Accessibility & Quality Standards (October 12, 2025)
-- **Contrast Ratio Validation**: WCAG 2.1 compliance checking
-  - Level AA (4.5:1) and Level AAA (7:1) ratio calculations
-  - Text-on-background and primary-on-background checks
-  - Real-time feedback in theme builder
-  - Automatic pass/fail indicators
+DocSnap is an AI-powered web application that generates professional documentation from any website. Users provide a URL, and the system uses a 3-stage AI pipeline to analyze the website, extract content, and produce enterprise-quality documentation in multiple formats (PDF, DOCX, web). The application aims to create Apple-style clear and professional help center documentation, focusing on business vision, market potential, and project ambitions.
 
 ## User Preferences
 
@@ -113,123 +12,63 @@ Preferred communication style: Simple, everyday language.
 
 ### Frontend Architecture
 
-**Framework**: React with TypeScript and Vite
-- **UI Library**: Shadcn/ui components built on Radix UI primitives
-- **Styling**: Tailwind CSS with custom design tokens
-- **State Management**: TanStack Query (React Query) for server state
-- **Routing**: React Router for client-side navigation
-- **Form Handling**: React Hook Form with Zod validation
-
-**Design Philosophy**: The UI follows a modern, elegant design system with custom HSL color scheme, smooth transitions, and glass morphism effects. The application prioritizes visual polish with custom gradients, shadows, and animations defined in CSS variables.
+**Framework**: React with TypeScript and Vite, using Shadcn/ui components built on Radix UI primitives.
+**Styling**: Tailwind CSS with custom design tokens.
+**State Management**: TanStack Query for server state.
+**Routing**: React Router for client-side navigation.
+**Form Handling**: React Hook Form with Zod validation.
+**Design Philosophy**: Modern, elegant design with custom HSL color scheme, smooth transitions, and glass morphism effects, prioritizing visual polish with custom gradients, shadows, and animations.
 
 ### Backend Architecture
 
-**Runtime**: Node.js with Express
-- **Development Server**: tsx watch for hot-reloading
-- **API Structure**: RESTful endpoints under `/api` prefix
-- **Build Tool**: Vite for bundling and serving in production
-
-**Server Organization**:
-- `server/index.ts`: Main server entry point with Express setup
-- `server/routes.ts`: API route definitions
-- `server/vite.ts`: Vite middleware integration for development
-- `server/storage.ts`: Data persistence abstraction layer
-- `server/db.ts`: Database connection and configuration
+**Runtime**: Node.js with Express.
+**Development Server**: `tsx watch` for hot-reloading.
+**API Structure**: RESTful endpoints under `/api`.
+**Build Tool**: Vite for bundling and serving in production.
+**Server Organization**: Main entry point (`server/index.ts`), API routes (`server/routes.ts`), Vite middleware (`server/vite.ts`), storage abstraction (`server/storage.ts`), and database configuration (`server/db.ts`).
 
 ### Data Storage
 
-**Database**: PostgreSQL via Neon serverless
-- **ORM**: Drizzle ORM for type-safe database operations
-- **Schema Location**: `shared/schema.ts` for cross-environment type sharing
-- **Migrations**: Drizzle Kit manages schema migrations in `/migrations`
-
-**Data Model**:
-- `documentations` table stores generated documentation with fields: id, url, title, content, and generatedAt timestamp
-- Storage layer uses repository pattern with `IStorage` interface for potential future storage backend changes
+**Database**: PostgreSQL via Neon serverless.
+**ORM**: Drizzle ORM for type-safe database operations, with schema in `shared/schema.ts` and migrations in `/migrations`.
+**Data Model**: `documentations` table stores generated documentation with `id`, `url`, `title`, `content`, and `generatedAt`. A repository pattern with `IStorage` is used.
 
 ### AI Integration
 
-**Provider**: Groq API (llama-3.3-70b-versatile model) for AI-powered content generation
+**Provider**: Groq API (llama-3.3-70b-versatile model).
+**Comprehensive 3-Stage AI Pipeline**:
+1.  **Stage 1: Structure Understanding & Content Extraction**: Analyzes website to classify site type, identify navigation, extract visual elements, map content to documentation categories, and detect technical content. Output is structured JSON with content structure and confidence scores.
+2.  **Stage 2: Professional Documentation Writing**: Transforms extracted structure into Apple/Stripe-style documentation. Adheres to guidelines for tone, style, reading level (Grade 8-10), progressive disclosure, and scannable formatting. Output is structured JSON with various content types.
+3.  **Stage 3: Metadata Generation & SEO Optimization**: Adds comprehensive metadata (SEO-optimized title, description, keywords, version, language, read time) and searchability optimization. Output is enhanced documentation with metadata and production-ready formatting.
+**Processing Flow**: Fetches HTML, extracts images and theme, strips scripts/styles, extracts text, then processes through the 3 AI stages, combining with theme data and storing in the database.
+**Quality Validation**: Incorporates a 4th stage for logical flow, clarity, completeness, consistency, and accessibility checks with auto-refinement.
+**Theme Extraction**: Advanced color and font detection from websites, supporting various color formats and CSS variables, with filtering for generic fonts.
+**Image Support**: Extracts all image URLs, converts relative paths to absolute, and integrates images intelligently via AI prompts.
 
-**Comprehensive 3-Stage AI Pipeline**: Professional knowledge base generation system using enterprise-quality prompt engineering
+### UI/UX Decisions
 
-**Stage 1: Structure Understanding & Content Extraction**
-- **Purpose**: Analyze website and extract comprehensive structured content
-- **Process**: 
-  - Classifies site type (SaaS, e-commerce, blog, documentation, portfolio, etc.)
-  - Identifies navigation hierarchy from menus, headers, and site structure
-  - Extracts visual elements (screenshots, diagrams, CTAs, demo videos)
-  - Maps content to standard documentation categories
-  - Detects technical content (code snippets, API references, configuration examples)
-- **Output**: Structured JSON with site classification, navigation hierarchy, visual elements, content structure (overview, features, how-it-works, use cases, troubleshooting, FAQ, prerequisites, terminology), confidence scores, and extraction notes
+*   **Design System**: Modern, elegant system with custom HSL color scheme, smooth transitions, and glass morphism effects.
+*   **Theme Presets**: 5 professional themes (Apple Light, GitHub Dark, Stripe Modern, Notion Default, Modern Light) with dynamic application.
+*   **Live Theme Switcher**: Interactive UI to switch themes in real-time.
+*   **Custom Theme Builder**: UI for creating custom themes with color palette editor, typography controls, real-time preview, WCAG accessibility checker, and import/export.
+*   **Brand Kit Integration**: Automatic color extraction from uploaded logos.
+*   **Progress Tracking**: Visual 3-stage (or 4-stage with Quality Validation) progress indicators for documentation generation.
+*   **Export System**: Comprehensive export to PDF, DOCX, Markdown, JSON, and HTML, with theme-aware outputs. Batch export into ZIP.
+*   **Image Rendering**: DocumentationViewer supports image content blocks with lazy loading, alt text, and captions.
 
-**Stage 2: Professional Documentation Writing**
-- **Purpose**: Transform extracted structure into Apple/Stripe-style polished documentation
-- **Writing Guidelines**:
-  - Tone & Style: Clear, concise, elegant, confident, conversational but professional
-  - Active voice, present tense, Grade 8-10 reading level
-  - Progressive disclosure: Quick-start → Overview → Detailed guides
-  - Scannable format with headings, bullets, numbered lists
-  - Action-oriented content leading with what users can do
-- **Content Sections**: Getting Started, Core Features, How It Works, Use Cases & Examples, Technical Reference, Troubleshooting, FAQ, Glossary
-- **Output**: Structured JSON with sections containing multiple content types (paragraph, heading, list, code, callout, image, table)
-
-**Stage 3: Metadata Generation & SEO Optimization**
-- **Purpose**: Package documentation with professional metadata for production deployment
-- **Enhancements**:
-  - Comprehensive metadata (SEO-optimized title, meta description, keywords, version, language, estimated read time)
-  - Searchability optimization (primary tags, search keywords, synonyms)
-  - SEO-friendly section slugs and ordering
-  - Content validation and quality checks
-- **Output**: Enhanced documentation with metadata, searchability fields, and production-ready formatting
-
-**Processing Flow**:
-1. Fetches HTML content from user-provided URL
-2. Extracts images and theme (colors, fonts) from HTML/CSS
-3. Strips scripts/styles and extracts text content (limited to 10,000 chars)
-4. **Stage 1**: Sends to Groq API for structure extraction → Returns comprehensive content structure
-5. **Stage 2**: Feeds extracted structure to Groq API → Returns professionally written documentation
-6. **Stage 3**: Enhances documentation with Groq API → Returns final package with metadata and SEO
-7. Combines all stages with theme data and stores complete enhanced documentation in database
-
-### External Dependencies
+## External Dependencies
 
 **Core Services**:
-- **Groq API**: AI model access for content generation (requires GROQ_API_KEY)
-- **Neon Database**: Serverless PostgreSQL hosting (requires DATABASE_URL)
+*   **Groq API**: AI model access for content generation (`GROQ_API_KEY`).
+*   **Neon Database**: Serverless PostgreSQL hosting (`DATABASE_URL`).
 
 **Third-party Libraries**:
-- **UI Components**: Radix UI primitives (@radix-ui/*) for accessible, unstyled components
-- **Form Validation**: Zod for runtime type validation, integrated with React Hook Form
-- **Database**: Drizzle ORM with Neon serverless driver
-- **Styling**: Tailwind CSS with class-variance-authority for variant management
-- **State**: TanStack Query for async state management
-- **Utilities**: date-fns for date formatting, clsx/tailwind-merge for className handling
+*   **UI Components**: Radix UI primitives (`@radix-ui/*`).
+*   **Form Validation**: Zod.
+*   **Database**: Drizzle ORM with Neon serverless driver.
+*   **Styling**: Tailwind CSS with `class-variance-authority`.
+*   **State**: TanStack Query.
+*   **Utilities**: `date-fns`, `clsx`, `tailwind-merge`.
 
 **Development Tools**:
-- TypeScript for type safety across client and server
-- ESLint with TypeScript integration
-- Vite plugin for React with SWC compiler
-- Lovable tagger for component development tracking
-
-### API Design
-
-**Endpoint Structure**:
-- `POST /api/generate-docs`: Accepts URL, returns generated documentation
-  - Validates URL format
-  - Fetches website content
-  - Processes through AI pipeline
-  - Stores in database
-  - Returns structured documentation object
-
-**Error Handling**: Comprehensive validation with user-friendly error messages for missing/invalid URLs, API failures, and processing errors
-
-### Future Extensibility
-
-The architecture supports planned enhancements:
-- Multi-URL crawling for full site documentation
-- Brand style themes (Apple, Microsoft, Notion)
-- Custom AI writing voice options
-- Auto-publishing to WordPress/Webflow/GitBook
-- Developer API for integration
-- Browser extension for instant generation
+*   TypeScript, ESLint, Vite plugin for React with SWC compiler, Lovable tagger.
