@@ -2,10 +2,12 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Loader2, FileText, ExternalLink, Download } from "lucide-react";
+import { Loader2, FileText, ExternalLink, Download, Zap, Shield, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const Index = () => {
   const [url, setUrl] = useState("");
@@ -80,16 +82,30 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
+      <Header />
+      
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-primary opacity-5" />
+        <div className="absolute inset-0">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-pulse delay-1000" />
+        </div>
         <div className="container mx-auto px-4 py-20 md:py-32 relative z-10">
           <div className="max-w-4xl mx-auto text-center space-y-8">
-            <h1 className="text-5xl md:text-7xl font-bold bg-gradient-primary bg-clip-text text-transparent animate-in fade-in slide-in-from-bottom-4 duration-1000">
-              DocSnap
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border bg-background/50 backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-1000">
+              <Zap className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium">AI-Powered Documentation Generator</span>
+            </div>
+            
+            <h1 className="text-5xl md:text-7xl font-bold bg-gradient-primary bg-clip-text text-transparent animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-100">
+              Transform Websites into
+              <br />
+              <span className="text-primary">Professional Docs</span>
             </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-150">
-              Transform any website into professional documentation. Simply paste a URL and let AI create beautiful, structured docs instantly.
+            
+            <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-200">
+              Simply paste a URL and let AI create beautiful, structured documentation instantly. Like Microsoft or Twitter help centers.
             </p>
             
             {/* URL Input Card */}
@@ -210,35 +226,45 @@ const Index = () => {
 
       {/* Features Section */}
       {!generatedDoc && (
-        <section className="container mx-auto px-4 pb-20">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">Simple. Professional. Instant.</h2>
+        <section id="features" className="container mx-auto px-4 pb-20">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose DocSnap?</h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Everything you need to create professional documentation in seconds
+              </p>
+            </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="text-center space-y-4">
-                <div className="h-16 w-16 rounded-2xl bg-gradient-primary mx-auto flex items-center justify-center shadow-glow">
-                  <FileText className="h-8 w-8 text-primary-foreground" />
+              <Card className="p-8 hover:shadow-elegant transition-all duration-300 border-2 hover:border-primary/50">
+                <div className="h-12 w-12 rounded-xl bg-gradient-primary flex items-center justify-center mb-6 shadow-glow">
+                  <Zap className="h-6 w-6 text-primary-foreground" />
                 </div>
-                <h3 className="text-xl font-semibold">AI-Powered</h3>
-                <p className="text-muted-foreground">Advanced AI extracts and structures your content automatically</p>
-              </div>
-              <div className="text-center space-y-4">
-                <div className="h-16 w-16 rounded-2xl bg-gradient-primary mx-auto flex items-center justify-center shadow-glow">
-                  <Download className="h-8 w-8 text-primary-foreground" />
+                <h3 className="text-xl font-semibold mb-3">Lightning Fast</h3>
+                <p className="text-muted-foreground">Generate complete documentation in under 30 seconds. AI-powered extraction and structuring.</p>
+              </Card>
+              
+              <Card className="p-8 hover:shadow-elegant transition-all duration-300 border-2 hover:border-primary/50">
+                <div className="h-12 w-12 rounded-xl bg-gradient-primary flex items-center justify-center mb-6 shadow-glow">
+                  <Shield className="h-6 w-6 text-primary-foreground" />
                 </div>
-                <h3 className="text-xl font-semibold">Multiple Formats</h3>
-                <p className="text-muted-foreground">Get your docs in PDF, DOCX, or live web format</p>
-              </div>
-              <div className="text-center space-y-4">
-                <div className="h-16 w-16 rounded-2xl bg-gradient-primary mx-auto flex items-center justify-center shadow-glow">
-                  <ExternalLink className="h-8 w-8 text-primary-foreground" />
+                <h3 className="text-xl font-semibold mb-3">Enterprise Quality</h3>
+                <p className="text-muted-foreground">Professional formatting that matches industry leaders like Microsoft and Twitter.</p>
+              </Card>
+              
+              <Card className="p-8 hover:shadow-elegant transition-all duration-300 border-2 hover:border-primary/50">
+                <div className="h-12 w-12 rounded-xl bg-gradient-primary flex items-center justify-center mb-6 shadow-glow">
+                  <Download className="h-6 w-6 text-primary-foreground" />
                 </div>
-                <h3 className="text-xl font-semibold">Enterprise Quality</h3>
-                <p className="text-muted-foreground">Professional formatting like Microsoft or Twitter help centers</p>
-              </div>
+                <h3 className="text-xl font-semibold mb-3">Multiple Formats</h3>
+                <p className="text-muted-foreground">Export to PDF, DOCX, or publish as a live web page. Your choice, your format.</p>
+              </Card>
             </div>
           </div>
         </section>
       )}
+      
+      <Footer />
     </div>
   );
 };
