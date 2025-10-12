@@ -111,10 +111,12 @@ export default function Profile() {
                     <div className="font-semibold">{d.title}</div>
                     <div className="text-sm text-muted-foreground">{d.url}</div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center">
                     <button onClick={() => openDoc(d.id)} className="text-sm underline">Open</button>
-                    <a href={`/api/export/html/${d.id}`} className="text-sm">HTML</a>
-                    <a href={`/api/export/pdf/${d.id}`} className="text-sm">PDF</a>
+                    <button onClick={() => downloadBlob(`/api/export/html/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.html`)} className="text-sm">HTML</button>
+                    <button onClick={() => downloadBlob(`/api/export/pdf/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.pdf`)} className="text-sm">PDF</button>
+                    <button onClick={() => downloadBlob(`/api/export/markdown/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.md`)} className="text-sm">MD</button>
+                    <button onClick={() => downloadBlob(`/api/export/docx/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.docx`)} className="text-sm">DOCX</button>
                     <button onClick={() => deleteDoc(d.id)} className="text-sm text-red-600">Delete</button>
                   </div>
                 </li>
