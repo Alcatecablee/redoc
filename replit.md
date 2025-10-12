@@ -6,6 +6,12 @@ DocSnap is an AI-powered web application that automatically generates profession
 
 ## Recent Changes
 
+### Image Support Enhancement (October 12, 2025)
+- **Image Extraction**: Backend now extracts all image URLs from website HTML and converts relative URLs to absolute paths
+- **AI-Powered Image Integration**: Updated Groq AI prompt to intelligently select and place relevant images throughout documentation
+- **Image Rendering**: DocumentationViewer supports image content blocks with lazy loading, alt text, and optional captions
+- **Enterprise Layout**: Complete documentation viewer with sidebar table of contents, navigation tabs, and professional formatting matching Microsoft/Twitter help centers
+
 ### Landing Page Enhancement (October 2025)
 - **Header Component**: Added professional sticky navigation with logo, menu items (Features, How it Works, Pricing, About), and action buttons (Sign In, Get Started). Fully responsive with mobile menu.
 - **Footer Component**: Comprehensive footer with brand information, link columns (Product, Company, Resources, Legal), and social media links (Twitter, GitHub, LinkedIn, Email).
