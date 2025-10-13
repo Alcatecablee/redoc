@@ -22,7 +22,7 @@ const Header = () => {
         const { data } = await supabase.auth.getUser();
         if (mounted) setUser(data.user ?? null);
       } catch (e) {
-        console.warn('Failed to get supabase user', e);
+        // Failed to get user, they're not signed in
       }
     })();
 

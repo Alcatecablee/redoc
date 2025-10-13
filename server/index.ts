@@ -2,16 +2,23 @@ import express from "express";
 import { createServer } from "http";
 import routes from "./routes";
 import { setupVite } from "./vite";
+import { logger } from "./logger";
 
 const app = express();
 const port = process.env.PORT || 3001;
-console.log('ENV: DATABASE_URL set:', !!process.env.DATABASE_URL, ' SUPABASE_URL set:', !!process.env.SUPABASE_URL, ' GROQ_API_KEY set:', !!process.env.GROQ_API_KEY);
+logger.info('Environment check', {
+  DATABASE_URL: !!process.env.DATABASE_URL,
+  SUPABASE_URL: !!process.env.SUPABASE_URL,
+  GROQ_API_KEY: !!process.env.GROQ_API_KEY
+});
 
 // Log incoming HTTP requests for debugging
 app.use((req, res, next) => {
   try {
-    console.log('[HTTP]', req.method, req.originalUrl, 'from', req.ip);
-  } catch (e) {}
+    logger.http(req.method, req.originalUrl, req.ip);
+  } catch (e) {
+    logger.error('Failed to log HTTP request', e);
+  }
   next();
 });
 
@@ -28,18 +35,18 @@ import { generateDocumentationPipeline } from './generator';
 
 initInMemoryQueue(async (job: any) => {
   try {
-    console.log('Processing job', job.id, job.name);
+    logger.info('Processing job', { jobId: job.id, jobName: job.name });
     const { url, userId } = job.payload || {};
     if (job.name === 'generate-docs' && url) {
       const result = await generateDocumentationPipeline(url, userId || null);
       job.result = { documentationId: result.documentation.id };
-      console.log('Job completed', job.id, job.result);
+      logger.info('Job completed', { jobId: job.id, result: job.result });
     } else {
       throw new Error('Unknown job or missing payload');
     }
   } catch (err: any) {
     job.error = err?.message || String(err);
-    console.error('Job failed', job.id, job.error);
+    logger.error('Job failed', { jobId: job.id, error: job.error });
     throw err;
   }
 });
@@ -50,12 +57,12 @@ async function start() {
   app.use(routes);
 
   server.listen(Number(port), "0.0.0.0", () => {
-    console.log(`Server running on port ${port}`);
+    logger.info(`Server running on port ${port}`);
   });
 }
 
 start().catch((err) => {
-  console.error("Failed to start server:", err);
+  logger.error("Failed to start server", err);
   process.exit(1);
 });
 

@@ -1,0 +1,45 @@
+/* Theme Builder Preview Styles */
+.theme-preview-card {
+  background-color: var(--preview-background, #ffffff);
+}
+
+.theme-preview-title {
+  color: var(--preview-primary, #2563eb);
+}
+
+.theme-preview-text {
+  color: var(--preview-text, #1f2937);
+}
+
+.theme-preview-primary-badge {
+  background-color: var(--preview-primary, #2563eb);
+  color: #ffffff;
+}
+
+.theme-preview-secondary-badge {
+  background-color: var(--preview-secondary, #64748b);
+  color: #ffffff;
+}
+
+.theme-preview-accent-badge {
+  background-color: var(--preview-accent, #0ea5e9);
+  color: #ffffff;
+}
+
+.color-picker-swatch {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.375rem;
+  border: 2px solid #e5e7eb;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.color-picker-swatch:hover {
+  border-color: #9ca3af;
+}
+
+.color-picker-swatch:focus {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}

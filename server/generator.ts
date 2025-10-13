@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import { storage } from './storage';
 import { generateEnhancedDocumentation } from './enhanced-generator';
+import { logger } from './logger';
 
 // Reusable JSON parsing with AI retry (copied/adapted)
 export async function parseJSONWithRetry(apiKey: string, content: string, retryPrompt: string, maxRetries = 2): Promise<any> {
@@ -15,7 +16,7 @@ export async function parseJSONWithRetry(apiKey: string, content: string, retryP
       try {
         return JSON.parse(jsonMatch[1]);
       } catch (e) {
-        console.log('Extracted JSON parse failed');
+        logger.warn('Extracted JSON parse failed');
       }
     }
 
@@ -45,7 +46,7 @@ export async function parseJSONWithRetry(apiKey: string, content: string, retryP
         }
       } catch (retryError) {
         lastError = retryError as Error;
-        console.log(`Retry ${i + 1} failed:`, retryError);
+        logger.warn(`Retry ${i + 1} failed`, retryError);
       }
     }
 

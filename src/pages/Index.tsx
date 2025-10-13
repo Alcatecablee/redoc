@@ -15,6 +15,8 @@ import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { ThemeBuilder } from "@/components/ThemeBuilder";
 import { BrandKitExtractor } from "@/components/BrandKitExtractor";
 import { getDefaultTheme, Theme } from "../../shared/themes";
+import { useProgressTracking } from "@/hooks/useProgressTracking";
+import { validateUrl } from "@/lib/validation";
 
 function convertToViewerTheme(theme: Theme) {
   return {
@@ -29,8 +31,6 @@ function convertToViewerTheme(theme: Theme) {
 
 const Index = () => {
   const [url, setUrl] = useState("");
-  const [progress, setProgress] = useState(0);
-  const [currentStage, setCurrentStage] = useState<number>(0);
   const [generatedDoc, setGeneratedDoc] = useState<any>(null);
   const [selectedTheme, setSelectedTheme] = useState<Theme>(getDefaultTheme());
   const { toast } = useToast();
@@ -43,6 +43,8 @@ const Index = () => {
     { id: 4, name: "Quality Check", description: "Validating and refining content" }
   ];
 
+  const { progressState, startProgress, completeProgress, resetProgress } = useProgressTracking(stages);
+
   const generateMutation = useMutation({
     mutationFn: async (url: string) => {
       return apiRequest("/api/generate-docs", {
@@ -51,7 +53,7 @@ const Index = () => {
       });
     },
     onSuccess: (data) => {
-      setProgress(100);
+      completeProgress();
       setGeneratedDoc(data);
       toast({
         title: "Documentation Generated!",
@@ -59,7 +61,7 @@ const Index = () => {
       });
     },
     onError: (error: Error) => {
-      console.error('Error generating documentation:', error);
+      resetProgress();
       toast({
         title: "Generation Failed",
         description: error.message || "Failed to generate documentation. Please try again.",
@@ -78,48 +80,29 @@ const Index = () => {
         return;
       }
     } catch (e) {
-      console.warn('Auth check failed', e);
+      // Auth check failed, user needs to sign in
       setShowSignIn(true);
       return;
     }
 
-    if (!url) {
+    const validation = validateUrl(url);
+    if (!validation.isValid) {
       toast({
-        title: "URL Required",
-        description: "Please enter a valid website URL",
+        title: "Invalid URL",
+        description: validation.error || "Please enter a valid website URL",
         variant: "destructive",
       });
       return;
     }
 
-    setProgress(0);
-    setCurrentStage(0);
-
-    // Simulate 4-stage progress
-    const stageTimings = [
-      { stage: 1, progress: 25, duration: 3000 },
-      { stage: 2, progress: 50, duration: 3000 },
-      { stage: 3, progress: 75, duration: 3000 },
-      { stage: 4, progress: 90, duration: 2000 }
-    ];
-
-    let currentTimeout: NodeJS.Timeout;
-
-    const simulateProgress = (index: number) => {
-      if (index < stageTimings.length) {
-        const { stage, progress, duration } = stageTimings[index];
-        setCurrentStage(stage);
-        setProgress(progress);
-        currentTimeout = setTimeout(() => simulateProgress(index + 1), duration);
-      }
-    };
-
-    simulateProgress(0);
+    resetProgress();
+    startProgress();
 
     try {
       await generateMutation.mutateAsync(url);
-    } finally {
-      if (currentTimeout) clearTimeout(currentTimeout);
+    } catch (error) {
+      resetProgress();
+      throw error;
     }
   };
 
@@ -135,7 +118,7 @@ const Index = () => {
           return;
         }
       } catch (err) {
-        console.warn('Failed to get supabase session before download', err);
+        // Failed to get session, user needs to sign in
         setShowSignIn(true);
         toast({ title: 'Sign in required', description: 'Please sign in to download generated files' });
         return;
@@ -151,7 +134,6 @@ const Index = () => {
       a.remove();
       URL.revokeObjectURL(url);
     } catch (err: any) {
-      console.error('Download failed', err);
       toast({ title: 'Download failed', description: err?.message || 'Failed to download file', variant: 'destructive' });
     }
   };
@@ -227,6 +209,10 @@ const Index = () => {
                       className="flex-1 h-14 text-base bg-white/5 placeholder-white/60 border border-white/8 focus-visible:border-primary/60 focus-visible:ring-primary/20 transition-all rounded-lg px-4"
                       disabled={generateMutation.isPending}
                       data-testid="input-url"
+                      aria-label="Website URL"
+                      aria-describedby="url-helper-text"
+                      aria-invalid={false}
+                      required
                     />
                     <Button
                       onClick={handleGenerate}
@@ -250,15 +236,32 @@ const Index = () => {
                   </div>
 
                   {/* small helper text */}
-                  <div className="text-xs text-white/70 mt-3 text-left md:text-center">
+                  <div id="url-helper-text" className="text-xs text-white/70 mt-3 text-left md:text-center">
                     Works best with public sites. Sign in to save your docs.
                   </div>
 
                   {/* Progress strip */}
-                  {generateMutation.isPending && (
+                  {progressState.isActive && (
                     <div className="mt-4">
-                      <div className="h-2 bg-white/8 rounded-full overflow-hidden">
-                        <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+                      <div 
+                        className="h-2 bg-white/8 rounded-full overflow-hidden"
+                        role="progressbar"
+                        aria-valuenow={progressState.overallProgress}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label="Documentation generation progress"
+                      >
+                        <div 
+                          className="h-full bg-primary transition-all duration-500" 
+                          style={{ width: `${progressState.overallProgress}%` }} 
+                        />
+                      </div>
+                      <div className="mt-2 text-xs text-white/70">
+                        {progressState.currentStage > 0 && progressState.stages[progressState.currentStage - 1] && (
+                          <span>
+                            Stage {progressState.currentStage}: {progressState.stages[progressState.currentStage - 1].name}
+                          </span>
+                        )}
                       </div>
                     </div>
                   )}

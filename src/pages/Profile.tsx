@@ -81,7 +81,6 @@ export default function Profile() {
       a.remove();
       URL.revokeObjectURL(url);
     } catch (err: any) {
-      console.error('Download failed', err);
       toast({ title: 'Download failed', description: err?.message || 'Failed to download file', variant: 'destructive' });
     }
   };

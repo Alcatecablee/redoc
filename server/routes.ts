@@ -3,6 +3,7 @@ import { z } from "zod";
 import { storage } from "./storage";
 import { insertDocumentationSchema } from "@shared/schema";
 import archiver from "archiver";
+import { logger } from "./logger";
 
 const router = Router();
 
@@ -32,7 +33,7 @@ async function verifySupabaseAuth(req: any, res: any, next: any) {
 
     if (!userResp.ok) {
       const text = await userResp.text();
-      console.warn('Supabase auth verify failed:', userResp.status, text);
+      logger.warn('Supabase auth verify failed', { status: userResp.status, details: text });
       return res.status(401).json({ error: 'Unauthorized', details: text });
     }
 
@@ -40,7 +41,7 @@ async function verifySupabaseAuth(req: any, res: any, next: any) {
     req.user = userData;
     return next();
   } catch (err: any) {
-    console.error('Error verifying supabase token', err);
+    logger.error('Error verifying supabase token', err);
     return res.status(500).json({ error: 'Auth verification failed' });
   }
 }
@@ -53,7 +54,7 @@ async function parseJSONWithRetry(apiKey: string, content: string, retryPrompt: 
   try {
     return JSON.parse(content);
   } catch (error) {
-    console.log('Initial JSON parse failed, attempting to clean and retry...');
+    logger.warn('Initial JSON parse failed, attempting to clean and retry...');
     
     // Try to extract JSON from markdown code blocks or other formatting
     const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/) || content.match(/```\s*([\s\S]*?)\s*```/);
@@ -61,14 +62,14 @@ async function parseJSONWithRetry(apiKey: string, content: string, retryPrompt: 
       try {
         return JSON.parse(jsonMatch[1]);
       } catch (e) {
-        console.log('Extracted JSON parse failed');
+        logger.warn('Extracted JSON parse failed');
       }
     }
     
     // If still failing, retry with AI to fix the JSON
     for (let i = 0; i < maxRetries; i++) {
       try {
-        console.log(`Retry attempt ${i + 1} to fix JSON...`);
+        logger.debug(`Retry attempt ${i + 1} to fix JSON...`);
         
         const retryResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
           method: 'POST',
@@ -100,7 +101,7 @@ async function parseJSONWithRetry(apiKey: string, content: string, retryPrompt: 
         }
       } catch (retryError) {
         lastError = retryError as Error;
-        console.log(`Retry ${i + 1} failed:`, retryError);
+        logger.warn(`Retry ${i + 1} failed`, retryError);
       }
     }
     
@@ -112,7 +113,7 @@ async function parseJSONWithRetry(apiKey: string, content: string, retryPrompt: 
 router.post("/api/generate-docs", verifySupabaseAuth, async (req, res) => {
   try {
     // Log incoming request for debugging
-    console.log('/api/generate-docs called', {
+    logger.info('/api/generate-docs called', {
       headers: Object.keys(req.headers).reduce((acc: any, key) => ({ ...acc, [key]: req.headers[key] }), {}),
       body: req.body,
       ip: req.ip,
@@ -140,7 +141,7 @@ router.post("/api/generate-docs", verifySupabaseAuth, async (req, res) => {
     }
 
     // Fetch website content
-    console.log("Fetching website content for:", url);
+    logger.info("Fetching website content for", { url });
     const websiteResponse = await fetch(url).catch((fetchErr) => {
       console.error('generate-docs: fetch failed', fetchErr?.message || fetchErr);
       return null as any;
@@ -255,7 +256,7 @@ router.post("/api/generate-docs", verifySupabaseAuth, async (req, res) => {
     };
     
     const theme = extractTheme(htmlContent);
-    console.log('Extracted theme:', theme);
+    logger.debug('Extracted theme', theme);
     
     // Extract text content from HTML (basic extraction)
     const textContent = htmlContent
@@ -266,7 +267,7 @@ router.post("/api/generate-docs", verifySupabaseAuth, async (req, res) => {
       .trim()
       .substring(0, 10000); // Limit content size for AI processing
 
-    console.log("Stage 1: Extracting website structure...");
+    logger.info("Stage 1: Extracting website structure...");
 
     // STAGE 1: Structure Understanding & Content Extraction
     const stage1Response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -399,7 +400,7 @@ Available images: ${images.slice(0, 10).join(', ')}`
       'Ensure the output is valid JSON matching the structure extraction format'
     );
     
-    console.log("Stage 2: Writing professional documentation...");
+    logger.info("Stage 2: Writing professional documentation...");
 
     // STAGE 2: Professional Documentation Writing
     const stage2Response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -488,7 +489,7 @@ Use proper formatting, include relevant images, and make it professional and com
       'Ensure the output is valid JSON with proper documentation structure'
     );
     
-    console.log("Stage 3: Generating metadata and SEO optimization...");
+    logger.info("Stage 3: Generating metadata and SEO optimization...");
 
     // STAGE 3: Metadata Generation & Export Formatting
     const stage3Response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -552,7 +553,7 @@ Source URL: ${url}`
       'Ensure the output is valid JSON with metadata and searchability fields'
     );
     
-    console.log("Stage 4: Quality validation and refinement...");
+    logger.info("Stage 4: Quality validation and refinement...");
 
     // STAGE 4: Validation & Refinement (Quality Checks)
     const documentationForValidation = {
@@ -629,10 +630,10 @@ Return ONLY valid JSON.`
       if (validationData.refined_sections && validationData.refined_sections.length > 0 && 
           validationResults?.overall_score < 85) {
         refinedSections = validationData.refined_sections;
-        console.log(`Quality improvements applied (score: ${validationResults?.overall_score})`);
+        logger.info('Quality improvements applied', { score: validationResults?.overall_score });
       }
     } else {
-      console.log('Stage 4 validation skipped due to API error, using original content');
+      logger.warn('Stage 4 validation skipped due to API error, using original content');
     }
     
     // Combine all stages into final documentation
@@ -658,7 +659,7 @@ Return ONLY valid JSON.`
       user_id: req.user?.id || null,
     });
 
-    console.log("Documentation generated successfully with 4-stage AI pipeline (Extract → Write → Metadata → Quality Check)");
+    logger.info("Documentation generated successfully with 4-stage AI pipeline (Extract → Write → Metadata → Quality Check)");
 
     res.json({
       id: documentation.id,

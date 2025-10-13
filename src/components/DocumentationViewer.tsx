@@ -16,6 +16,7 @@ import {
   AlertTriangle,
   CheckCircle
 } from "lucide-react";
+import './DocumentationViewer.css';
 
 interface ContentBlock {
   type: string;
@@ -107,8 +108,8 @@ export function DocumentationViewer({ title, description, sections, theme }: Doc
         return (
           <HeadingTag 
             key={index} 
-            className={headingClasses}
-            style={{ color: block.level === 2 ? primaryColor : secondaryColor }}
+            className={`${headingClasses} ${block.level === 2 ? "doc-viewer-heading-2" : "doc-viewer-heading-3"}`}
+            aria-level={block.level}
           >
             {block.text}
           </HeadingTag>
@@ -120,8 +121,8 @@ export function DocumentationViewer({ title, description, sections, theme }: Doc
             {block.items?.map((item, i) => (
               <li key={i} className="flex items-start gap-2">
                 <ChevronRight 
-                  className="h-5 w-5 mt-0.5 flex-shrink-0" 
-                  style={{ color: primaryColor }}
+                  className="h-5 w-5 mt-0.5 flex-shrink-0 doc-viewer-heading-3"
+                  aria-hidden="true"
                 />
                 <span className="text-muted-foreground">{item}</span>
               </li>
@@ -191,9 +192,9 @@ export function DocumentationViewer({ title, description, sections, theme }: Doc
           <figure key={index} className="mb-6">
             <img 
               src={block.url} 
-              alt={block.alt || "Documentation image"} 
+              alt={block.alt || "Documentation image"}
+              loading="lazy" 
               className="w-full max-w-3xl rounded-lg border shadow-md"
-              loading="lazy"
             />
             {block.caption && (
               <figcaption className="mt-2 text-sm text-muted-foreground text-center">
@@ -211,10 +212,17 @@ export function DocumentationViewer({ title, description, sections, theme }: Doc
   const activeContent = sections.find((s) => s.id === activeSection);
 
   return (
-    <div className="max-w-7xl mx-auto" style={{ fontFamily: primaryFont }}>
+    <div 
+      className="max-w-7xl mx-auto doc-viewer-container" 
+      style={{ 
+        '--primary-color': primaryColor,
+        '--secondary-color': secondaryColor,
+        '--primary-font': primaryFont 
+      } as React.CSSProperties}
+    >
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-3" style={{ color: primaryColor }}>{title}</h1>
+        <h1 className="text-4xl font-bold mb-3 doc-viewer-title">{title}</h1>
         {description && (
           <p className="text-xl text-muted-foreground">{description}</p>
         )}
@@ -236,12 +244,11 @@ export function DocumentationViewer({ title, description, sections, theme }: Doc
                     onClick={() => setActiveSection(section.id)}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       isActive
-                        ? "text-white"
-                        : "hover:bg-accent text-muted-foreground"
+                        ? "text-white doc-viewer-sidebar-item active"
+                        : "hover:bg-accent text-muted-foreground doc-viewer-sidebar-item"
                     }`}
-                    style={isActive ? { backgroundColor: primaryColor } : {}}
                   >
-                    <Icon className="h-4 w-4 flex-shrink-0" style={isActive ? {} : { color: primaryColor }} />
+                    <Icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'doc-viewer-sidebar-icon active' : 'doc-viewer-sidebar-icon'}`} />
                     <span className="text-sm font-medium">{section.title}</span>
                   </button>
                 );
@@ -258,9 +265,9 @@ export function DocumentationViewer({ title, description, sections, theme }: Doc
                 <div className="flex items-center gap-3 mb-6">
                   {(() => {
                     const Icon = iconMap[activeContent.icon] || BookOpen;
-                    return <Icon className="h-6 w-6" style={{ color: primaryColor }} />;
+                    return <Icon className="h-6 w-6 doc-viewer-section-icon" />;
                   })()}
-                  <h2 className="text-3xl font-bold" style={{ color: primaryColor }}>{activeContent.title}</h2>
+                  <h2 className="text-3xl font-bold doc-viewer-section-title">{activeContent.title}</h2>
                 </div>
                 <Separator className="mb-6" />
                 <div className="prose prose-slate max-w-none">

@@ -1,0 +1,53 @@
+/* Documentation Viewer Styles */
+.doc-viewer-container {
+  font-family: var(--primary-font, 'Inter', system-ui, -apple-system, sans-serif);
+}
+
+.doc-viewer-title {
+  color: var(--primary-color, #2563eb);
+}
+
+.doc-viewer-heading-2 {
+  color: var(--secondary-color, #64748b);
+}
+
+.doc-viewer-heading-3 {
+  color: var(--primary-color, #2563eb);
+}
+
+.doc-viewer-sidebar-item {
+  transition: background-color 0.2s ease;
+}
+
+.doc-viewer-sidebar-item.active {
+  background-color: var(--primary-color, #2563eb);
+}
+
+.doc-viewer-sidebar-icon {
+  color: var(--primary-color, #2563eb);
+}
+
+.doc-viewer-sidebar-icon.active {
+  color: white;
+}
+
+.doc-viewer-section-icon {
+  color: var(--primary-color, #2563eb);
+}
+
+.doc-viewer-section-title {
+  color: var(--primary-color, #2563eb);
+}
+
+/* Dynamic color variables that can be set via CSS custom properties */
+.doc-viewer-container[data-primary-color] {
+  --primary-color: attr(data-primary-color);
+}
+
+.doc-viewer-container[data-secondary-color] {
+  --secondary-color: attr(data-secondary-color);
+}
+
+.doc-viewer-container[data-primary-font] {
+  --primary-font: attr(data-primary-font);
+}

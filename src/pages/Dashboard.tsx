@@ -6,13 +6,20 @@ import { apiRequest, apiRequestBlob } from '@/lib/queryClient';
 import { DocumentationViewer } from '@/components/DocumentationViewer';
 import { BrandKitExtractor } from '@/components/BrandKitExtractor';
 import { Button } from '@/components/ui/button';
-import { Download, FileText, ExternalLink, Trash2 } from 'lucide-react';
+import { Download, FileText, ExternalLink, Trash2, FileX } from 'lucide-react';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { LoadingState, DocumentListSkeleton } from '@/components/ui/loading-state';
+import { EmptyState } from '@/components/ui/empty-state';
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
   const [docs, setDocs] = useState<any[]>([]);
   const [selectedDoc, setSelectedDoc] = useState<any | null>(null);
   const [viewerTheme, setViewerTheme] = useState<any | undefined>(undefined);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [docToDelete, setDocToDelete] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingDoc, setIsLoadingDoc] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -32,6 +39,8 @@ export default function Dashboard() {
         if (mounted) setDocs(json || []);
       } catch (e: any) {
         toast({ title: 'Failed to load docs', description: e.message || String(e), variant: 'destructive' });
+      } finally {
+        if (mounted) setIsLoading(false);
       }
     })();
 
@@ -41,6 +50,7 @@ export default function Dashboard() {
   }, []);
 
   const openDoc = async (id: number) => {
+    setIsLoadingDoc(true);
     try {
       const doc = await apiRequest(`/api/documentations/${id}`);
       const parsed = typeof doc.content === 'string' ? JSON.parse(doc.content) : doc.content;
@@ -48,18 +58,28 @@ export default function Dashboard() {
       setViewerTheme(parsed.theme || undefined);
     } catch (e: any) {
       toast({ title: 'Failed to open doc', description: e.message || String(e), variant: 'destructive' });
+    } finally {
+      setIsLoadingDoc(false);
     }
   };
 
-  const deleteDoc = async (id: number) => {
-    if (!confirm('Delete this documentation? This cannot be undone.')) return;
+  const handleDeleteClick = (id: number) => {
+    setDocToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!docToDelete) return;
+    
     try {
-      await apiRequest(`/api/documentations/${id}`, { method: 'DELETE' });
-      setDocs((prev) => prev.filter((d) => d.id !== id));
-      if (selectedDoc?.id === id) setSelectedDoc(null);
-      toast({ title: 'Deleted', description: 'Documentation deleted' });
+      await apiRequest(`/api/documentations/${docToDelete}`, { method: 'DELETE' });
+      setDocs((prev) => prev.filter((d) => d.id !== docToDelete));
+      if (selectedDoc?.id === docToDelete) setSelectedDoc(null);
+      toast({ title: 'Deleted', description: 'Documentation deleted successfully' });
     } catch (e: any) {
       toast({ title: 'Delete failed', description: e.message || String(e), variant: 'destructive' });
+    } finally {
+      setDocToDelete(null);
     }
   };
 
@@ -83,7 +103,6 @@ export default function Dashboard() {
       a.remove();
       URL.revokeObjectURL(url);
     } catch (err: any) {
-      console.error('Download failed', err);
       toast({ title: 'Download failed', description: err?.message || 'Failed to download file', variant: 'destructive' });
     }
   };
@@ -108,8 +127,19 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1">
           <h2 className="text-xl font-semibold mb-3">Your Generated Docs</h2>
-          {docs.length === 0 ? (
-            <p className="text-muted-foreground">No documents generated yet.</p>
+          {isLoading ? (
+            <DocumentListSkeleton />
+          ) : docs.length === 0 ? (
+            <EmptyState
+              icon={FileX}
+              title="No documents yet"
+              description="Generate your first documentation by visiting the homepage and entering a website URL."
+              action={{
+                label: "Generate Documentation",
+                onClick: () => navigate('/')
+              }}
+              showCard
+            />
           ) : (
             <ul className="space-y-3">
               {docs.map((d) => (
@@ -135,7 +165,7 @@ export default function Dashboard() {
                     <Button variant="ghost" size="sm" onClick={() => downloadBlob(`/api/export/docx/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.docx`)}>
                       DOCX
                     </Button>
-                    <Button variant="destructive" size="sm" onClick={() => deleteDoc(d.id)}>
+                    <Button variant="destructive" size="sm" onClick={() => handleDeleteClick(d.id)}>
                       <Trash2 className="h-4 w-4"/>Delete
                     </Button>
                   </div>
@@ -146,7 +176,14 @@ export default function Dashboard() {
         </div>
 
         <div className="lg:col-span-2">
-          {selectedDoc ? (
+          {isLoadingDoc ? (
+            <LoadingState 
+              message="Loading document..." 
+              size="lg" 
+              showCard 
+              className="min-h-[400px]" 
+            />
+          ) : selectedDoc ? (
             <div>
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -157,7 +194,7 @@ export default function Dashboard() {
                 </div>
                 <div className="flex items-center gap-2">
                   <BrandKitExtractor onThemeGenerated={(theme) => setViewerTheme(theme)} />
-                  <button className="btn" onClick={() => setSelectedDoc(null)}>Close</button>
+                  <Button variant="outline" onClick={() => setSelectedDoc(null)}>Close</Button>
                 </div>
               </div>
 
@@ -169,12 +206,27 @@ export default function Dashboard() {
               />
             </div>
           ) : (
-            <div className="p-6 rounded-lg border-dashed border-2 border-gray-200 text-center">
-              <p className="text-muted-foreground">Select a document to preview its contents</p>
-            </div>
+            <EmptyState
+              icon={FileText}
+              title="Select a document"
+              description="Choose a document from the list to preview its contents and download in various formats."
+              showCard
+              className="min-h-[400px]"
+            />
           )}
         </div>
       </div>
+
+      <ConfirmationDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Delete Documentation"
+        description="Are you sure you want to delete this documentation? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={confirmDelete}
+        variant="destructive"
+      />
     </div>
   );
 }

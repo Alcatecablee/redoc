@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import './ThemeBuilder.css';
 
 interface ThemeBuilderProps {
   onThemeCreated: (theme: Theme) => void;
@@ -275,24 +276,31 @@ export function ThemeBuilder({ onThemeCreated }: ThemeBuilderProps) {
           </div>
 
           {/* Preview */}
-          <Card className="p-6" style={{ 
-            backgroundColor: colors.background,
-            fontFamily: typography.font_family 
-          }}>
-            <h2 className="text-2xl font-bold mb-2" style={{ color: colors.primary }}>
+          <Card 
+            className="p-6 theme-preview-card" 
+            style={{ 
+              '--preview-background': colors.background,
+              '--preview-primary': colors.primary,
+              '--preview-secondary': colors.secondary,
+              '--preview-accent': colors.accent,
+              '--preview-text': colors.text,
+              fontFamily: typography.font_family 
+            } as React.CSSProperties}
+          >
+            <h2 className="text-2xl font-bold mb-2 theme-preview-title">
               Theme Preview
             </h2>
-            <p className="mb-4" style={{ color: colors.text }}>
+            <p className="mb-4 theme-preview-text">
               This is how your documentation will look with this theme.
             </p>
             <div className="flex gap-2 flex-wrap">
-              <div className="px-3 py-1 rounded" style={{ backgroundColor: colors.primary, color: '#fff' }}>
+              <div className="px-3 py-1 rounded theme-preview-primary-badge">
                 Primary
               </div>
-              <div className="px-3 py-1 rounded" style={{ backgroundColor: colors.secondary, color: '#fff' }}>
+              <div className="px-3 py-1 rounded theme-preview-secondary-badge">
                 Secondary
               </div>
-              <div className="px-3 py-1 rounded" style={{ backgroundColor: colors.accent, color: '#fff' }}>
+              <div className="px-3 py-1 rounded theme-preview-accent-badge">
                 Accent
               </div>
             </div>

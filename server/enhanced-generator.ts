@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
 import { storage } from './storage';
+import { logger } from './logger';
 
 // Enhanced site discovery and crawling
 export async function discoverSiteStructure(baseUrl: string) {
@@ -240,7 +241,7 @@ export async function parseJSONWithRetry(apiKey: string, content: string, retryP
       try {
         return JSON.parse(jsonMatch[1]);
       } catch (e) {
-        console.log('Extracted JSON parse failed');
+        logger.warn('Extracted JSON parse failed');
       }
     }
 
@@ -270,7 +271,7 @@ export async function parseJSONWithRetry(apiKey: string, content: string, retryP
         }
       } catch (retryError) {
         lastError = retryError as Error;
-        console.log(`Retry ${i + 1} failed:`, retryError);
+        logger.warn(`Retry ${i + 1} failed`, retryError);
       }
     }
 
@@ -283,10 +284,10 @@ export async function generateEnhancedDocumentation(url: string, userId: string 
   const GROQ_API_KEY = process.env.GROQ_API_KEY;
   if (!GROQ_API_KEY) throw new Error('GROQ_API_KEY not configured');
 
-  console.log('Stage 1: Discovering site structure...');
+  logger.info('Stage 1: Discovering site structure...');
   const siteStructure = await discoverSiteStructure(url);
   
-  console.log('Stage 2: Extracting multi-page content...');
+  logger.info('Stage 2: Extracting multi-page content...');
   const urlsToScrape = [
     ...siteStructure.validDocPaths,
     ...siteStructure.navLinks
@@ -294,10 +295,10 @@ export async function generateEnhancedDocumentation(url: string, userId: string 
   
   const extractedContent = await extractMultiPageContent(urlsToScrape);
   
-  console.log('Stage 3: Performing external research...');
+  logger.info('Stage 3: Performing external research...');
   const searchResults = await performExternalResearch(siteStructure.productName);
   
-  console.log('Stage 4: Synthesizing comprehensive data...');
+  logger.info('Stage 4: Synthesizing comprehensive data...');
   const comprehensiveData = {
     product_name: siteStructure.productName,
     base_url: url,
