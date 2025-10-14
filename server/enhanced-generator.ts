@@ -2,6 +2,61 @@ import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
 import { storage } from './storage';
 
+// Utility: attempt HEAD then GET to verify URL exists
+async function headOrGet(url: string): Promise<Response | null> {
+  try {
+    const headResp = await fetch(url, { method: 'HEAD' });
+    if (headResp.ok) return headResp;
+  } catch {}
+  try {
+    const getResp = await fetch(url, { method: 'GET' });
+    if (getResp.ok) return getResp;
+  } catch {}
+  return null;
+}
+
+// Utility: naive sitemap XML parser for <loc> entries
+function extractUrlsFromSitemap(xml: string, baseUrl: string): string[] {
+  const locMatches = Array.from(xml.matchAll(/<loc>\s*([^<]+)\s*<\/loc>/gi)).map(m => m[1].trim());
+  const baseHost = new URL(baseUrl).hostname.replace(/^www\./, '');
+  const allowedPatterns = /(doc|help|support|guide|tutorial|api|developer|faq|question|blog|article|changelog|release|update|resource|learn|integration|pricing|security|status|knowledge|kb)/i;
+  return locMatches
+    .filter(u => {
+      try {
+        const url = new URL(u);
+        const host = url.hostname.replace(/^www\./, '');
+        return host.endsWith(baseHost) && (allowedPatterns.test(url.pathname) || allowedPatterns.test(url.href));
+      } catch {
+        return false;
+      }
+    })
+    .slice(0, 200);
+}
+
+async function fetchSitemaps(baseUrl: string, extraHosts: string[] = []): Promise<string[]> {
+  const roots = [baseUrl, ...extraHosts.map(host => {
+    const b = new URL(baseUrl);
+    return `${b.protocol}//${host}`;
+  })];
+  const paths = ['/sitemap.xml', '/sitemap_index.xml'];
+  const urls: string[] = [];
+  for (const root of roots) {
+    for (const p of paths) {
+      const target = new URL(p, root).href;
+      try {
+        const resp = await fetch(target);
+        if (resp.ok) {
+          const xml = await resp.text();
+          // If this is an index, it may contain sitemap <loc> entries too
+          const extracted = extractUrlsFromSitemap(xml, root);
+          urls.push(...extracted);
+        }
+      } catch {}
+    }
+  }
+  return Array.from(new Set(urls));
+}
+
 // Enhanced site discovery and crawling
 export async function discoverSiteStructure(baseUrl: string) {
   try {
@@ -18,25 +73,37 @@ export async function discoverSiteStructure(baseUrl: string) {
     
     // Common documentation paths to check
     const docPaths = [
-      '/docs', '/documentation', '/help', '/support', 
-      '/help-center', '/blog', '/articles', '/api', 
+      '/docs', '/documentation', '/help', '/support',
+      '/help-center', '/blog', '/articles', '/api',
       '/api-docs', '/developers', '/guides', '/tutorials',
       '/getting-started', '/faq', '/questions', '/changelog',
       '/updates', '/releases', '/resources', '/learn',
-      '/community', '/forum', '/knowledge-base', '/kb'
+      '/community', '/forum', '/knowledge-base', '/kb',
+      '/integrations', '/pricing', '/security', '/status', '/release-notes', '/roadmap'
     ];
+
+    // Probe common subdomains for docs/help content
+    const base = new URL(baseUrl);
+    const baseHost = base.hostname.replace(/^www\./, '');
+    const subdomains = ['docs','help','support','developer','dev','community','forum','status','api','blog'];
+    const discoveredHosts: string[] = [];
+    for (const sub of subdomains) {
+      const host = `${sub}.${baseHost}`;
+      const testUrl = `${base.protocol}//${host}/`;
+      const resp = await headOrGet(testUrl);
+      if (resp) discoveredHosts.push(host);
+    }
     
-    // Find valid documentation URLs
-    const validUrls = [];
-    for (const path of docPaths) {
-      try {
-        const testUrl = new URL(path, baseUrl).href;
-        const response = await fetch(testUrl, { method: 'HEAD' });
-        if (response.ok) {
-          validUrls.push(testUrl);
-        }
-      } catch (error) {
-        // Path doesn't exist, skip
+    // Find valid documentation URLs on base and discovered subdomains
+    const validUrls: string[] = [];
+    const rootsToTest = [baseUrl, ...discoveredHosts.map(h => `${base.protocol}//${h}`)];
+    for (const root of rootsToTest) {
+      for (const path of docPaths) {
+        try {
+          const testUrl = new URL(path, root).href;
+          const response = await headOrGet(testUrl);
+          if (response) validUrls.push(testUrl);
+        } catch {}
       }
     }
     
@@ -62,7 +129,7 @@ export async function discoverSiteStructure(baseUrl: string) {
     });
     
     // Extract all internal links from homepage
-    const allLinks = [];
+    const allLinks: string[] = [];
     $('a[href]').each((i, el) => {
       const href = $(el).attr('href');
       try {
@@ -74,13 +141,17 @@ export async function discoverSiteStructure(baseUrl: string) {
         // Invalid URL, skip
       }
     });
+
+    // Parse sitemaps from base and discovered hosts
+    const sitemapUrls = await fetchSitemaps(baseUrl, discoveredHosts);
     
     return {
       productName,
       baseUrl,
-      validDocPaths: validUrls,
+      validDocPaths: Array.from(new Set(validUrls)),
       navLinks: [...new Set(navLinks)],
-      allInternalLinks: [...new Set(allLinks)].slice(0, 50) // Limit to 50
+      allInternalLinks: [...new Set(allLinks)].slice(0, 200),
+      sitemapUrls
     };
   } catch (error) {
     console.error('Site discovery failed:', error);
@@ -89,7 +160,8 @@ export async function discoverSiteStructure(baseUrl: string) {
       baseUrl,
       validDocPaths: [],
       navLinks: [],
-      allInternalLinks: []
+      allInternalLinks: [],
+      sitemapUrls: []
     };
   }
 }
@@ -98,7 +170,7 @@ export async function discoverSiteStructure(baseUrl: string) {
 export async function extractMultiPageContent(urls: string[]) {
   const extracted = [];
   
-  for (const url of urls.slice(0, 20)) { // Limit to 20 pages
+  for (const url of urls.slice(0, 40)) { // Limit to 40 pages for broader coverage
     try {
       const response = await fetch(url, { 
         timeout: 10000,
@@ -190,42 +262,54 @@ export async function performExternalResearch(productName: string) {
   ];
   
   const allResults = [];
-  
-  for (const query of queries.slice(0, 5)) { // Limit to 5 queries
+  const SERPAPI_KEY = process.env.SERPAPI_KEY;
+  const BRAVE_API_KEY = process.env.BRAVE_API_KEY;
+
+  async function searchSerpApi(q: string) {
+    const params = new URLSearchParams({ engine: 'google', q, api_key: SERPAPI_KEY || '', num: '10' });
+    const resp = await fetch(`https://serpapi.com/search.json?${params.toString()}`);
+    if (!resp.ok) throw new Error(`SerpAPI failed: ${resp.status}`);
+    const data: any = await resp.json();
+    const organic = data.organic_results || [];
+    return organic.map((r: any) => ({ title: r.title, url: r.link, snippet: r.snippet }));
+  }
+
+  async function searchBrave(q: string) {
+    const resp = await fetch('https://api.search.brave.com/res/v1/web/search?' + new URLSearchParams({ q, count: '10' }).toString(), {
+      headers: {
+        'Accept': 'application/json',
+        'X-Subscription-Token': BRAVE_API_KEY || ''
+      }
+    });
+    if (!resp.ok) throw new Error(`Brave search failed: ${resp.status}`);
+    const data: any = await resp.json();
+    const results = (data.web && data.web.results) || [];
+    return results.map((r: any) => ({ title: r.title, url: r.url, snippet: r.description }));
+  }
+
+  const useSerp = !!SERPAPI_KEY;
+  const useBrave = !!BRAVE_API_KEY && !useSerp;
+
+  for (const query of queries) {
     try {
-      // Using a simple web search simulation
-      // In production, you'd use SerpAPI, Brave Search API, or similar
-      const searchResults = await simulateWebSearch(query);
-      allResults.push({
-        query,
-        results: searchResults
-      });
-      
-      await new Promise(resolve => setTimeout(resolve, 2000));
-    } catch (error) {
-      console.error(`Search failed for "${query}":`, error.message);
+      let results: any[] = [];
+      if (useSerp) results = await searchSerpApi(query);
+      else if (useBrave) results = await searchBrave(query);
+      else {
+        // No search API configured; skip to avoid mock data
+        continue;
+      }
+      allResults.push({ query, results });
+      await new Promise(resolve => setTimeout(resolve, 800));
+    } catch (error: any) {
+      // Continue to next query on failure without throwing
     }
   }
-  
+
   return allResults;
 }
 
-// Simulate web search (replace with real API in production)
-async function simulateWebSearch(query: string) {
-  // This is a placeholder - in production, integrate with:
-  // - SerpAPI (https://serpapi.com/)
-  // - Brave Search API (https://brave.com/search/api/)
-  // - Google Custom Search API
-  // - Bing Search API
-  
-  return [
-    {
-      title: `Search results for: ${query}`,
-      url: `https://example.com/search?q=${encodeURIComponent(query)}`,
-      snippet: `This would contain search results for ${query} from Stack Overflow, GitHub, and other sources.`
-    }
-  ];
-}
+// Removed simulated web search to avoid mock data in production
 
 // Enhanced JSON parsing with retry
 export async function parseJSONWithRetry(apiKey: string, content: string, retryPrompt: string, maxRetries = 2): Promise<any> {
@@ -287,12 +371,26 @@ export async function generateEnhancedDocumentation(url: string, userId: string 
   const siteStructure = await discoverSiteStructure(url);
   
   console.log('Stage 2: Extracting multi-page content...');
-  const urlsToScrape = [
+  const docLikePatterns = /(doc|help|support|guide|tutorial|api|developer|faq|question|blog|article|changelog|release|update|resource|learn|integration|pricing|security|status|knowledge|kb)/i;
+  const candidateUrls = Array.from(new Set([
     ...siteStructure.validDocPaths,
-    ...siteStructure.navLinks
-  ].slice(0, 30); // Limit to 30 pages
-  
-  const extractedContent = await extractMultiPageContent(urlsToScrape);
+    ...siteStructure.navLinks,
+    ...(siteStructure.sitemapUrls || []),
+    ...siteStructure.allInternalLinks.filter((u: string) => docLikePatterns.test(u))
+  ]));
+
+  // First pass
+  let extractedContent = await extractMultiPageContent(candidateUrls.slice(0, 60));
+  // Coverage target
+  const MIN_PAGES = 15;
+  if (extractedContent.length < MIN_PAGES) {
+    // Second pass: expand pool
+    const expanded = candidateUrls.slice(60, 200);
+    if (expanded.length > 0) {
+      const more = await extractMultiPageContent(expanded);
+      extractedContent = Array.from(new Set([...extractedContent, ...more]));
+    }
+  }
   
   console.log('Stage 3: Performing external research...');
   const searchResults = await performExternalResearch(siteStructure.productName);
@@ -310,7 +408,7 @@ export async function generateEnhancedDocumentation(url: string, userId: string 
     },
     external_research: {
       search_results: searchResults,
-      total_sources: searchResults.reduce((sum, r) => sum + r.results.length, 0)
+      total_sources: searchResults.reduce((sum, r) => sum + (r.results?.length || 0), 0)
     }
   };
 
@@ -329,11 +427,12 @@ TASK: Analyze the provided comprehensive data from multiple sources and create a
 
 PHASE 1: SITE DISCOVERY & CRAWLING
 - Analyze all discovered pages and their content
-- Identify key documentation sections from navigation and site structure
-- Extract technical content, code examples, and visual elements
+- Identify key documentation sections from navigation, footer, and site structure
+- Include subdomains (docs., help., support., developer., dev., community., forum., status., api., blog.) and sitemap-derived pages
+- Extract technical content, code examples, visual elements, and workflows
 
 PHASE 2: MULTI-PAGE CONTENT EXTRACTION
-- Process content from all scraped pages
+- Process content from all scraped pages (target at least 15 unique pages)
 - Extract code examples, API endpoints, configuration options
 - Identify screenshots, diagrams, and related resources
 
@@ -341,14 +440,16 @@ PHASE 3: EXTERNAL RESEARCH
 - Analyze search results for common issues and solutions
 - Extract best practices and troubleshooting information
 - Identify community insights and real-world use cases
+- Require per-item source URLs for citation
 
 PHASE 4: COMPREHENSIVE ANALYSIS
 - Classify the site type and target audience
 - Map content sections to standard documentation categories
 - Compile common problems and solutions from all sources
 - Extract real-world use cases and best practices
+- Provide coverage stats and explicit gaps
 
-Return ONLY valid JSON in the specified structure.`
+Return ONLY valid JSON in the specified structure. The JSON MUST include fields: explored_urls, source_citations, coverage, gaps.`
         },
         { 
           role: 'user', 
@@ -379,6 +480,12 @@ TASK: Create comprehensive documentation structure that includes:
 3. Best practices and troubleshooting information
 4. Step-by-step tutorials combining all sources
 5. Real-world use cases and examples
+
+Additionally, return:
+- explored_urls: list of URLs considered with origin (nav|sitemap|subdomain|internal)
+- source_citations: map of section ids to arrays of URLs
+- coverage: { pages_analyzed, min_pages_target: 15, external_sources, min_external_sources_target: 15, sections_detected }
+- gaps: list of missing or thin sections
 
 Output in the JSON format specified in the system prompt.`
         }
@@ -434,6 +541,8 @@ CONTENT SECTIONS TO GENERATE:
 6. Troubleshooting - Problem → Cause → Solution format
 7. FAQ - Group by category, lead with most common questions
 8. Glossary (if terminology exists) - Alphabetical list with definitions
+
+For each section and content block, include an optional "citations" array of URLs supporting the content.
 
 Return structured JSON with comprehensive documentation.`
         },
@@ -559,6 +668,7 @@ External sources: ${comprehensiveData.external_research.total_sources}`
     validation: finalMetadata.validation || {},
     theme: theme,
     extractedStructure: extractedStructure,
+    citations: extractedStructure?.source_citations || {},
     researchStats: {
       pages_analyzed: comprehensiveData.site_content.pages_scraped,
       external_sources: comprehensiveData.external_research.total_sources,
