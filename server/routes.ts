@@ -72,15 +72,15 @@ async function parseJSONWithRetry(apiKey: string, content: string, retryPrompt: 
     for (let i = 0; i < maxRetries; i++) {
       try {
         console.log(`Retry attempt ${i + 1} to fix JSON...`);
-        
-        const retryResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+        const retryResponse = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${apiKey}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'llama-3.3-70b-versatile',
+            model: 'gpt-5',
             messages: [
               {
                 role: 'system',
@@ -91,7 +91,6 @@ async function parseJSONWithRetry(apiKey: string, content: string, retryPrompt: 
                 content: `Fix this JSON:\n\n${content}\n\n${retryPrompt}`
               }
             ],
-            temperature: 0.1,
             response_format: { type: "json_object" }
           }),
         });
@@ -158,10 +157,10 @@ router.post("/api/generate-docs", verifySupabaseAuth, async (req, res) => {
       return res.status(400).json({ error: "Invalid URL format", details: String(url) });
     }
 
-    const GROQ_API_KEY = process.env.GROQ_API_KEY;
-    if (!GROQ_API_KEY) {
-      console.error('generate-docs: GROQ_API_KEY not configured');
-      return res.status(500).json({ error: "GROQ_API_KEY is not configured" });
+    const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+    if (!OPENAI_API_KEY) {
+      console.error('generate-docs: OPENAI_API_KEY not configured');
+      return res.status(500).json({ error: "OPENAI_API_KEY is not configured" });
     }
 
     // Use client-provided sessionId or generate one
@@ -324,14 +323,14 @@ router.post("/api/generate-docs", verifySupabaseAuth, async (req, res) => {
     console.log("Stage 1: Extracting website structure...");
 
     // STAGE 1: Structure Understanding & Content Extraction
-    const stage1Response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const stage1Response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${GROQ_API_KEY}`,
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'gpt-5',
         messages: [
           {
             role: 'system',
@@ -436,7 +435,6 @@ Website Content: ${textContent}
 Available images: ${images.slice(0, 10).join(', ')}`
           }
         ],
-        temperature: 0.3,
         response_format: { type: "json_object" }
       }),
     });
@@ -454,7 +452,7 @@ Available images: ${images.slice(0, 10).join(', ')}`
 
     const stage1Data = await stage1Response.json();
     const extractedStructure = await parseJSONWithRetry(
-      GROQ_API_KEY,
+      OPENAI_API_KEY,
       stage1Data.choices?.[0]?.message?.content || '{}',
       'Ensure the output is valid JSON matching the structure extraction format'
     );
@@ -462,14 +460,14 @@ Available images: ${images.slice(0, 10).join(', ')}`
     console.log("Stage 2: Writing professional documentation...");
 
     // STAGE 2: Professional Documentation Writing
-    const stage2Response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const stage2Response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${GROQ_API_KEY}`,
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'gpt-5',
         messages: [
           {
             role: 'system',
@@ -530,7 +528,6 @@ Use proper formatting, include relevant images, and make it professional and com
             content: `Source Data (Extracted Structure): ${JSON.stringify(extractedStructure)}`
           }
         ],
-        temperature: 0.4,
         response_format: { type: "json_object" }
       }),
     });
@@ -548,7 +545,7 @@ Use proper formatting, include relevant images, and make it professional and com
 
     const stage2Data = await stage2Response.json();
     const writtenDocs = await parseJSONWithRetry(
-      GROQ_API_KEY,
+      OPENAI_API_KEY,
       stage2Data.choices?.[0]?.message?.content || '{}',
       'Ensure the output is valid JSON with proper documentation structure'
     );
@@ -556,14 +553,14 @@ Use proper formatting, include relevant images, and make it professional and com
     console.log("Stage 3: Generating metadata and SEO optimization...");
 
     // STAGE 3: Metadata Generation & Export Formatting
-    const stage3Response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const stage3Response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${GROQ_API_KEY}`,
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'gpt-5',
         messages: [
           {
             role: 'system',
@@ -599,7 +596,6 @@ Return ONLY valid JSON.`
 Source URL: ${url}`
           }
         ],
-        temperature: 0.2,
         response_format: { type: "json_object" }
       }),
     });
@@ -617,7 +613,7 @@ Source URL: ${url}`
 
     const stage3Data = await stage3Response.json();
     const finalMetadata = await parseJSONWithRetry(
-      GROQ_API_KEY,
+      OPENAI_API_KEY,
       stage3Data.choices?.[0]?.message?.content || '{}',
       'Ensure the output is valid JSON with metadata and searchability fields'
     );
@@ -634,14 +630,14 @@ Source URL: ${url}`
       metadata: finalMetadata.metadata || {},
     };
 
-    const stage4Response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const stage4Response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${GROQ_API_KEY}`,
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'gpt-5',
         messages: [
           {
             role: 'system',
@@ -678,7 +674,6 @@ Return ONLY valid JSON.`
             content: `Documentation to validate: ${JSON.stringify(documentationForValidation)}`
           }
         ],
-        temperature: 0.3,
         response_format: { type: "json_object" }
       }),
     });
@@ -689,7 +684,7 @@ Return ONLY valid JSON.`
     if (stage4Response.ok) {
       const stage4Data = await stage4Response.json();
       const validationData = await parseJSONWithRetry(
-        GROQ_API_KEY,
+        OPENAI_API_KEY,
         stage4Data.choices?.[0]?.message?.content || '{}',
         'Ensure the output is valid JSON with validation results and refined sections'
       );

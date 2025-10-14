@@ -9,7 +9,7 @@ This application generates enterprise-grade documentation by analyzing websites,
 ### Key Features
 
 - 🔍 **Multi-Source Research**: Analyzes official docs, blog posts, Stack Overflow answers, and GitHub issues
-- 🤖 **AI-Powered Synthesis**: Uses Groq LLM to create comprehensive, well-structured documentation
+- 🤖 **AI-Powered Synthesis**: Uses OpenAI GPT-5 to create comprehensive, well-structured documentation
 - 🌐 **Deep Site Crawling**: Discovers and extracts content from /docs, /blog, /api, and other key sections
 - 📚 **Professional Output**: Generates Apple/Stripe-style documentation with proper structure
 - 🎨 **Theme Extraction**: Automatically extracts brand colors and styling from source websites
@@ -47,9 +47,9 @@ npm run dev
 
 ### Required API Keys
 
-1. **GROQ_API_KEY** (Required)
-   - Get it from: https://console.groq.com/keys
-   - Used for AI-powered documentation generation
+1. **OPENAI_API_KEY** (Required)
+   - Get it from: https://platform.openai.com/api-keys
+   - Used for AI-powered documentation generation with GPT-5
 
 2. **Search APIs** (At least one recommended)
    - **SERPAPI_KEY**: Primary search provider (https://serpapi.com/)
@@ -60,7 +60,7 @@ npm run dev
 
 ```bash
 # AI API
-GROQ_API_KEY=your_groq_api_key
+OPENAI_API_KEY=your_openai_api_key
 
 # Search APIs (configure at least one)
 SERPAPI_KEY=your_serpapi_key        # Primary (recommended)

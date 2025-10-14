@@ -303,19 +303,19 @@ export async function parseJSONWithRetry(apiKey: string, content: string, retryP
 
     for (let i = 0; i < maxRetries; i++) {
       try {
-        const retryResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+        const retryResponse = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${apiKey}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'llama-3.3-70b-versatile',
+            model: 'gpt-5',
             messages: [
               { role: 'system', content: 'You are a JSON formatting expert. Fix the provided content to be valid JSON. Return ONLY valid JSON, no markdown formatting or explanations.' },
               { role: 'user', content: `Fix this JSON:\n\n${content}\n\n${retryPrompt}` }
             ],
-            temperature: 0.1,
             response_format: { type: 'json_object' }
           }),
         });
@@ -337,8 +337,8 @@ export async function parseJSONWithRetry(apiKey: string, content: string, retryP
 
 // Enhanced documentation generation pipeline
 export async function generateEnhancedDocumentation(url: string, userId: string | null, sessionId?: string) {
-  const GROQ_API_KEY = process.env.GROQ_API_KEY;
-  if (!GROQ_API_KEY) throw new Error('GROQ_API_KEY not configured');
+  const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+  if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY not configured');
 
   console.log('Stage 1: Discovering site structure...');
   if (sessionId) {
@@ -421,12 +421,13 @@ export async function generateEnhancedDocumentation(url: string, userId: string 
   };
 
   // Stage 1: Enhanced structure extraction with comprehensive data
-  console.log('Stage 4a: Calling Groq API for structure extraction...');
-  const stage1Resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+  // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+  console.log('Stage 4a: Calling OpenAI API for structure extraction...');
+  const stage1Resp = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
-    headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
+    headers: { 'Authorization': `Bearer ${OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
+      model: 'gpt-5',
       messages: [
         { 
           role: 'system', 
@@ -508,7 +509,6 @@ Additionally, return:
 Output in the JSON format specified in the system prompt.`
         }
       ],
-      temperature: 0.3,
       response_format: { type: 'json_object' }
     })
   });
@@ -519,10 +519,10 @@ Output in the JSON format specified in the system prompt.`
     throw new Error('Enhanced structure extraction failed: ' + (stage1Resp.statusText || text));
   }
   
-  console.log('✅ Stage 4b: Groq API response received, parsing data...');
+  console.log('✅ Stage 4b: OpenAI API response received, parsing data...');
   const stage1Data = await stage1Resp.json();
   const extractedStructure = await parseJSONWithRetry(
-    GROQ_API_KEY, 
+    OPENAI_API_KEY, 
     stage1Data.choices?.[0]?.message?.content || '{}', 
     'Ensure the output is valid JSON matching the comprehensive structure extraction format'
   );
@@ -530,6 +530,7 @@ Output in the JSON format specified in the system prompt.`
   console.log('✅ Stage 4c: Structure extracted successfully');
 
   // Stage 2: Enhanced documentation writing
+  // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
   console.log('Stage 5: Writing documentation...');
   if (sessionId) {
     progressTracker.emitProgress(sessionId, {
@@ -539,11 +540,11 @@ Output in the JSON format specified in the system prompt.`
       progress: 85,
     });
   }
-  const stage2Resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+  const stage2Resp = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
-    headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
+    headers: { 'Authorization': `Bearer ${OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
+      model: 'gpt-5',
       messages: [
         { 
           role: 'system', 
@@ -582,7 +583,6 @@ Return structured JSON with comprehensive documentation.`
           content: `Source Data (Enhanced Structure): ${JSON.stringify(extractedStructure)}` 
         }
       ],
-      temperature: 0.4,
       response_format: { type: 'json_object' }
     })
   });
@@ -594,17 +594,18 @@ Return structured JSON with comprehensive documentation.`
 
   const stage2Data = await stage2Resp.json();
   const writtenDocs = await parseJSONWithRetry(
-    GROQ_API_KEY, 
+    OPENAI_API_KEY, 
     stage2Data.choices?.[0]?.message?.content || '{}', 
     'Ensure the output is valid JSON with proper comprehensive documentation structure'
   );
 
   // Stage 3: Enhanced metadata generation
-  const stage3Resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+  // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+  const stage3Resp = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
-    headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
+    headers: { 'Authorization': `Bearer ${OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
+      model: 'gpt-5',
       messages: [
         { 
           role: 'system', 
@@ -668,7 +669,6 @@ Pages analyzed: ${comprehensiveData.site_content.pages_scraped}
 External sources: ${comprehensiveData.external_research.total_sources}`
         }
       ],
-      temperature: 0.2,
       response_format: { type: 'json_object' }
     })
   });
@@ -680,7 +680,7 @@ External sources: ${comprehensiveData.external_research.total_sources}`
 
   const stage3Data = await stage3Resp.json();
   const finalMetadata = await parseJSONWithRetry(
-    GROQ_API_KEY, 
+    OPENAI_API_KEY, 
     stage3Data.choices?.[0]?.message?.content || '{}', 
     'Ensure the output is valid JSON with metadata and searchability fields'
   );

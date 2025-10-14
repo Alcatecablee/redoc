@@ -21,19 +21,19 @@ export async function parseJSONWithRetry(apiKey: string, content: string, retryP
 
     for (let i = 0; i < maxRetries; i++) {
       try {
-        const retryResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+        const retryResponse = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${apiKey}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'llama-3.3-70b-versatile',
+            model: 'gpt-5',
             messages: [
               { role: 'system', content: 'You are a JSON formatting expert. Fix the provided content to be valid JSON. Return ONLY valid JSON, no markdown formatting or explanations.' },
               { role: 'user', content: `Fix this JSON:\n\n${content}\n\n${retryPrompt}` }
             ],
-            temperature: 0.1,
             response_format: { type: 'json_object' }
           }),
         });
