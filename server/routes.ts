@@ -2,6 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { storage } from "./storage";
 import { insertDocumentationSchema } from "@shared/schema";
+import { generateDocumentationPipeline } from './generator';
 import archiver from "archiver";
 
 const router = Router();
@@ -137,6 +138,27 @@ router.post("/api/generate-docs", verifySupabaseAuth, async (req, res) => {
     if (!GROQ_API_KEY) {
       console.error('generate-docs: GROQ_API_KEY not configured');
       return res.status(500).json({ error: "GROQ_API_KEY is not configured" });
+    }
+
+    // Prefer enhanced research-driven pipeline; fallback to legacy flow only if it fails
+    try {
+      const userId = req.user?.id || null;
+      const result = await generateDocumentationPipeline(url, userId);
+      const parsed = JSON.parse(result.documentation.content);
+
+      return res.json({
+        id: result.documentation.id,
+        title: result.documentation.title,
+        description: parsed.description,
+        sections: parsed.sections || [],
+        url: result.documentation.url,
+        generatedAt: result.documentation.generatedAt,
+        theme: parsed.theme,
+        metadata: parsed.metadata,
+        searchability: parsed.searchability,
+      });
+    } catch (e: any) {
+      console.error('Enhanced pipeline failed, continuing with legacy flow:', e?.message || e);
     }
 
     // Fetch website content
