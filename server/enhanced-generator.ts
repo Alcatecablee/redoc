@@ -388,6 +388,7 @@ export async function generateEnhancedDocumentation(url: string, userId: string 
   };
 
   // Stage 1: Enhanced structure extraction with comprehensive data
+  console.log('Stage 4a: Calling Groq API for structure extraction...');
   const stage1Resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
@@ -481,17 +482,22 @@ Output in the JSON format specified in the system prompt.`
 
   if (!stage1Resp.ok) {
     const text = await stage1Resp.text();
+    console.error('❌ Stage 1 API call failed:', stage1Resp.status, stage1Resp.statusText);
     throw new Error('Enhanced structure extraction failed: ' + (stage1Resp.statusText || text));
   }
-
+  
+  console.log('✅ Stage 4b: Groq API response received, parsing data...');
   const stage1Data = await stage1Resp.json();
   const extractedStructure = await parseJSONWithRetry(
     GROQ_API_KEY, 
     stage1Data.choices?.[0]?.message?.content || '{}', 
     'Ensure the output is valid JSON matching the comprehensive structure extraction format'
   );
+  
+  console.log('✅ Stage 4c: Structure extracted successfully');
 
   // Stage 2: Enhanced documentation writing
+  console.log('Stage 5: Writing documentation...');
   const stage2Resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
