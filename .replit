@@ -36,8 +36,16 @@ args = "bunx tsx server/index.ts"
 waitForPort = 5000
 
 [[ports]]
+localPort = 3001
+externalPort = 3003
+
+[[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 35711
+externalPort = 4200
 
 [[ports]]
 localPort = 39275
