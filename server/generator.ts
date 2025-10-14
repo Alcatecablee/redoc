@@ -1,11 +1,10 @@
 import fetch from 'node-fetch';
 import { storage } from './storage';
 import { generateEnhancedDocumentation } from './enhanced-generator';
+import { createAIProvider } from './ai-provider';
 
-// Reusable JSON parsing with AI retry (copied/adapted)
-export async function parseJSONWithRetry(apiKey: string, content: string, retryPrompt: string, maxRetries = 2): Promise<any> {
-  let lastError: Error | null = null;
-
+// Reusable JSON parsing with AI retry using the provider abstraction
+export async function parseJSONWithRetry(aiProvider: ReturnType<typeof createAIProvider>, content: string, retryPrompt: string, maxRetries = 2): Promise<any> {
   try {
     return JSON.parse(content);
   } catch (error) {
@@ -19,37 +18,7 @@ export async function parseJSONWithRetry(apiKey: string, content: string, retryP
       }
     }
 
-    for (let i = 0; i < maxRetries; i++) {
-      try {
-        // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-        const retryResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'gpt-5',
-            messages: [
-              { role: 'system', content: 'You are a JSON formatting expert. Fix the provided content to be valid JSON. Return ONLY valid JSON, no markdown formatting or explanations.' },
-              { role: 'user', content: `Fix this JSON:\n\n${content}\n\n${retryPrompt}` }
-            ],
-            response_format: { type: 'json_object' }
-          }),
-        });
-
-        if (retryResponse.ok) {
-          const retryData = await retryResponse.json();
-          const fixedContent = retryData.choices?.[0]?.message?.content || '{}';
-          return JSON.parse(fixedContent);
-        }
-      } catch (retryError) {
-        lastError = retryError as Error;
-        console.log(`Retry ${i + 1} failed:`, retryError);
-      }
-    }
-
-    throw lastError || new Error('Failed to parse JSON after retries');
+    return await aiProvider.parseJSONWithRetry(content, retryPrompt, maxRetries);
   }
 }
 

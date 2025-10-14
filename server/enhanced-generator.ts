@@ -3,6 +3,7 @@ import * as cheerio from 'cheerio';
 import { storage } from './storage';
 import { searchService, SearchResult, StackOverflowAnswer, GitHubIssue } from './search-service';
 import { progressTracker } from './progress-tracker';
+import { createAIProvider } from './ai-provider';
 
 // Utility: attempt HEAD then GET to verify URL exists
 async function headOrGet(url: string): Promise<Response | null> {
@@ -284,10 +285,8 @@ export async function performExternalResearch(productName: string, baseUrl: stri
   }
 }
 
-// Enhanced JSON parsing with retry
-export async function parseJSONWithRetry(apiKey: string, content: string, retryPrompt: string, maxRetries = 2): Promise<Record<string, unknown>> {
-  let lastError: Error | null = null;
-
+// Enhanced JSON parsing with retry using AI provider
+export async function parseJSONWithRetry(aiProvider: ReturnType<typeof createAIProvider>, content: string, retryPrompt: string, maxRetries = 2): Promise<Record<string, unknown>> {
   try {
     return JSON.parse(content);
   } catch (error) {
@@ -301,44 +300,16 @@ export async function parseJSONWithRetry(apiKey: string, content: string, retryP
       }
     }
 
-    for (let i = 0; i < maxRetries; i++) {
-      try {
-        // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-        const retryResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'gpt-5',
-            messages: [
-              { role: 'system', content: 'You are a JSON formatting expert. Fix the provided content to be valid JSON. Return ONLY valid JSON, no markdown formatting or explanations.' },
-              { role: 'user', content: `Fix this JSON:\n\n${content}\n\n${retryPrompt}` }
-            ],
-            response_format: { type: 'json_object' }
-          }),
-        });
-
-        if (retryResponse.ok) {
-          const retryData = await retryResponse.json();
-          const fixedContent = retryData.choices?.[0]?.message?.content || '{}';
-          return JSON.parse(fixedContent);
-        }
-      } catch (retryError) {
-        lastError = retryError as Error;
-        console.log(`Retry ${i + 1} failed:`, retryError);
-      }
-    }
-
-    throw lastError || new Error('Failed to parse JSON after retries');
+    return await aiProvider.parseJSONWithRetry(content, retryPrompt, maxRetries);
   }
 }
 
 // Enhanced documentation generation pipeline
 export async function generateEnhancedDocumentation(url: string, userId: string | null, sessionId?: string) {
-  const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-  if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY not configured');
+  const aiProvider = createAIProvider();
+  if (!process.env.DEEPSEEK_API_KEY && !process.env.OPENAI_API_KEY) {
+    throw new Error('No AI provider API keys configured. Please set DEEPSEEK_API_KEY or OPENAI_API_KEY');
+  }
 
   console.log('Stage 1: Discovering site structure...');
   if (sessionId) {
@@ -421,17 +392,12 @@ export async function generateEnhancedDocumentation(url: string, userId: string 
   };
 
   // Stage 1: Enhanced structure extraction with comprehensive data
-  // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-  console.log('Stage 4a: Calling OpenAI API for structure extraction...');
-  const stage1Resp = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'gpt-5',
-      messages: [
-        { 
-          role: 'system', 
-          content: `You are an expert web researcher and documentation architect. Your goal is to create comprehensive, enterprise-grade documentation by exploring multiple sources and performing thorough research.
+  console.log('Stage 4a: Calling AI API for structure extraction...');
+  const stage1Response = await aiProvider.generateCompletion(
+    [
+      { 
+        role: 'system', 
+        content: `You are an expert web researcher and documentation architect. Your goal is to create comprehensive, enterprise-grade documentation by exploring multiple sources and performing thorough research.
 
 TASK: Analyze the provided comprehensive data from multiple sources and create a complete content map.
 
@@ -509,28 +475,19 @@ Additionally, return:
 Output in the JSON format specified in the system prompt.`
         }
       ],
-      response_format: { type: 'json_object' }
-    })
-  });
+    { jsonMode: true }
+  );
 
-  if (!stage1Resp.ok) {
-    const text = await stage1Resp.text();
-    console.error('❌ Stage 1 API call failed:', stage1Resp.status, stage1Resp.statusText);
-    throw new Error('Enhanced structure extraction failed: ' + (stage1Resp.statusText || text));
-  }
-  
-  console.log('✅ Stage 4b: OpenAI API response received, parsing data...');
-  const stage1Data = await stage1Resp.json();
+  console.log(`✅ Stage 4b: AI response received (${stage1Response.provider}), parsing data...`);
   const extractedStructure = await parseJSONWithRetry(
-    OPENAI_API_KEY, 
-    stage1Data.choices?.[0]?.message?.content || '{}', 
+    aiProvider, 
+    stage1Response.content, 
     'Ensure the output is valid JSON matching the comprehensive structure extraction format'
   );
   
   console.log('✅ Stage 4c: Structure extracted successfully');
 
   // Stage 2: Enhanced documentation writing
-  // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
   console.log('Stage 5: Writing documentation...');
   if (sessionId) {
     progressTracker.emitProgress(sessionId, {
@@ -540,12 +497,8 @@ Output in the JSON format specified in the system prompt.`
       progress: 85,
     });
   }
-  const stage2Resp = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'gpt-5',
-      messages: [
+  const stage2Response = await aiProvider.generateCompletion(
+    [
         { 
           role: 'system', 
           content: `You are a professional technical writer with expertise in creating Apple-style documentation—clear, elegant, and accessible to all users.
@@ -583,30 +536,19 @@ Return structured JSON with comprehensive documentation.`
           content: `Source Data (Enhanced Structure): ${JSON.stringify(extractedStructure)}` 
         }
       ],
-      response_format: { type: 'json_object' }
-    })
-  });
+    { jsonMode: true }
+  );
 
-  if (!stage2Resp.ok) {
-    const text = await stage2Resp.text();
-    throw new Error('Enhanced documentation writing failed: ' + (stage2Resp.statusText || text));
-  }
-
-  const stage2Data = await stage2Resp.json();
+  console.log(`✅ Stage 2 response received (${stage2Response.provider})`);
   const writtenDocs = await parseJSONWithRetry(
-    OPENAI_API_KEY, 
-    stage2Data.choices?.[0]?.message?.content || '{}', 
+    aiProvider, 
+    stage2Response.content, 
     'Ensure the output is valid JSON with proper comprehensive documentation structure'
   );
 
   // Stage 3: Enhanced metadata generation
-  // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-  const stage3Resp = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'gpt-5',
-      messages: [
+  const stage3Response = await aiProvider.generateCompletion(
+    [
         { 
           role: 'system', 
           content: `You are a documentation engineer preparing content for production deployment in a professional help center.
@@ -669,19 +611,13 @@ Pages analyzed: ${comprehensiveData.site_content.pages_scraped}
 External sources: ${comprehensiveData.external_research.total_sources}`
         }
       ],
-      response_format: { type: 'json_object' }
-    })
-  });
+    { jsonMode: true }
+  );
 
-  if (!stage3Resp.ok) {
-    const text = await stage3Resp.text();
-    throw new Error('Enhanced metadata generation failed: ' + (stage3Resp.statusText || text));
-  }
-
-  const stage3Data = await stage3Resp.json();
+  console.log(`✅ Stage 3 response received (${stage3Response.provider})`);
   const finalMetadata = await parseJSONWithRetry(
-    OPENAI_API_KEY, 
-    stage3Data.choices?.[0]?.message?.content || '{}', 
+    aiProvider, 
+    stage3Response.content, 
     'Ensure the output is valid JSON with metadata and searchability fields'
   );
 
