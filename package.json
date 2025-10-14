@@ -9,7 +9,9 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "test:enhanced": "tsx test-enhanced-comprehensive.js",
+    "test:simple": "tsx test-enhanced-simple.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
