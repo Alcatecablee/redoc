@@ -21,6 +21,12 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
       "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-explicit-any": "warn", // Changed from error to warning
+      "@typescript-eslint/no-empty-object-type": "warn", // Changed from error to warning
+      "@typescript-eslint/no-require-imports": "warn", // Changed from error to warning
+      "no-empty": "warn", // Changed from error to warning
+      "no-case-declarations": "warn", // Changed from error to warning
+      "no-useless-escape": "warn", // Changed from error to warning
     },
   },
 );

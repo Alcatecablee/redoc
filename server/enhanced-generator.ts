@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
 import { storage } from './storage';
+import { searchService, SearchResult, StackOverflowAnswer, GitHubIssue } from './search-service';
 
 // Utility: attempt HEAD then GET to verify URL exists
 async function headOrGet(url: string): Promise<Response | null> {
@@ -173,7 +174,6 @@ export async function extractMultiPageContent(urls: string[]) {
   for (const url of urls.slice(0, 40)) { // Limit to 40 pages for broader coverage
     try {
       const response = await fetch(url, { 
-        timeout: 10000,
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
@@ -246,73 +246,45 @@ export async function extractMultiPageContent(urls: string[]) {
   return extracted;
 }
 
-// External research using web search
-export async function performExternalResearch(productName: string) {
-  const queries = [
-    `${productName} documentation`,
-    `${productName} getting started tutorial`,
-    `${productName} common issues`,
-    `${productName} troubleshooting`,
-    `${productName} best practices`,
-    `${productName} vs alternatives`,
-    `${productName} integration guide`,
-    `${productName} API examples`,
-    `how to use ${productName}`,
-    `${productName} problems OR ${productName} not working`
-  ];
+// External research using real search APIs (SerpAPI primary, Brave fallback)
+export async function performExternalResearch(productName: string, baseUrl: string) {
+  console.log(`🔬 Performing comprehensive external research for: ${productName}`);
   
-  const allResults = [];
-  const SERPAPI_KEY = process.env.SERPAPI_KEY;
-  const BRAVE_API_KEY = process.env.BRAVE_API_KEY;
-
-  async function searchSerpApi(q: string) {
-    const params = new URLSearchParams({ engine: 'google', q, api_key: SERPAPI_KEY || '', num: '10' });
-    const resp = await fetch(`https://serpapi.com/search.json?${params.toString()}`);
-    if (!resp.ok) throw new Error(`SerpAPI failed: ${resp.status}`);
-    const data: any = await resp.json();
-    const organic = data.organic_results || [];
-    return organic.map((r: any) => ({ title: r.title, url: r.link, snippet: r.snippet }));
+  try {
+    const research = await searchService.performComprehensiveResearch(productName, baseUrl);
+    
+    console.log(`✅ Research complete:
+    - Search results: ${research.searchResults.length}
+    - Stack Overflow answers: ${research.stackOverflowAnswers.length}
+    - GitHub issues: ${research.gitHubIssues.length}`);
+    
+    // Calculate research quality score
+    const qualityScore = searchService.calculateQualityScore(research.searchResults);
+    console.log(`📊 Research quality score: ${(qualityScore * 100).toFixed(1)}%`);
+    
+    return {
+      search_results: research.searchResults,
+      stackoverflow_answers: research.stackOverflowAnswers,
+      github_issues: research.gitHubIssues,
+      quality_score: qualityScore,
+      total_sources: research.searchResults.length + 
+                     research.stackOverflowAnswers.length + 
+                     research.gitHubIssues.length
+    };
+  } catch (error) {
+    console.error('❌ External research failed:', error.message);
+    return {
+      search_results: [],
+      stackoverflow_answers: [],
+      github_issues: [],
+      quality_score: 0,
+      total_sources: 0
+    };
   }
-
-  async function searchBrave(q: string) {
-    const resp = await fetch('https://api.search.brave.com/res/v1/web/search?' + new URLSearchParams({ q, count: '10' }).toString(), {
-      headers: {
-        'Accept': 'application/json',
-        'X-Subscription-Token': BRAVE_API_KEY || ''
-      }
-    });
-    if (!resp.ok) throw new Error(`Brave search failed: ${resp.status}`);
-    const data: any = await resp.json();
-    const results = (data.web && data.web.results) || [];
-    return results.map((r: any) => ({ title: r.title, url: r.url, snippet: r.description }));
-  }
-
-  const useSerp = !!SERPAPI_KEY;
-  const useBrave = !!BRAVE_API_KEY && !useSerp;
-
-  for (const query of queries) {
-    try {
-      let results: any[] = [];
-      if (useSerp) results = await searchSerpApi(query);
-      else if (useBrave) results = await searchBrave(query);
-      else {
-        // No search API configured; skip to avoid mock data
-        continue;
-      }
-      allResults.push({ query, results });
-      await new Promise(resolve => setTimeout(resolve, 800));
-    } catch (error: any) {
-      // Continue to next query on failure without throwing
-    }
-  }
-
-  return allResults;
 }
 
-// Removed simulated web search to avoid mock data in production
-
 // Enhanced JSON parsing with retry
-export async function parseJSONWithRetry(apiKey: string, content: string, retryPrompt: string, maxRetries = 2): Promise<any> {
+export async function parseJSONWithRetry(apiKey: string, content: string, retryPrompt: string, maxRetries = 2): Promise<Record<string, unknown>> {
   let lastError: Error | null = null;
 
   try {
@@ -393,7 +365,7 @@ export async function generateEnhancedDocumentation(url: string, userId: string 
   }
   
   console.log('Stage 3: Performing external research...');
-  const searchResults = await performExternalResearch(siteStructure.productName);
+  const externalResearch = await performExternalResearch(siteStructure.productName, url);
   
   console.log('Stage 4: Synthesizing comprehensive data...');
   const comprehensiveData = {
@@ -407,8 +379,11 @@ export async function generateEnhancedDocumentation(url: string, userId: string 
       images: extractedContent.flatMap(p => p.images)
     },
     external_research: {
-      search_results: searchResults,
-      total_sources: searchResults.reduce((sum, r) => sum + (r.results?.length || 0), 0)
+      search_results: externalResearch.search_results,
+      stackoverflow_answers: externalResearch.stackoverflow_answers,
+      github_issues: externalResearch.github_issues,
+      quality_score: externalResearch.quality_score,
+      total_sources: externalResearch.total_sources
     }
   };
 
@@ -468,11 +443,20 @@ DETAILED PAGE CONTENT:
 ${JSON.stringify(comprehensiveData.site_content.pages, null, 2)}
 
 EXTERNAL RESEARCH:
-- Search queries executed: ${comprehensiveData.external_research.search_results.length}
+- Search results: ${comprehensiveData.external_research.search_results.length}
+- Stack Overflow answers: ${comprehensiveData.external_research.stackoverflow_answers.length}
+- GitHub issues: ${comprehensiveData.external_research.github_issues.length}
 - Total external sources: ${comprehensiveData.external_research.total_sources}
+- Research quality score: ${(comprehensiveData.external_research.quality_score * 100).toFixed(1)}%
 
 SEARCH RESULTS:
-${JSON.stringify(comprehensiveData.external_research.search_results, null, 2)}
+${JSON.stringify(comprehensiveData.external_research.search_results.slice(0, 20), null, 2)}
+
+STACK OVERFLOW ANSWERS (Common Issues & Solutions):
+${JSON.stringify(comprehensiveData.external_research.stackoverflow_answers, null, 2)}
+
+GITHUB ISSUES (Known Problems & Discussions):
+${JSON.stringify(comprehensiveData.external_research.github_issues, null, 2)}
 
 TASK: Create comprehensive documentation structure that includes:
 1. All features found across official pages
@@ -684,13 +668,13 @@ External sources: ${comprehensiveData.external_research.total_sources}`
     title: finalDoc.title,
     content: JSON.stringify(finalDoc),
     user_id: userId,
-  } as any);
+  });
 
   return { documentation, finalDoc };
 }
 
 // Extract theme from content
-function extractThemeFromContent(pages: any[]) {
+function extractThemeFromContent(pages: Array<{ content: string }>) {
   const allColors: string[] = [];
   const allFonts: string[] = [];
   
