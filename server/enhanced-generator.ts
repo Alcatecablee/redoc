@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
 import { storage } from './storage';
+import { searchService, SearchResult, StackOverflowAnswer, GitHubIssue } from './search-service';
 
 // Enhanced site discovery and crawling
 export async function discoverSiteStructure(baseUrl: string) {
@@ -174,57 +175,41 @@ export async function extractMultiPageContent(urls: string[]) {
   return extracted;
 }
 
-// External research using web search
-export async function performExternalResearch(productName: string) {
-  const queries = [
-    `${productName} documentation`,
-    `${productName} getting started tutorial`,
-    `${productName} common issues`,
-    `${productName} troubleshooting`,
-    `${productName} best practices`,
-    `${productName} vs alternatives`,
-    `${productName} integration guide`,
-    `${productName} API examples`,
-    `how to use ${productName}`,
-    `${productName} problems OR ${productName} not working`
-  ];
+// External research using real search APIs (SerpAPI primary, Brave fallback)
+export async function performExternalResearch(productName: string, baseUrl: string) {
+  console.log(`🔬 Performing comprehensive external research for: ${productName}`);
   
-  const allResults = [];
-  
-  for (const query of queries.slice(0, 5)) { // Limit to 5 queries
-    try {
-      // Using a simple web search simulation
-      // In production, you'd use SerpAPI, Brave Search API, or similar
-      const searchResults = await simulateWebSearch(query);
-      allResults.push({
-        query,
-        results: searchResults
-      });
-      
-      await new Promise(resolve => setTimeout(resolve, 2000));
-    } catch (error) {
-      console.error(`Search failed for "${query}":`, error.message);
-    }
+  try {
+    const research = await searchService.performComprehensiveResearch(productName, baseUrl);
+    
+    console.log(`✅ Research complete:
+    - Search results: ${research.searchResults.length}
+    - Stack Overflow answers: ${research.stackOverflowAnswers.length}
+    - GitHub issues: ${research.gitHubIssues.length}`);
+    
+    // Calculate research quality score
+    const qualityScore = searchService.calculateQualityScore(research.searchResults);
+    console.log(`📊 Research quality score: ${(qualityScore * 100).toFixed(1)}%`);
+    
+    return {
+      search_results: research.searchResults,
+      stackoverflow_answers: research.stackOverflowAnswers,
+      github_issues: research.gitHubIssues,
+      quality_score: qualityScore,
+      total_sources: research.searchResults.length + 
+                     research.stackOverflowAnswers.length + 
+                     research.gitHubIssues.length
+    };
+  } catch (error) {
+    console.error('❌ External research failed:', error.message);
+    return {
+      search_results: [],
+      stackoverflow_answers: [],
+      github_issues: [],
+      quality_score: 0,
+      total_sources: 0
+    };
   }
-  
-  return allResults;
-}
-
-// Simulate web search (replace with real API in production)
-async function simulateWebSearch(query: string) {
-  // This is a placeholder - in production, integrate with:
-  // - SerpAPI (https://serpapi.com/)
-  // - Brave Search API (https://brave.com/search/api/)
-  // - Google Custom Search API
-  // - Bing Search API
-  
-  return [
-    {
-      title: `Search results for: ${query}`,
-      url: `https://example.com/search?q=${encodeURIComponent(query)}`,
-      snippet: `This would contain search results for ${query} from Stack Overflow, GitHub, and other sources.`
-    }
-  ];
 }
 
 // Enhanced JSON parsing with retry
@@ -295,7 +280,7 @@ export async function generateEnhancedDocumentation(url: string, userId: string 
   const extractedContent = await extractMultiPageContent(urlsToScrape);
   
   console.log('Stage 3: Performing external research...');
-  const searchResults = await performExternalResearch(siteStructure.productName);
+  const externalResearch = await performExternalResearch(siteStructure.productName, url);
   
   console.log('Stage 4: Synthesizing comprehensive data...');
   const comprehensiveData = {
@@ -309,8 +294,11 @@ export async function generateEnhancedDocumentation(url: string, userId: string 
       images: extractedContent.flatMap(p => p.images)
     },
     external_research: {
-      search_results: searchResults,
-      total_sources: searchResults.reduce((sum, r) => sum + r.results.length, 0)
+      search_results: externalResearch.search_results,
+      stackoverflow_answers: externalResearch.stackoverflow_answers,
+      github_issues: externalResearch.github_issues,
+      quality_score: externalResearch.quality_score,
+      total_sources: externalResearch.total_sources
     }
   };
 
@@ -367,11 +355,20 @@ DETAILED PAGE CONTENT:
 ${JSON.stringify(comprehensiveData.site_content.pages, null, 2)}
 
 EXTERNAL RESEARCH:
-- Search queries executed: ${comprehensiveData.external_research.search_results.length}
+- Search results: ${comprehensiveData.external_research.search_results.length}
+- Stack Overflow answers: ${comprehensiveData.external_research.stackoverflow_answers.length}
+- GitHub issues: ${comprehensiveData.external_research.github_issues.length}
 - Total external sources: ${comprehensiveData.external_research.total_sources}
+- Research quality score: ${(comprehensiveData.external_research.quality_score * 100).toFixed(1)}%
 
 SEARCH RESULTS:
-${JSON.stringify(comprehensiveData.external_research.search_results, null, 2)}
+${JSON.stringify(comprehensiveData.external_research.search_results.slice(0, 20), null, 2)}
+
+STACK OVERFLOW ANSWERS (Common Issues & Solutions):
+${JSON.stringify(comprehensiveData.external_research.stackoverflow_answers, null, 2)}
+
+GITHUB ISSUES (Known Problems & Discussions):
+${JSON.stringify(comprehensiveData.external_research.github_issues, null, 2)}
 
 TASK: Create comprehensive documentation structure that includes:
 1. All features found across official pages
