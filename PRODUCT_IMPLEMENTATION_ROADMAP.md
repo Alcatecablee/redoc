@@ -54,7 +54,7 @@ Acceptance
 Scope: Paid value for solo founders.
 
 Billing & Access
-- Paypal: Checkout, customer portal, webhooks; entitlements mapped to org tier.
+- Stripe: Checkout, customer portal, webhooks; entitlements mapped to org tier.
 - Entitlements: Unlimited generations, branding, export flavors, custom domain, auto‑sync.
 
 Custom Branding/Themes
@@ -221,7 +221,7 @@ Acceptance
 
 ## Pricing, Metering, Entitlements
 
-- Paypal products/prices for Free/Pro/Team; tax and invoices.
+- Stripe products/prices for Free/Pro/Team; tax and invoices.
 - Entitlements table maps tiers to limits/features; evaluated in middleware.
 - Metering: monthly window counters; rate limits per tier and per endpoint.
 
@@ -288,3 +288,68 @@ Phase 4
 - Make all long‑running tasks queue‑based and idempotent.
 - Never log secrets; store credentials securely; use signed URLs for downloads.
 - Prioritize accessibility and performance in themed outputs.
+
+---
+
+## Extended Features
+
+### Documentation Templates Gallery
+- Purpose: One‑click, beautiful docs by industry (SaaS, E‑commerce, API) with community contributions.
+- Data Model: `templates` (id, name, industry, description, version, visibility: public|community|private, tokens_json, sections_json, author_org_id, ratings, created_at, updated_at).
+- Backend: CRUD for templates; versioning; template application merges theme tokens and section scaffolds into generation output; validation to ensure headings and slugs are unique.
+- Frontend: Gallery with filters, live preview, “Apply Template” to draft or existing project; attribution for community templates.
+- Moderation: Submission queue with review + abuse controls.
+- Acceptance: Applying a template updates layout/sections/theme without breaking links; revert supported; community templates sandboxed until approved.
+
+### Notion/Confluence/GitBook Integrations (Export‑First, Sync Later)
+- Adapters: Export adapters for Notion‑flavored Markdown, Confluence‑friendly HTML/DOCX, GitBook‑compatible Markdown.
+- One‑Click Export: UI triggers worker job → uploads via provider API or instructs user to import file when API unavailable.
+- Sync Strategy: Phase 1 export‑only; Phase 2 push updates of changed pages (idempotent by stable slugs); Phase 3 bi‑directional with source‑of‑truth rules and conflict resolution (three‑way diff, last‑writer‑wins override with warnings).
+- Security: Per‑provider OAuth; store tokens encrypted; scoped permissions.
+- Acceptance: A multi‑page doc publishes as nested pages preserving hierarchy and links; re‑publishing updates only changed pages; rollback to previous export is possible.
+
+### Documentation Changelog Generator
+- Diff Engine: Use `sync_runs.diff_stats_json` to compute added/changed/removed pages and section‑level diffs; generate human‑readable changelog with timestamps and authorship when available.
+- Outputs: In‑app changelog, Markdown file, RSS/Atom feed, webhook `changelog.published`.
+- UI: Changelog tab per project with filters (date range, pages), diff viewer for sections.
+- Acceptance: After a sync, a changelog is generated within 1 minute; RSS validates; diffs highlight modified sections and link to affected pages.
+
+### Live Documentation Sync (Enhanced)
+- Triggers: Polling with conditional requests; optional provider webhooks (GitHub, CMS); on‑demand sync button; backoff to avoid rate limits.
+- Scope: Near‑real‑time for Pro/Team (e.g., every 15 min) with per‑site quotas; only changed pages re‑generated; dependency graph to recompose impacted guides.
+- Reliability: Idempotent jobs, deduplication via content hash + URL; DLQ and alerting on repeated failures.
+- Acceptance: Typical small change (<5 pages) propagates to hosted docs within 5–10 minutes; failures are retried and surfaced in UI.
+
+### AI Chat Assistant Per Doc
+- Retrieval: Chunk generated docs; embed with pgvector; store in `doc_embeddings` (id, project_id, section_id, chunk_id, embedding, text, metadata).
+- Answering: RAG with citations (section titles + anchors); safety filters; deterministic summaries for export.
+- UI: Chat widget on hosted docs; slash commands (/search, /example) and copyable answers; respect org theme.
+- Privacy: Project visibility controls; exclude private sections from public chat; signed tokens for access.
+- Acceptance: Answers include at least 2 citations; latency P95 < 2.5s on cached corpora; no cross‑tenant leakage verified by tests.
+
+---
+
+## Milestones Update (Priority Ordering)
+
+A. Phase 2 Enhancements (2–3 weeks)
+- Live Sync (enhanced) built atop auto‑sync baseline.
+- Documentation Changelog Generator with RSS + webhooks.
+
+B. Phase 2.5 (1–2 weeks)
+- Documentation Templates Gallery (CRUD, preview, apply, moderation).
+
+C. Phase 3 Add‑Ons (2–3 weeks)
+- Export adapters (Notion/Confluence/GitBook) with one‑click publish.
+- Begin push‑sync (idempotent updates on change) to Notion/Confluence.
+
+D. Phase 3.5 (2 weeks)
+- AI Chat Assistant per Doc (RAG, citations, widget, rate limits).
+
+---
+
+## Acceptance Additions
+- [ ] Changelog generated after every sync; RSS validates and includes at least titles, links, timestamps.
+- [ ] Live Sync pushes changes to hosted docs within 10 minutes for <5 page deltas.
+- [ ] Templates apply without broken links; revert works; moderation in place for community templates.
+- [ ] One‑click exports create nested pages in Notion/Confluence/GitBook maintaining hierarchy.
+- [ ] AI Chat responses include citations and stay within tenant boundaries.
