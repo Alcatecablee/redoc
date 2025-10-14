@@ -409,9 +409,14 @@ Available images: ${images.slice(0, 10).join(', ')}`
     });
 
     if (!stage1Response.ok) {
-      const errorText = await stage1Response.text();
-      console.error('Stage 1 failed:', stage1Response.status, errorText);
-      return res.status(500).json({ error: `Structure extraction failed: ${stage1Response.statusText}` });
+      const errorText = await stage1Response.text().catch(() => '');
+      const statusMsg = stage1Response.statusText || '';
+      const snippet = (errorText || '').slice(0, 500);
+      console.error('Stage 1 failed:', stage1Response.status, statusMsg, snippet);
+      return res.status(500).json({
+        error: `Structure extraction failed: ${statusMsg || stage1Response.status}`,
+        details: snippet
+      });
     }
 
     const stage1Data = await stage1Response.json();
@@ -498,9 +503,14 @@ Use proper formatting, include relevant images, and make it professional and com
     });
 
     if (!stage2Response.ok) {
-      const errorText = await stage2Response.text();
-      console.error('Stage 2 failed:', stage2Response.status, errorText);
-      return res.status(500).json({ error: `Documentation writing failed: ${stage2Response.statusText}` });
+      const errorText = await stage2Response.text().catch(() => '');
+      const statusMsg = stage2Response.statusText || '';
+      const snippet = (errorText || '').slice(0, 500);
+      console.error('Stage 2 failed:', stage2Response.status, statusMsg, snippet);
+      return res.status(500).json({
+        error: `Documentation writing failed: ${statusMsg || stage2Response.status}`,
+        details: snippet
+      });
     }
 
     const stage2Data = await stage2Response.json();
@@ -562,9 +572,14 @@ Source URL: ${url}`
     });
 
     if (!stage3Response.ok) {
-      const errorText = await stage3Response.text();
-      console.error('Stage 3 failed:', stage3Response.status, errorText);
-      return res.status(500).json({ error: `Metadata generation failed: ${stage3Response.statusText}` });
+      const errorText = await stage3Response.text().catch(() => '');
+      const statusMsg = stage3Response.statusText || '';
+      const snippet = (errorText || '').slice(0, 500);
+      console.error('Stage 3 failed:', stage3Response.status, statusMsg, snippet);
+      return res.status(500).json({
+        error: `Metadata generation failed: ${statusMsg || stage3Response.status}`,
+        details: snippet
+      });
     }
 
     const stage3Data = await stage3Response.json();
@@ -680,7 +695,7 @@ Return ONLY valid JSON.`
       user_id: req.user?.id || null,
     });
 
-    console.log("Documentation generated successfully with 4-stage AI pipeline (Extract → Write → Metadata → Quality Check)");
+    console.log("Documentation generated successfully with 4-stage AI pipeline (Extract → Write �� Metadata → Quality Check)");
 
     res.json({
       id: documentation.id,
