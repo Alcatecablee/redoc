@@ -2,6 +2,7 @@ import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
 import { storage } from './storage';
 import { searchService, SearchResult, StackOverflowAnswer, GitHubIssue } from './search-service';
+import { progressTracker } from './progress-tracker';
 
 // Utility: attempt HEAD then GET to verify URL exists
 async function headOrGet(url: string): Promise<Response | null> {
@@ -335,14 +336,30 @@ export async function parseJSONWithRetry(apiKey: string, content: string, retryP
 }
 
 // Enhanced documentation generation pipeline
-export async function generateEnhancedDocumentation(url: string, userId: string | null) {
+export async function generateEnhancedDocumentation(url: string, userId: string | null, sessionId?: string) {
   const GROQ_API_KEY = process.env.GROQ_API_KEY;
   if (!GROQ_API_KEY) throw new Error('GROQ_API_KEY not configured');
 
   console.log('Stage 1: Discovering site structure...');
+  if (sessionId) {
+    progressTracker.emitProgress(sessionId, {
+      stage: 1,
+      stageName: 'Site Discovery',
+      description: 'Crawling website and mapping content',
+      progress: 10,
+    });
+  }
   const siteStructure = await discoverSiteStructure(url);
   
   console.log('Stage 2: Extracting multi-page content...');
+  if (sessionId) {
+    progressTracker.emitProgress(sessionId, {
+      stage: 2,
+      stageName: 'Content Extraction',
+      description: 'Extracting content from multiple pages',
+      progress: 30,
+    });
+  }
   const docLikePatterns = /(doc|help|support|guide|tutorial|api|developer|faq|question|blog|article|changelog|release|update|resource|learn|integration|pricing|security|status|knowledge|kb)/i;
   const candidateUrls = Array.from(new Set([
     ...siteStructure.validDocPaths,
@@ -365,9 +382,25 @@ export async function generateEnhancedDocumentation(url: string, userId: string 
   }
   
   console.log('Stage 3: Performing external research...');
+  if (sessionId) {
+    progressTracker.emitProgress(sessionId, {
+      stage: 3,
+      stageName: 'Research & Analysis',
+      description: 'Gathering external insights and community knowledge',
+      progress: 50,
+    });
+  }
   const externalResearch = await performExternalResearch(siteStructure.productName, url);
   
   console.log('Stage 4: Synthesizing comprehensive data...');
+  if (sessionId) {
+    progressTracker.emitProgress(sessionId, {
+      stage: 4,
+      stageName: 'AI Processing',
+      description: 'Synthesizing data and generating documentation',
+      progress: 70,
+    });
+  }
   const comprehensiveData = {
     product_name: siteStructure.productName,
     base_url: url,
@@ -498,6 +531,14 @@ Output in the JSON format specified in the system prompt.`
 
   // Stage 2: Enhanced documentation writing
   console.log('Stage 5: Writing documentation...');
+  if (sessionId) {
+    progressTracker.emitProgress(sessionId, {
+      stage: 5,
+      stageName: 'Documentation Writing',
+      description: 'Creating professional documentation content',
+      progress: 85,
+    });
+  }
   const stage2Resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
@@ -669,12 +710,30 @@ External sources: ${comprehensiveData.external_research.total_sources}`
   };
 
   // Save to database
+  if (sessionId) {
+    progressTracker.emitProgress(sessionId, {
+      stage: 6,
+      stageName: 'Finalizing',
+      description: 'Saving documentation and preparing export',
+      progress: 95,
+    });
+  }
+  
   const documentation = await storage.createDocumentation({
     url,
     title: finalDoc.title,
     content: JSON.stringify(finalDoc),
     user_id: userId,
   });
+  
+  if (sessionId) {
+    progressTracker.emitProgress(sessionId, {
+      stage: 7,
+      stageName: 'Complete',
+      description: 'Documentation generated successfully!',
+      progress: 100,
+    });
+  }
 
   return { documentation, finalDoc };
 }

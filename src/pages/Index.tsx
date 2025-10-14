@@ -44,10 +44,10 @@ const Index = () => {
   ];
 
   const generateMutation = useMutation({
-    mutationFn: async (url: string) => {
+    mutationFn: async ({ url, sessionId }: { url: string; sessionId: string }) => {
       return apiRequest("/api/generate-docs", {
         method: "POST",
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url, sessionId }),
       });
     },
     onSuccess: (data) => {
@@ -95,31 +95,32 @@ const Index = () => {
     setProgress(0);
     setCurrentStage(0);
 
-    // Simulate 4-stage progress
-    const stageTimings = [
-      { stage: 1, progress: 25, duration: 3000 },
-      { stage: 2, progress: 50, duration: 3000 },
-      { stage: 3, progress: 75, duration: 3000 },
-      { stage: 4, progress: 90, duration: 2000 }
-    ];
+    // Generate a unique session ID
+    const sessionId = crypto.randomUUID();
 
-    let currentTimeout: NodeJS.Timeout;
+    // Connect to SSE endpoint for real-time progress
+    const eventSource = new EventSource(`/api/progress/${sessionId}`);
 
-    const simulateProgress = (index: number) => {
-      if (index < stageTimings.length) {
-        const { stage, progress, duration } = stageTimings[index];
-        setCurrentStage(stage);
-        setProgress(progress);
-        currentTimeout = setTimeout(() => simulateProgress(index + 1), duration);
+    eventSource.onmessage = (event) => {
+      try {
+        const progressData = JSON.parse(event.data);
+        console.log('Progress update:', progressData);
+        setCurrentStage(progressData.stage);
+        setProgress(progressData.progress);
+      } catch (e) {
+        console.error('Failed to parse progress event:', e);
       }
     };
 
-    simulateProgress(0);
+    eventSource.onerror = (error) => {
+      console.error('SSE error:', error);
+      eventSource.close();
+    };
 
     try {
-      await generateMutation.mutateAsync(url);
+      await generateMutation.mutateAsync({ url, sessionId });
     } finally {
-      if (currentTimeout) clearTimeout(currentTimeout);
+      eventSource.close();
     }
   };
 

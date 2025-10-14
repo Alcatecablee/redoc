@@ -53,7 +53,7 @@ export async function parseJSONWithRetry(apiKey: string, content: string, retryP
   }
 }
 
-export async function generateDocumentationPipeline(url: string, userId: string | null) {
+export async function generateDocumentationPipeline(url: string, userId: string | null, sessionId?: string) {
   // Use the enhanced documentation generation system
-  return await generateEnhancedDocumentation(url, userId);
+  return await generateEnhancedDocumentation(url, userId, sessionId);
 }

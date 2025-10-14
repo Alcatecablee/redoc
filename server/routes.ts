@@ -4,6 +4,8 @@ import { storage } from "./storage";
 import { insertDocumentationSchema } from "@shared/schema";
 import { generateDocumentationPipeline } from './generator';
 import archiver from "archiver";
+import { progressTracker } from './progress-tracker';
+import { v4 as uuidv4 } from 'uuid';
 
 const router = Router();
 
@@ -109,6 +111,28 @@ async function parseJSONWithRetry(apiKey: string, content: string, retryPrompt: 
   }
 }
 
+// SSE endpoint for progress updates
+router.get("/api/progress/:sessionId", (req, res) => {
+  const { sessionId } = req.params;
+
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+  });
+
+  const onProgress = (event: any) => {
+    res.write(`data: ${JSON.stringify(event)}\n\n`);
+  };
+
+  progressTracker.on(`progress:${sessionId}`, onProgress);
+
+  req.on('close', () => {
+    progressTracker.off(`progress:${sessionId}`, onProgress);
+    progressTracker.endSession(sessionId);
+  });
+});
+
 // Generate documentation endpoint
 router.post("/api/generate-docs", verifySupabaseAuth, async (req, res) => {
   try {
@@ -119,7 +143,7 @@ router.post("/api/generate-docs", verifySupabaseAuth, async (req, res) => {
       ip: req.ip,
     });
 
-    const { url } = req.body;
+    const { url, sessionId: clientSessionId } = req.body;
 
     if (!url) {
       console.warn('generate-docs: missing url in request body');
@@ -140,11 +164,17 @@ router.post("/api/generate-docs", verifySupabaseAuth, async (req, res) => {
       return res.status(500).json({ error: "GROQ_API_KEY is not configured" });
     }
 
+    // Use client-provided sessionId or generate one
+    const sessionId = clientSessionId || uuidv4();
+    progressTracker.createSession(sessionId);
+
     // Prefer enhanced research-driven pipeline; fallback to legacy flow only if it fails
     try {
       const userId = req.user?.id || null;
-      const result = await generateDocumentationPipeline(url, userId);
+      const result = await generateDocumentationPipeline(url, userId, sessionId);
       const parsed = JSON.parse(result.documentation.content);
+
+      progressTracker.endSession(sessionId);
 
       return res.json({
         id: result.documentation.id,
@@ -156,9 +186,11 @@ router.post("/api/generate-docs", verifySupabaseAuth, async (req, res) => {
         theme: parsed.theme,
         metadata: parsed.metadata,
         searchability: parsed.searchability,
+        sessionId: sessionId,
       });
     } catch (e: any) {
       console.error('Enhanced pipeline failed, continuing with legacy flow:', e?.message || e);
+      progressTracker.endSession(sessionId);
     }
 
     // Fetch website content
