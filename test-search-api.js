@@ -6,7 +6,10 @@
  */
 
 import fetch from 'node-fetch';
-import 'dotenv/config';
+import { config } from 'dotenv';
+
+// Load environment variables
+config();
 
 const SERPAPI_KEY = process.env.SERPAPI_KEY;
 const BRAVE_API_KEY = process.env.BRAVE_API_KEY;

@@ -90,14 +90,19 @@ export class SearchService {
       throw new Error(`SerpAPI request failed: ${response.status} ${response.statusText}`);
     }
 
-    const data: any = await response.json();
+    const data = await response.json() as { organic_results?: Array<{
+      title?: string;
+      link?: string;
+      snippet?: string;
+      position?: number;
+    }> };
 
     if (!data.organic_results || data.organic_results.length === 0) {
       console.warn(`⚠️ No organic results from SerpAPI for query: "${query}"`);
       return [];
     }
 
-    return data.organic_results.map((result: any, index: number) => ({
+    return data.organic_results.map((result, index: number) => ({
       title: result.title || '',
       url: result.link || '',
       snippet: result.snippet || '',
@@ -127,14 +132,18 @@ export class SearchService {
       throw new Error(`Brave Search request failed: ${response.status} ${response.statusText}`);
     }
 
-    const data: any = await response.json();
+    const data = await response.json() as { web?: { results?: Array<{
+      title?: string;
+      url?: string;
+      description?: string;
+    }> } };
 
     if (!data.web || !data.web.results || data.web.results.length === 0) {
       console.warn(`⚠️ No web results from Brave for query: "${query}"`);
       return [];
     }
 
-    return data.web.results.map((result: any, index: number) => ({
+    return data.web.results.map((result, index: number) => ({
       title: result.title || '',
       url: result.url || '',
       snippet: result.description || '',
@@ -214,7 +223,7 @@ export class SearchService {
   async extractGitHubIssue(url: string): Promise<GitHubIssue | null> {
     try {
       // Extract owner, repo, and issue number from URL
-      const match = url.match(/github\.com\/([^\/]+)\/([^\/]+)\/issues\/(\d+)/);
+      const match = url.match(/github\.com\/([^/]+)\/([^/]+)\/issues\/(\d+)/);
       if (!match) return null;
 
       const [, owner, repo, issueNumber] = match;
@@ -234,14 +243,20 @@ export class SearchService {
         return await this.scrapeGitHubIssue(url);
       }
 
-      const data: any = await response.json();
+      const data = await response.json() as {
+        title: string;
+        body?: string;
+        state: 'open' | 'closed';
+        labels?: Array<{ name: string }>;
+        comments?: number;
+      };
 
       return {
         title: data.title,
         description: data.body?.substring(0, 2000) || '',
         state: data.state,
         url,
-        labels: data.labels?.map((l: any) => l.name) || [],
+        labels: data.labels?.map((l) => l.name) || [],
         comments_count: data.comments || 0
       };
     } catch (error) {

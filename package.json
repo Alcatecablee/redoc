@@ -55,6 +55,7 @@
     "colorthief": "^2.6.0",
     "date-fns": "^3.6.0",
     "docx": "^9.5.1",
+    "dotenv": "^16.4.5",
     "drizzle-kit": "^0.31.5",
     "drizzle-orm": "^0.44.6",
     "drizzle-zod": "^0.8.3",

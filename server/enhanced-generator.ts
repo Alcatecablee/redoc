@@ -102,7 +102,6 @@ export async function extractMultiPageContent(urls: string[]) {
   for (const url of urls.slice(0, 20)) { // Limit to 20 pages
     try {
       const response = await fetch(url, { 
-        timeout: 10000,
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
@@ -213,7 +212,7 @@ export async function performExternalResearch(productName: string, baseUrl: stri
 }
 
 // Enhanced JSON parsing with retry
-export async function parseJSONWithRetry(apiKey: string, content: string, retryPrompt: string, maxRetries = 2): Promise<any> {
+export async function parseJSONWithRetry(apiKey: string, content: string, retryPrompt: string, maxRetries = 2): Promise<Record<string, unknown>> {
   let lastError: Error | null = null;
 
   try {
@@ -571,13 +570,13 @@ External sources: ${comprehensiveData.external_research.total_sources}`
     title: finalDoc.title,
     content: JSON.stringify(finalDoc),
     user_id: userId,
-  } as any);
+  });
 
   return { documentation, finalDoc };
 }
 
 // Extract theme from content
-function extractThemeFromContent(pages: any[]) {
+function extractThemeFromContent(pages: Array<{ content: string }>) {
   const allColors: string[] = [];
   const allFonts: string[] = [];
   
