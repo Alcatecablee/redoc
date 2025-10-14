@@ -6,6 +6,7 @@ export type ProgressEvent = {
   description: string;
   progress: number;
   timestamp: Date;
+  status?: 'progress' | 'complete' | 'error';
 };
 
 class ProgressTracker extends EventEmitter {
@@ -33,8 +34,19 @@ class ProgressTracker extends EventEmitter {
     return this.sessions.get(sessionId) || [];
   }
 
-  endSession(sessionId: string) {
+  endSession(sessionId: string, status: 'complete' | 'error' = 'complete') {
+    // Emit final status event
+    this.emit(`progress:${sessionId}`, {
+      stage: status === 'complete' ? 100 : -1,
+      stageName: status === 'complete' ? 'Complete' : 'Error',
+      description: status === 'complete' ? 'Process finished' : 'An error occurred',
+      progress: status === 'complete' ? 100 : 0,
+      timestamp: new Date(),
+      status,
+    });
+    
     this.sessions.delete(sessionId);
+    this.removeAllListeners(`progress:${sessionId}`);
   }
 }
 

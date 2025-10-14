@@ -31,6 +31,8 @@ const Index = () => {
   const [url, setUrl] = useState("");
   const [progress, setProgress] = useState(0);
   const [currentStage, setCurrentStage] = useState<number>(0);
+  const [currentStageName, setCurrentStageName] = useState<string>("");
+  const [currentStageDesc, setCurrentStageDesc] = useState<string>("");
   const [generatedDoc, setGeneratedDoc] = useState<any>(null);
   const [selectedTheme, setSelectedTheme] = useState<Theme>(getDefaultTheme());
   const { toast } = useToast();
@@ -107,6 +109,8 @@ const Index = () => {
         console.log('Progress update:', progressData);
         setCurrentStage(progressData.stage);
         setProgress(progressData.progress);
+        setCurrentStageName(progressData.stageName || "");
+        setCurrentStageDesc(progressData.description || "");
       } catch (e) {
         console.error('Failed to parse progress event:', e);
       }
@@ -257,10 +261,17 @@ const Index = () => {
 
                   {/* Progress strip */}
                   {generateMutation.isPending && (
-                    <div className="mt-4">
+                    <div className="mt-6 space-y-3">
+                      {currentStageName && (
+                        <div className="text-center">
+                          <p className="text-sm font-semibold text-white/90">{currentStageName}</p>
+                          <p className="text-xs text-white/60 mt-1">{currentStageDesc}</p>
+                        </div>
+                      )}
                       <div className="h-2 bg-white/8 rounded-full overflow-hidden">
-                        <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+                        <div className="h-full bg-primary transition-all duration-500 ease-out" style={{ width: `${progress}%` }} />
                       </div>
+                      <p className="text-xs text-white/50 text-right">{progress}%</p>
                     </div>
                   )}
                 </div>

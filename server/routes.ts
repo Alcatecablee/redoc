@@ -168,30 +168,31 @@ router.post("/api/generate-docs", verifySupabaseAuth, async (req, res) => {
     const sessionId = clientSessionId || uuidv4();
     progressTracker.createSession(sessionId);
 
-    // Prefer enhanced research-driven pipeline; fallback to legacy flow only if it fails
     try {
-      const userId = req.user?.id || null;
-      const result = await generateDocumentationPipeline(url, userId, sessionId);
-      const parsed = JSON.parse(result.documentation.content);
+      // Prefer enhanced research-driven pipeline; fallback to legacy flow only if it fails
+      try {
+        const userId = req.user?.id || null;
+        const result = await generateDocumentationPipeline(url, userId, sessionId);
+        const parsed = JSON.parse(result.documentation.content);
 
-      progressTracker.endSession(sessionId);
+        progressTracker.endSession(sessionId, 'complete');
 
-      return res.json({
-        id: result.documentation.id,
-        title: result.documentation.title,
-        description: parsed.description,
-        sections: parsed.sections || [],
-        url: result.documentation.url,
-        generatedAt: result.documentation.generatedAt,
-        theme: parsed.theme,
-        metadata: parsed.metadata,
-        searchability: parsed.searchability,
-        sessionId: sessionId,
-      });
-    } catch (e: any) {
-      console.error('Enhanced pipeline failed, continuing with legacy flow:', e?.message || e);
-      progressTracker.endSession(sessionId);
-    }
+        return res.json({
+          id: result.documentation.id,
+          title: result.documentation.title,
+          description: parsed.description,
+          sections: parsed.sections || [],
+          url: result.documentation.url,
+          generatedAt: result.documentation.generatedAt,
+          theme: parsed.theme,
+          metadata: parsed.metadata,
+          searchability: parsed.searchability,
+          sessionId: sessionId,
+        });
+      } catch (e: any) {
+        console.error('Enhanced pipeline failed, continuing with legacy flow:', e?.message || e);
+        // Don't end session yet, let legacy flow continue
+      }
 
     // Fetch website content
     console.log("Fetching website content for:", url);
@@ -740,8 +741,19 @@ Return ONLY valid JSON.`
       metadata: finalDoc.metadata,
       searchability: finalDoc.searchability,
     });
+    } catch (error) {
+      console.error('Error in generate-docs:', error);
+      res.status(500).json({
+        error: error instanceof Error ? error.message : 'Unknown error occurred'
+      });
+    } finally {
+      // Ensure session is always cleaned up, even on errors
+      if (sessionId) {
+        progressTracker.endSession(sessionId, 'error');
+      }
+    }
   } catch (error) {
-    console.error('Error in generate-docs:', error);
+    console.error('Error in generate-docs (outer):', error);
     res.status(500).json({
       error: error instanceof Error ? error.message : 'Unknown error occurred'
     });
