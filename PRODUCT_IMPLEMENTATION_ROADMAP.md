@@ -54,7 +54,7 @@ Acceptance
 Scope: Paid value for solo founders.
 
 Billing & Access
-- Stripe: Checkout, customer portal, webhooks; entitlements mapped to org tier.
+- Paypal: Checkout, customer portal, webhooks; entitlements mapped to org tier.
 - Entitlements: Unlimited generations, branding, export flavors, custom domain, auto‑sync.
 
 Custom Branding/Themes
@@ -221,7 +221,7 @@ Acceptance
 
 ## Pricing, Metering, Entitlements
 
-- Stripe products/prices for Free/Pro/Team; tax and invoices.
+- Paypal products/prices for Free/Pro/Team; tax and invoices.
 - Entitlements table maps tiers to limits/features; evaluated in middleware.
 - Metering: monthly window counters; rate limits per tier and per endpoint.
 
