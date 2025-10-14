@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Loader2, FileText, ExternalLink, Download, Zap, Shield, CheckCircle2 } from "lucide-react";
+import { Loader2, FileText, ExternalLink, Download, Zap, Shield, CheckCircle2, Globe, Search, Layers, BookOpen, Palette, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -37,10 +37,10 @@ const Index = () => {
   const [showSignIn, setShowSignIn] = useState(false);
 
   const stages = [
-    { id: 1, name: "Extracting Content", description: "Analyzing website structure and content" },
-    { id: 2, name: "Writing Documentation", description: "Creating professional documentation" },
-    { id: 3, name: "Adding Metadata", description: "Optimizing for SEO and deployment" },
-    { id: 4, name: "Quality Check", description: "Validating and refining content" }
+    { id: 1, name: "Site Discovery", description: "Multi-domain crawling and content mapping" },
+    { id: 2, name: "Research & Analysis", description: "External research and community insights" },
+    { id: 3, name: "Documentation Generation", description: "Professional content creation and structuring" },
+    { id: 4, name: "Export & Optimization", description: "Multi-format export with theme application" }
   ];
 
   const generateMutation = useMutation({
@@ -213,8 +213,8 @@ const Index = () => {
             <div className="mt-6">
               <div className="mx-auto max-w-3xl bg-[#0b0f17]/70 backdrop-blur rounded-2xl shadow-xl border border-white/6 p-6">
                 <div className="text-left md:text-center">
-                  <h1 className="text-3xl md:text-4xl font-bold text-white">Instant AI Docs</h1>
-                  <p className="text-sm text-white/80 mt-2">Paste a URL — get polished documentation.</p>
+                  <h1 className="text-3xl md:text-4xl font-bold text-white">Enterprise Documentation Generator</h1>
+                  <p className="text-sm text-white/80 mt-2">Transform any website into comprehensive, professional documentation in seconds.</p>
                 </div>
 
                 <div className="mt-6">
@@ -251,7 +251,7 @@ const Index = () => {
 
                   {/* small helper text */}
                   <div className="text-xs text-white/70 mt-3 text-left md:text-center">
-                    Works best with public sites. Sign in to save your docs.
+                    Advanced multi-stage pipeline with external research and professional theming. Sign in to save your documentation.
                   </div>
 
                   {/* Progress strip */}
@@ -359,24 +359,78 @@ const Index = () => {
         </section>
       )}
 
+      {/* Technical Overview Section */}
+      {!generatedDoc && (
+        <section className="container mx-auto px-4 py-24 border-b border-white/10">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">Advanced Multi-Stage Pipeline</h2>
+            <p className="text-lg text-muted-foreground mb-12">
+              Our sophisticated system goes beyond simple web scraping to deliver comprehensive, research-backed documentation
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="text-center">
+                <div className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4">
+                  <Globe className="h-6 w-6 text-primary" />
+                </div>
+                <h4 className="font-semibold mb-2">Site Discovery</h4>
+                <p className="text-sm text-muted-foreground">Multi-domain crawling, sitemap parsing, subdomain detection</p>
+              </div>
+              
+              <div className="text-center">
+                <div className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4">
+                  <Search className="h-6 w-6 text-primary" />
+                </div>
+                <h4 className="font-semibold mb-2">External Research</h4>
+                <p className="text-sm text-muted-foreground">Stack Overflow, GitHub issues, community insights</p>
+              </div>
+              
+              <div className="text-center">
+                <div className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4">
+                  <BookOpen className="h-6 w-6 text-primary" />
+                </div>
+                <h4 className="font-semibold mb-2">Content Generation</h4>
+                <p className="text-sm text-muted-foreground">Professional writing, structure optimization, cross-references</p>
+              </div>
+              
+              <div className="text-center">
+                <div className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4">
+                  <Layers className="h-6 w-6 text-primary" />
+                </div>
+                <h4 className="font-semibold mb-2">Export & Deploy</h4>
+                <p className="text-sm text-muted-foreground">Multi-format export, theme application, metadata optimization</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Features Section */}
       {!generatedDoc && (
         <section id="features" className="container mx-auto px-4 pb-24">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">Why Choose DocSnap?</h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Everything you need to create professional documentation in seconds
+              <h2 className="text-4xl md:text-5xl font-bold mb-6">Enterprise-Grade Documentation Platform</h2>
+              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+                Advanced multi-stage pipeline that discovers, researches, and generates comprehensive documentation with professional theming and export capabilities
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
               <div className="glass-effect rounded-2xl p-8 hover:scale-[1.02] transition-all duration-300 group">
                 <div className="h-14 w-14 rounded-2xl bg-primary flex items-center justify-center mb-6 shadow-glow group-hover:shadow-glow transition-shadow">
-                  <Zap className="h-7 w-7 text-primary-foreground" />
+                  <Globe className="h-7 w-7 text-primary-foreground" />
                 </div>
-                <h3 className="text-2xl font-semibold mb-3">Lightning Fast</h3>
-                <p className="text-muted-foreground leading-relaxed">Generate complete documentation in under 30 seconds. AI-powered extraction and structuring.</p>
+                <h3 className="text-2xl font-semibold mb-3">Comprehensive Discovery</h3>
+                <p className="text-muted-foreground leading-relaxed">Multi-domain crawling across subdomains, sitemaps, and documentation sections. Analyzes up to 60+ pages per site.</p>
+              </div>
+              
+              <div className="glass-effect rounded-2xl p-8 hover:scale-[1.02] transition-all duration-300 group">
+                <div className="h-14 w-14 rounded-2xl bg-primary flex items-center justify-center mb-6 shadow-glow group-hover:shadow-glow transition-shadow">
+                  <Search className="h-7 w-7 text-primary-foreground" />
+                </div>
+                <h3 className="text-2xl font-semibold mb-3">External Research</h3>
+                <p className="text-muted-foreground leading-relaxed">Integrates Stack Overflow, GitHub issues, and search engine results for comprehensive troubleshooting and best practices.</p>
               </div>
               
               <div className="glass-effect rounded-2xl p-8 hover:scale-[1.02] transition-all duration-300 group">
@@ -384,15 +438,33 @@ const Index = () => {
                   <Shield className="h-7 w-7 text-primary-foreground" />
                 </div>
                 <h3 className="text-2xl font-semibold mb-3">Enterprise Quality</h3>
-                <p className="text-muted-foreground leading-relaxed">Professional formatting that matches industry leaders like Microsoft and Twitter.</p>
+                <p className="text-muted-foreground leading-relaxed">Apple-style documentation with professional formatting, accessibility compliance, and SEO optimization.</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="glass-effect rounded-2xl p-8 hover:scale-[1.02] transition-all duration-300 group">
+                <div className="h-14 w-14 rounded-2xl bg-primary flex items-center justify-center mb-6 shadow-glow group-hover:shadow-glow transition-shadow">
+                  <Palette className="h-7 w-7 text-primary-foreground" />
+                </div>
+                <h3 className="text-2xl font-semibold mb-3">Advanced Theming</h3>
+                <p className="text-muted-foreground leading-relaxed">Brand kit extraction, custom theme builder, and professional presets. Automatic color and font detection from source sites.</p>
               </div>
               
               <div className="glass-effect rounded-2xl p-8 hover:scale-[1.02] transition-all duration-300 group">
                 <div className="h-14 w-14 rounded-2xl bg-primary flex items-center justify-center mb-6 shadow-glow group-hover:shadow-glow transition-shadow">
-                  <Download className="h-7 w-7 text-primary-foreground" />
+                  <Layers className="h-7 w-7 text-primary-foreground" />
                 </div>
-                <h3 className="text-2xl font-semibold mb-3">Multiple Formats</h3>
-                <p className="text-muted-foreground leading-relaxed">Export to PDF, DOCX, or publish as a live web page. Your choice, your format.</p>
+                <h3 className="text-2xl font-semibold mb-3">Multi-Format Export</h3>
+                <p className="text-muted-foreground leading-relaxed">PDF, DOCX, HTML, Markdown, and JSON exports with consistent theming. Batch export and live preview capabilities.</p>
+              </div>
+              
+              <div className="glass-effect rounded-2xl p-8 hover:scale-[1.02] transition-all duration-300 group">
+                <div className="h-14 w-14 rounded-2xl bg-primary flex items-center justify-center mb-6 shadow-glow group-hover:shadow-glow transition-shadow">
+                  <Settings className="h-7 w-7 text-primary-foreground" />
+                </div>
+                <h3 className="text-2xl font-semibold mb-3">Production Ready</h3>
+                <p className="text-muted-foreground leading-relaxed">Metadata generation, cross-references, validation checks, and deployment-ready output with accessibility scoring.</p>
               </div>
             </div>
           </div>
