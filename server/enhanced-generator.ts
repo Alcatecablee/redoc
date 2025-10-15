@@ -527,9 +527,28 @@ CONTENT SECTIONS TO GENERATE:
 7. FAQ - Group by category, lead with most common questions
 8. Glossary (if terminology exists) - Alphabetical list with definitions
 
-For each section and content block, include an optional "citations" array of URLs supporting the content.
+REQUIRED JSON OUTPUT FORMAT:
+{
+  "title": "Documentation title",
+  "description": "Brief description",
+  "sections": [
+    {
+      "id": "getting-started",
+      "title": "Getting Started",
+      "icon": "Rocket",
+      "content": [
+        { "type": "paragraph", "text": "Introduction text..." },
+        { "type": "heading", "level": 3, "text": "Subheading" },
+        { "type": "list", "items": ["Step 1", "Step 2", "Step 3"] },
+        { "type": "code", "language": "javascript", "code": "code example" },
+        { "type": "callout", "calloutType": "info", "text": "Important note" }
+      ]
+    }
+  ]
+}
 
-Return structured JSON with comprehensive documentation.`
+Content block types: paragraph, heading (level 2-4), list, code, callout (info/warning/tip/success), table, image.
+ALWAYS include the "sections" array with at least 5-8 comprehensive sections.`
         },
         { 
           role: 'user', 

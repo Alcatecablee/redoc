@@ -6,7 +6,8 @@ import { apiRequest, apiRequestBlob } from '@/lib/queryClient';
 import { DocumentationViewer } from '@/components/DocumentationViewer';
 import { BrandKitExtractor } from '@/components/BrandKitExtractor';
 import { Button } from '@/components/ui/button';
-import { Download, FileText, ExternalLink, Trash2 } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Download, FileText, ExternalLink, Trash2, ArrowLeft, Home, Plus, FileCheck, Clock } from 'lucide-react';
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
@@ -90,88 +91,152 @@ export default function Dashboard() {
 
   return (
     <div className="container mx-auto px-4 py-20">
-      <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Home
+          </Button>
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Button variant="default" onClick={() => navigate('/')} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Generate New Doc
+          </Button>
+          {user && (
+            <Button variant="secondary" size="sm" onClick={() => { supabase.auth.signOut(); navigate('/'); }}>
+              Sign Out
+            </Button>
+          )}
+        </div>
+      </div>
 
       {user && (
-        <div className="mb-6 flex items-center gap-4">
-          <img src="https://cdn.builder.io/api/v1/image/assets%2Fa5240755456c40cdba09a9a8d717364c%2F538d34938c2641918290a7fc5923f99d?format=webp&width=800" alt="avatar" className="h-12 w-12 rounded-full object-cover" />
-          <div className="flex-1">
-            <p className="text-sm text-muted-foreground">Welcome back</p>
-            <p className="font-medium">{user.email}</p>
-          </div>
-          <div>
-            <Button variant="secondary" size="sm" onClick={() => { supabase.auth.signOut(); navigate('/'); }}>Sign Out</Button>
-          </div>
-        </div>
+        <Card className="mb-8">
+          <CardHeader>
+            <div className="flex items-center gap-4">
+              <img src="https://cdn.builder.io/api/v1/image/assets%2Fa5240755456c40cdba09a9a8d717364c%2F538d34938c2641918290a7fc5923f99d?format=webp&width=800" alt="avatar" className="h-12 w-12 rounded-full object-cover" />
+              <div className="flex-1">
+                <CardTitle className="text-lg">Welcome back, {user.email?.split('@')[0] || 'User'}</CardTitle>
+                <CardDescription>{user.email}</CardDescription>
+              </div>
+              <div className="flex gap-4 text-sm">
+                <div className="text-center">
+                  <div className="flex items-center gap-1 text-muted-foreground">
+                    <FileCheck className="h-4 w-4" />
+                    <span>Docs</span>
+                  </div>
+                  <div className="text-2xl font-bold">{docs.length}</div>
+                </div>
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1">
-          <h2 className="text-xl font-semibold mb-3">Your Generated Docs</h2>
-          {docs.length === 0 ? (
-            <p className="text-muted-foreground">No documents generated yet.</p>
-          ) : (
-            <ul className="space-y-3">
-              {docs.map((d) => (
-                <li key={d.id} className="p-4 rounded-lg bg-[#0b0f17]/60 border border-white/6 flex justify-between items-center shadow-sm">
-                  <div className="min-w-0">
-                    <div className="font-semibold truncate">{d.title}</div>
-                    <div className="text-sm text-muted-foreground truncate">{d.url}</div>
-                    {d.generatedAt && <div className="text-xs text-muted-foreground">Generated: {new Date(d.generatedAt).toLocaleString()}</div>}
-                  </div>
-                  <div className="flex gap-2 items-center">
-                    <Button variant="ghost" size="sm" asChild>
-                      <a onClick={() => openDoc(d.id)} className="flex items-center gap-2"><FileText className="h-4 w-4"/>Open</a>
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => downloadBlob(`/api/export/html/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.html`)}>
-                      <ExternalLink className="h-4 w-4"/>HTML
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => downloadBlob(`/api/export/pdf/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.pdf`)}>
-                      <Download className="h-4 w-4"/>PDF
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => downloadBlob(`/api/export/markdown/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.md`)}>
-                      MD
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => downloadBlob(`/api/export/docx/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.docx`)}>
-                      DOCX
-                    </Button>
-                    <Button variant="destructive" size="sm" onClick={() => deleteDoc(d.id)}>
-                      <Trash2 className="h-4 w-4"/>Delete
-                    </Button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
+          <Card>
+            <CardHeader>
+              <CardTitle>Your Documentation</CardTitle>
+              <CardDescription>View and manage your generated docs</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {docs.length === 0 ? (
+                <div className="text-center py-8">
+                  <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-muted-foreground mb-4">No documents generated yet.</p>
+                  <Button variant="default" onClick={() => navigate('/')} className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Create Your First Doc
+                  </Button>
+                </div>
+              ) : (
+                <ul className="space-y-3">
+                  {docs.map((d) => (
+                    <li key={d.id} className="p-4 rounded-lg bg-[#0b0f17]/60 border border-white/6 hover:border-white/20 transition-colors">
+                      <div className="mb-3">
+                        <div className="font-semibold truncate mb-1">{d.title}</div>
+                        <div className="text-sm text-muted-foreground truncate">{d.url}</div>
+                        {d.generatedAt && (
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                            <Clock className="h-3 w-3" />
+                            {new Date(d.generatedAt).toLocaleString()}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        <Button variant="default" size="sm" onClick={() => openDoc(d.id)} className="gap-1">
+                          <FileText className="h-3 w-3"/>View
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => downloadBlob(`/api/export/html/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.html`)} className="gap-1">
+                          <ExternalLink className="h-3 w-3"/>HTML
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => downloadBlob(`/api/export/pdf/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.pdf`)} className="gap-1">
+                          <Download className="h-3 w-3"/>PDF
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => downloadBlob(`/api/export/markdown/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.md`)}>
+                          MD
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => downloadBlob(`/api/export/docx/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.docx`)}>
+                          DOCX
+                        </Button>
+                        <Button variant="destructive" size="sm" onClick={() => deleteDoc(d.id)} className="gap-1 ml-auto">
+                          <Trash2 className="h-3 w-3"/>
+                        </Button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
         </div>
 
         <div className="lg:col-span-2">
           {selectedDoc ? (
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="text-2xl font-bold">{selectedDoc.title}</h2>
-                  {selectedDoc.parsedContent?.description && (
-                    <p className="text-sm text-muted-foreground">{selectedDoc.parsedContent.description}</p>
-                  )}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>{selectedDoc.title}</CardTitle>
+                    {selectedDoc.parsedContent?.description && (
+                      <CardDescription>{selectedDoc.parsedContent.description}</CardDescription>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <BrandKitExtractor onThemeGenerated={(theme) => setViewerTheme(theme)} />
+                    <Button variant="outline" size="sm" onClick={() => setSelectedDoc(null)}>
+                      Close Preview
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <BrandKitExtractor onThemeGenerated={(theme) => setViewerTheme(theme)} />
-                  <button className="btn" onClick={() => setSelectedDoc(null)}>Close</button>
-                </div>
-              </div>
-
-              <DocumentationViewer
-                title={selectedDoc.parsedContent.title || selectedDoc.title}
-                description={selectedDoc.parsedContent.description}
-                sections={selectedDoc.parsedContent.sections || []}
-                theme={viewerTheme}
-              />
-            </div>
+              </CardHeader>
+              <CardContent>
+                <DocumentationViewer
+                  title={selectedDoc.parsedContent.title || selectedDoc.title}
+                  description={selectedDoc.parsedContent.description}
+                  sections={selectedDoc.parsedContent.sections || []}
+                  theme={viewerTheme}
+                />
+              </CardContent>
+            </Card>
           ) : (
-            <div className="p-6 rounded-lg border-dashed border-2 border-gray-200 text-center">
-              <p className="text-muted-foreground">Select a document to preview its contents</p>
-            </div>
+            <Card>
+              <CardContent className="py-16 text-center">
+                <FileText className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+                <h3 className="text-lg font-semibold mb-2">No Document Selected</h3>
+                <p className="text-muted-foreground mb-6">Select a document from the list to preview its contents</p>
+                {docs.length === 0 && (
+                  <Button variant="default" onClick={() => navigate('/')} className="gap-2">
+                    <Home className="h-4 w-4" />
+                    Go to Home & Generate
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
           )}
         </div>
       </div>
