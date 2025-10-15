@@ -54,8 +54,35 @@ Design preferences: Clean cyan-blue color scheme like Replit (no purple), solid 
 *   **Custom Theme Builder**: UI for creating custom themes with color palette editor, typography controls, real-time preview, WCAG accessibility checker, and import/export.
 *   **Brand Kit Integration**: Automatic color extraction from uploaded logos.
 *   **Progress Tracking**: Visual 3-stage (or 4-stage with Quality Validation) progress indicators for documentation generation.
-*   **Export System**: Comprehensive export to PDF, DOCX, Markdown, JSON, and HTML, with theme-aware outputs. Batch export into ZIP.
+*   **Export System**: Comprehensive export to PDF, DOCX, Markdown, JSON, HTML, and **Custom Domain** (on-demand subdomain hosting). Theme-aware outputs with batch export into ZIP.
+*   **Custom Domain Export**: On-demand subdomain generation feature. Users click "Domain" export button in Dashboard/Profile to create a shareable custom subdomain URL (e.g., `docs-example-abc123.replit.app`). Subdomain is only generated when explicitly requested, not automatically during documentation creation. Includes full security validation, collision handling with retry logic, and clipboard copy functionality.
 *   **Image Rendering**: DocumentationViewer supports image content blocks with lazy loading, alt text, and captions.
+
+## Recent Changes (October 2025)
+
+### Custom Domain Export Feature Refactor
+**Date**: October 15, 2025
+
+**Changes Made**:
+1. **Removed automatic subdomain generation** from documentation creation pipelines (both legacy and enhanced)
+2. **Created on-demand subdomain export API** (`POST /api/export/subdomain/:id`) with security validation and collision handling
+3. **Added "Domain" export button** in Dashboard and Profile pages alongside PDF, HTML, MD, DOCX buttons
+4. **Removed automatic subdomain display** from Index.tsx (no longer shows "Your Documentation is Live!" section)
+5. **Maintained all security measures**: XSS prevention, URL sanitization, subdomain validation with regex, collision retry logic, proper HTTP status codes (409/500/400)
+
+**New User Workflow**:
+1. Generate documentation (no subdomain created automatically)
+2. Navigate to Dashboard or Profile page
+3. Click "Domain" export button next to other export options
+4. Receive custom domain URL with toast notification and automatic clipboard copy
+5. Subsequent clicks return the same subdomain if already created
+
+**Technical Implementation**:
+- Subdomain stored as nullable field in database (initially `null`)
+- On-demand generation via `generateSubdomain()` helper with strict validation
+- Retry logic handles collisions (max 3 attempts)
+- Subdomain middleware in `server/index.ts` serves documentation at custom subdomain URLs
+- Security: URL scheme whitelisting, XSS prevention, input sanitization maintained
 
 ## External Dependencies
 
