@@ -7,6 +7,10 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   console.warn('VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY is not set');
 }
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: { persistSession: true },
-});
+export const supabase = createClient(
+  SUPABASE_URL || 'https://placeholder.supabase.co', 
+  SUPABASE_ANON_KEY || 'placeholder-key', 
+  {
+    auth: { persistSession: true },
+  }
+);

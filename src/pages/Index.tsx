@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Loader2, FileText, ExternalLink, Download, Zap, Shield, CheckCircle2, Globe, Search, Layers, BookOpen, Palette, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, apiRequestBlob } from "@/lib/queryClient";
 import Header from "@/components/Header";
 import SignInDialog from "@/components/SignInDialog";
 import { supabase } from "@/lib/supabaseClient";
