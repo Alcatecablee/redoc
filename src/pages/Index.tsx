@@ -297,39 +297,6 @@ const Index = () => {
       {/* Results Section */}
       {generatedDoc && (
         <section className="container mx-auto px-4 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-          {/* Shareable Link Section */}
-          {generatedDoc.subdomain && (
-            <div className="mb-8 glass-effect rounded-2xl p-6">
-              <h3 className="text-xl font-semibold mb-4">🔗 Your Documentation is Live!</h3>
-              <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-lg p-4">
-                <ExternalLink className="h-5 w-5 text-primary flex-shrink-0" />
-                <div className="flex-1 overflow-hidden">
-                  <p className="text-sm text-white/70 mb-1">Shareable Link:</p>
-                  <a 
-                    href={`https://${generatedDoc.subdomain}.${window.location.hostname.split('.').slice(1).join('.')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:text-primary/80 font-mono text-base truncate block"
-                  >
-                    {generatedDoc.subdomain}.{window.location.hostname.split('.').slice(1).join('.')}
-                  </a>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const link = `https://${generatedDoc.subdomain}.${window.location.hostname.split('.').slice(1).join('.')}`;
-                    navigator.clipboard.writeText(link);
-                    toast({ title: "Link copied!", description: "Shareable link copied to clipboard" });
-                  }}
-                  className="flex-shrink-0"
-                >
-                  Copy
-                </Button>
-              </div>
-            </div>
-          )}
-          
           <div className="mb-8 glass-effect rounded-2xl p-6">
             <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
               <h3 className="text-xl font-semibold">Export Documentation</h3>
