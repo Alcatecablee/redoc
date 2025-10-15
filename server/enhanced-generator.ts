@@ -628,8 +628,7 @@ External sources: ${comprehensiveData.external_research.total_sources}`
   const finalDoc = {
     title: finalMetadata.metadata?.title || writtenDocs.title || 'Comprehensive Documentation',
     description: finalMetadata.metadata?.description || writtenDocs.description || '',
-    sections: finalMetadata.structure?.sections && finalMetadata.structure.sections.length > 0 ? 
-              finalMetadata.structure.sections : writtenDocs.sections || [],
+    sections: writtenDocs.sections || [],
     metadata: finalMetadata.metadata || {},
     searchability: finalMetadata.searchability || {},
     validation: finalMetadata.validation || {},
@@ -645,18 +644,7 @@ External sources: ${comprehensiveData.external_research.total_sources}`
     }
   };
   
-  // Debug logging to see what we're getting
-  console.log('📋 Debug - sections source:', finalMetadata.structure?.sections ? 'finalMetadata.structure.sections' : 'writtenDocs.sections');
-  console.log('📋 Debug - sections count:', finalDoc.sections.length);
-  if (finalDoc.sections.length > 0 && finalDoc.sections[0]) {
-    console.log('📋 Debug - first section keys:', Object.keys(finalDoc.sections[0]));
-    if (finalDoc.sections[0].content) {
-      console.log('📋 Debug - first section content length:', finalDoc.sections[0].content.length);
-      if (finalDoc.sections[0].content[0]) {
-        console.log('📋 Debug - first content block:', JSON.stringify(finalDoc.sections[0].content[0]));
-      }
-    }
-  }
+  console.log(`✅ Final doc assembled: ${finalDoc.sections.length} sections, title: ${finalDoc.title}`);
 
   // Save to database
   if (sessionId) {
