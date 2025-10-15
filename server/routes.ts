@@ -1502,4 +1502,138 @@ router.get('/api/export/batch/:id', verifySupabaseAuth, async (req, res) => {
   }
 });
 
+// Helper function to generate subdomain
+function generateSubdomain(url: string, title?: string): string {
+  try {
+    const urlObj = new URL(url);
+    let base = urlObj.hostname
+      .toLowerCase()
+      .replace(/\./g, '-')
+      .replace(/[^a-z0-9-]/g, '')
+      .replace(/-+/g, '-')
+      .replace(/^-+|-+$/g, '');
+      
+    if (title) {
+      base = title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 20);
+    }
+    
+    const random = Math.random().toString(36).substring(2, 8);
+    let subdomain = `${base}-${random}`
+      .replace(/-+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .toLowerCase()
+      .slice(0, 50);
+    
+    if (subdomain.length < 3) {
+      subdomain = `docs-${random}`;
+    }
+    
+    if (!/^[a-z0-9]([a-z0-9-]{0,48}[a-z0-9])?$/.test(subdomain) || /--/.test(subdomain)) {
+      return `docs-${Math.random().toString(36).substring(2, 15)}`;
+    }
+    
+    return subdomain;
+  } catch {
+    return `docs-${Math.random().toString(36).substring(2, 15)}`;
+  }
+}
+
+// On-demand subdomain export endpoint
+router.post("/api/export/subdomain/:id", verifySupabaseAuth, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ error: "Invalid ID" });
+    }
+
+    const doc = await storage.getDocumentation(id);
+    if (!doc) {
+      return res.status(404).json({ error: "Documentation not found" });
+    }
+
+    const userId = req.user?.id;
+    if (doc.user_id && userId && doc.user_id !== userId) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
+    // Check if subdomain already exists
+    const currentSubdomain = (doc as any).subdomain;
+    if (currentSubdomain) {
+      // Already has a subdomain, return it
+      const hostname = req.hostname || req.get('host') || '';
+      const baseDomain = hostname.split('.').slice(1).join('.');
+      return res.json({
+        subdomain: currentSubdomain,
+        url: `https://${currentSubdomain}.${baseDomain || 'replit.app'}`
+      });
+    }
+
+    // Generate new subdomain with retry logic
+    let subdomain = generateSubdomain(doc.url, doc.title);
+    
+    // Validate subdomain format
+    const subdomainRegex = /^[a-z0-9]([a-z0-9-]{0,48}[a-z0-9])?$/;
+    const hasConsecutiveHyphens = /--/.test(subdomain);
+    
+    if (!subdomainRegex.test(subdomain) || hasConsecutiveHyphens) {
+      subdomain = `docs-${Math.random().toString(36).substring(2, 15)}`;
+    }
+
+    // Try to update with retry logic for collisions
+    let retryCount = 0;
+    const maxRetries = 3;
+    let updatedDoc: any = null;
+
+    while (retryCount < maxRetries) {
+      try {
+        // Update the documentation with the subdomain
+        updatedDoc = await storage.updateDocumentation(id, { subdomain } as any);
+        console.log(`[SUBDOMAIN] On-demand: Successfully assigned subdomain "${subdomain}" to doc ${id}`);
+        break;
+      } catch (err: any) {
+        if ((err?.message?.includes('unique') || err?.code === '23505') && retryCount < maxRetries - 1) {
+          const previousSubdomain = subdomain;
+          subdomain = generateSubdomain(doc.url, doc.title);
+          retryCount++;
+          console.log(`[SUBDOMAIN] On-demand: Collision on "${previousSubdomain}". Retry ${retryCount}/${maxRetries} with: "${subdomain}"`);
+        } else if (err?.message?.includes('unique') || err?.code === '23505') {
+          console.error(`[SUBDOMAIN] On-demand: Failed to find unique subdomain after ${maxRetries} attempts`);
+          return res.status(409).json({ 
+            error: 'Unable to generate unique subdomain',
+            details: 'Please try again or contact support if this persists'
+          });
+        } else {
+          console.error(`[SUBDOMAIN] On-demand: Update error:`, err?.message || err);
+          return res.status(500).json({ 
+            error: 'Failed to create custom domain',
+            details: err?.message || 'Unknown error'
+          });
+        }
+      }
+    }
+
+    if (!updatedDoc) {
+      return res.status(500).json({ error: 'Failed to create custom domain' });
+    }
+
+    const hostname = req.hostname || req.get('host') || '';
+    const baseDomain = hostname.split('.').slice(1).join('.');
+    
+    res.json({
+      subdomain: subdomain,
+      url: `https://${subdomain}.${baseDomain || 'replit.app'}`
+    });
+  } catch (error) {
+    console.error('Error in subdomain export:', error);
+    res.status(500).json({
+      error: error instanceof Error ? error.message : 'Failed to create custom domain'
+    });
+  }
+});
+
 export default router;
