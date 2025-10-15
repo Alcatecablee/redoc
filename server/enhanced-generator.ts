@@ -675,80 +675,14 @@ External sources: ${comprehensiveData.external_research.total_sources}`
     });
   }
   
-  // Generate subdomain with validation
-  const generateSubdomain = (url: string, title?: string): string => {
-    try {
-      const urlObj = new URL(url);
-      let base = urlObj.hostname.replace(/\./g, '-').replace(/[^a-z0-9-]/gi, '').toLowerCase();
-      if (title) {
-        base = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 20);
-      }
-      const random = Math.random().toString(36).substring(2, 8);
-      let subdomain = `${base}-${random}`.slice(0, 50).replace(/^-+|-+$/g, '');
-      
-      // Ensure it meets validation requirements (3-50 chars, no leading/trailing hyphens)
-      if (subdomain.length < 3) {
-        subdomain = `docs-${random}`;
-      }
-      return subdomain;
-    } catch {
-      return `docs-${Math.random().toString(36).substring(2, 15)}`;
-    }
-  };
-  
-  let subdomain = generateSubdomain(url, finalDoc.title);
-  
-  // Validate subdomain format
-  const subdomainRegex = /^[a-z0-9]([a-z0-9-]{0,48}[a-z0-9])?$/;
-  const hasConsecutiveHyphens = /--/.test(subdomain);
-  
-  if (!subdomainRegex.test(subdomain) || hasConsecutiveHyphens) {
-    console.warn(`[SUBDOMAIN] Generated invalid subdomain "${subdomain}", regenerating...`);
-    subdomain = `docs-${Math.random().toString(36).substring(2, 15)}`;
-  }
-  
-  // Save to database with retry logic for collisions
-  let documentation;
-  let retryCount = 0;
-  const maxRetries = 3;
-  let lastError: any = null;
-  
-  while (retryCount < maxRetries) {
-    try {
-      documentation = await storage.createDocumentation({
-        url,
-        title: finalDoc.title,
-        content: JSON.stringify(finalDoc),
-        user_id: userId,
-        subdomain,
-      } as any);
-      console.log(`[SUBDOMAIN] Enhanced pipeline: Successfully created documentation with subdomain: "${subdomain}"`);
-      break; // Success, exit loop
-    } catch (err: any) {
-      lastError = err;
-      // Handle unique constraint violation (subdomain collision)
-      if ((err?.message?.includes('unique') || err?.code === '23505') && retryCount < maxRetries - 1) {
-        const previousSubdomain = subdomain;
-        subdomain = generateSubdomain(url, finalDoc.title);
-        retryCount++;
-        console.log(`[SUBDOMAIN] Enhanced pipeline: Collision on "${previousSubdomain}". Retry ${retryCount}/${maxRetries} with: "${subdomain}"`);
-      } else if (err?.message?.includes('unique') || err?.code === '23505') {
-        // Max retries reached for unique constraint
-        console.error(`[SUBDOMAIN] Enhanced pipeline: Failed to find unique subdomain after ${maxRetries} attempts`);
-        throw new Error('Unable to generate unique subdomain after multiple attempts. Please try again.');
-      } else {
-        // Other database errors
-        console.error(`[SUBDOMAIN] Enhanced pipeline: Database error:`, err?.message || err);
-        throw err;
-      }
-    }
-  }
-  
-  // Safeguard: ensure documentation was created
-  if (!documentation) {
-    console.error(`[SUBDOMAIN] Enhanced pipeline: Documentation creation failed unexpectedly`);
-    throw new Error(lastError?.message || 'Failed to create documentation');
-  }
+  // Save to database without subdomain
+  const documentation = await storage.createDocumentation({
+    url,
+    title: finalDoc.title,
+    content: JSON.stringify(finalDoc),
+    user_id: userId,
+    subdomain: null,
+  } as any);
   
   if (sessionId) {
     progressTracker.emitProgress(sessionId, {
