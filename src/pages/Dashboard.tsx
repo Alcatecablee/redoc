@@ -7,7 +7,7 @@ import { DocumentationViewer } from '@/components/DocumentationViewer';
 import { BrandKitExtractor } from '@/components/BrandKitExtractor';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Download, FileText, ExternalLink, Trash2, ArrowLeft, Home, Plus, FileCheck, Clock } from 'lucide-react';
+import { Download, FileText, ExternalLink, Trash2, ArrowLeft, Home, Plus, FileCheck, Clock, Globe } from 'lucide-react';
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
@@ -86,6 +86,36 @@ export default function Dashboard() {
     } catch (err: any) {
       console.error('Download failed', err);
       toast({ title: 'Download failed', description: err?.message || 'Failed to download file', variant: 'destructive' });
+    }
+  };
+
+  const createCustomDomain = async (id: number) => {
+    try {
+      const { data } = await supabase.auth.getSession();
+      if (!data?.session?.access_token) {
+        toast({ title: 'Sign in required', description: 'Please sign in to create custom domain' });
+        navigate('/');
+        return;
+      }
+
+      const result = await apiRequest(`/api/export/subdomain/${id}`, { method: 'POST' });
+      
+      // Copy URL to clipboard
+      if (result.url) {
+        await navigator.clipboard.writeText(result.url);
+        toast({ 
+          title: 'Custom Domain Created! 🌐', 
+          description: `${result.url} (copied to clipboard)`,
+          duration: 5000
+        });
+      }
+    } catch (err: any) {
+      console.error('Custom domain creation failed', err);
+      toast({ 
+        title: 'Failed to create custom domain', 
+        description: err?.message || 'An error occurred', 
+        variant: 'destructive' 
+      });
     }
   };
 
@@ -182,6 +212,9 @@ export default function Dashboard() {
                         </Button>
                         <Button variant="ghost" size="sm" onClick={() => downloadBlob(`/api/export/docx/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.docx`)}>
                           DOCX
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => createCustomDomain(d.id)} className="gap-1">
+                          <Globe className="h-3 w-3"/>Domain
                         </Button>
                         <Button variant="destructive" size="sm" onClick={() => deleteDoc(d.id)} className="gap-1 ml-auto">
                           <Trash2 className="h-3 w-3"/>
