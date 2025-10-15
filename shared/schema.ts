@@ -8,6 +8,7 @@ export const documentations = pgTable("documentations", {
   title: text("title").notNull(),
   content: text("content").notNull(),
   user_id: text("user_id"),
+  subdomain: text("subdomain").unique(),
   generatedAt: timestamp("generated_at").notNull().defaultNow(),
 });
 

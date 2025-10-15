@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 
 export interface IStorage {
   getDocumentation(id: number): Promise<Documentation | undefined>;
+  getDocumentationBySubdomain(subdomain: string): Promise<Documentation | undefined>;
   getAllDocumentations(userId?: string): Promise<Documentation[]>;
   createDocumentation(data: InsertDocumentation): Promise<Documentation>;
   deleteDocumentation(id: number, userId?: string): Promise<Documentation | undefined>;
@@ -29,6 +30,15 @@ class SupabaseStorage implements IStorage {
   async getDocumentation(id: number): Promise<Documentation | undefined> {
     const { data, error } = await this.client.from('documentations').select('*').eq('id', id).limit(1).single();
     if (error) throw error;
+    return data as Documentation | undefined;
+  }
+
+  async getDocumentationBySubdomain(subdomain: string): Promise<Documentation | undefined> {
+    const { data, error} = await this.client.from('documentations').select('*').eq('subdomain', subdomain).limit(1).single();
+    if (error) {
+      if (error.code === 'PGRST116') return undefined; // Not found
+      throw error;
+    }
     return data as Documentation | undefined;
   }
 
@@ -69,6 +79,10 @@ class InMemoryStorage implements IStorage {
     return this.docs.find((d) => d.id === id);
   }
 
+  async getDocumentationBySubdomain(subdomain: string): Promise<Documentation | undefined> {
+    return this.docs.find((d) => (d as any).subdomain === subdomain);
+  }
+
   async getAllDocumentations(userId?: string): Promise<Documentation[]> {
     const docs = userId ? this.docs.filter(d => d.user_id === userId) : this.docs;
     return [...docs].sort((a, b) => new Date((b as any).generatedAt || b.generatedAt).getTime() - new Date((a as any).generatedAt || a.generatedAt).getTime());
@@ -82,6 +96,7 @@ class InMemoryStorage implements IStorage {
       title: data.title,
       content: data.content,
       user_id: (data as any).user_id || null,
+      subdomain: (data as any).subdomain || null,
       generatedAt: createdAt,
     };
     this.docs.push(doc);

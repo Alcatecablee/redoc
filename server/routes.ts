@@ -132,6 +132,21 @@ router.get("/api/progress/:sessionId", (req, res) => {
   });
 });
 
+// Helper to generate unique subdomain
+function generateSubdomain(url: string, title?: string): string {
+  try {
+    const urlObj = new URL(url);
+    let base = urlObj.hostname.replace(/\./g, '-').replace(/[^a-z0-9-]/gi, '');
+    if (title) {
+      base = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 20);
+    }
+    const random = Math.random().toString(36).substring(2, 8);
+    return `${base}-${random}`.slice(0, 50);
+  } catch {
+    return `docs-${Math.random().toString(36).substring(2, 15)}`;
+  }
+}
+
 // Generate documentation endpoint
 router.post("/api/generate-docs", verifySupabaseAuth, async (req, res) => {
   try {
@@ -142,7 +157,7 @@ router.post("/api/generate-docs", verifySupabaseAuth, async (req, res) => {
       ip: req.ip,
     });
 
-    const { url, sessionId: clientSessionId } = req.body;
+    const { url, sessionId: clientSessionId, subdomain: requestedSubdomain } = req.body;
 
     if (!url) {
       console.warn('generate-docs: missing url in request body');
@@ -183,6 +198,7 @@ router.post("/api/generate-docs", verifySupabaseAuth, async (req, res) => {
           sections: parsed.sections || [],
           url: result.documentation.url,
           generatedAt: result.documentation.generatedAt,
+          subdomain: (result.documentation as any).subdomain,
           theme: parsed.theme,
           metadata: parsed.metadata,
           searchability: parsed.searchability,
@@ -715,13 +731,52 @@ Return ONLY valid JSON.`
     const title = finalDoc.title;
     const description = finalDoc.description;
     
+    // Generate or use provided subdomain
+    let subdomain = requestedSubdomain || generateSubdomain(url, title);
+    
+    // Validate subdomain format
+    if (!/^[a-z0-9-]{3,50}$/.test(subdomain)) {
+      return res.status(400).json({ 
+        error: "Invalid subdomain format. Use only lowercase letters, numbers, and hyphens (3-50 characters)" 
+      });
+    }
+    
+    // Check if subdomain already exists
+    if (requestedSubdomain) {
+      const existing = await storage.getDocumentationBySubdomain(subdomain);
+      if (existing) {
+        // If user requested a specific subdomain that's taken, generate a unique one
+        subdomain = generateSubdomain(url, title);
+        console.log(`Subdomain ${requestedSubdomain} already taken, using ${subdomain} instead`);
+      }
+    }
+    
     // Save to database (store as JSON string for now)
-    const documentation = await storage.createDocumentation({
-      url,
-      title,
-      content: JSON.stringify(finalDoc),
-      user_id: req.user?.id || null,
-    });
+    let documentation;
+    try {
+      documentation = await storage.createDocumentation({
+        url,
+        title,
+        content: JSON.stringify(finalDoc),
+        user_id: req.user?.id || null,
+        subdomain,
+      } as any);
+    } catch (err: any) {
+      // Handle unique constraint violation
+      if (err?.message?.includes('unique') || err?.code === '23505') {
+        // Generate a new unique subdomain and retry
+        subdomain = generateSubdomain(url, title);
+        documentation = await storage.createDocumentation({
+          url,
+          title,
+          content: JSON.stringify(finalDoc),
+          user_id: req.user?.id || null,
+          subdomain,
+        } as any);
+      } else {
+        throw err;
+      }
+    }
 
     console.log("Documentation generated successfully with 4-stage AI pipeline (Extract → Write �� Metadata → Quality Check)");
 
@@ -732,6 +787,7 @@ Return ONLY valid JSON.`
       sections: finalDoc.sections || [],
       url: documentation.url,
       generatedAt: documentation.generatedAt,
+      subdomain: (documentation as any).subdomain,
       theme: theme,
       metadata: finalDoc.metadata,
       searchability: finalDoc.searchability,

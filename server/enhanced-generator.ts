@@ -675,12 +675,28 @@ External sources: ${comprehensiveData.external_research.total_sources}`
     });
   }
   
+  // Generate subdomain
+  const subdomain = (function(url: string, title?: string): string {
+    try {
+      const urlObj = new URL(url);
+      let base = urlObj.hostname.replace(/\./g, '-').replace(/[^a-z0-9-]/gi, '');
+      if (title) {
+        base = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 20);
+      }
+      const random = Math.random().toString(36).substring(2, 8);
+      return `${base}-${random}`.slice(0, 50);
+    } catch {
+      return `docs-${Math.random().toString(36).substring(2, 15)}`;
+    }
+  })(url, finalDoc.title);
+  
   const documentation = await storage.createDocumentation({
     url,
     title: finalDoc.title,
     content: JSON.stringify(finalDoc),
     user_id: userId,
-  });
+    subdomain,
+  } as any);
   
   if (sessionId) {
     progressTracker.emitProgress(sessionId, {
