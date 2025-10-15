@@ -7,13 +7,14 @@ export interface AIMessage {
 
 export interface AIResponse {
   content: string;
-  provider: 'deepseek' | 'openai';
+  provider: 'deepseek' | 'openai' | 'groq';
   model: string;
 }
 
 interface AIProviderConfig {
   deepseekApiKey?: string;
   openaiApiKey?: string;
+  groqApiKey?: string;
 }
 
 export class AIProvider {
@@ -53,11 +54,24 @@ export class AIProvider {
         console.log('✅ OpenAI API succeeded');
         return response;
       } catch (error) {
-        throw new Error(`Both AI providers failed. Last error: ${(error as Error).message}`);
+        console.log('❌ OpenAI API failed:', (error as Error).message);
+        console.log('⚠️ Falling back to Groq...');
       }
     }
 
-    throw new Error('No AI provider API keys configured. Please set DEEPSEEK_API_KEY or OPENAI_API_KEY');
+    // Fallback to Groq
+    if (this.config.groqApiKey) {
+      console.log('🟠 Using Groq API...');
+      try {
+        const response = await this.callGroq(messages, jsonMode);
+        console.log('✅ Groq API succeeded');
+        return response;
+      } catch (error) {
+        throw new Error(`All AI providers failed. Last error: ${(error as Error).message}`);
+      }
+    }
+
+    throw new Error('No AI provider API keys configured. Please set DEEPSEEK_API_KEY, OPENAI_API_KEY, or GROQ_API_KEY');
   }
 
   private async callDeepSeek(messages: AIMessage[], jsonMode: boolean): Promise<AIResponse> {
@@ -118,6 +132,35 @@ export class AIProvider {
     };
   }
 
+  private async callGroq(messages: AIMessage[], jsonMode: boolean): Promise<AIResponse> {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.config.groqApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages,
+        ...(jsonMode && { response_format: { type: 'json_object' } }),
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Groq API error (${response.status}): ${errorText}`);
+    }
+
+    const data = await response.json() as any;
+    const content = data.choices?.[0]?.message?.content || '';
+
+    return {
+      content,
+      provider: 'groq',
+      model: 'llama-3.3-70b-versatile',
+    };
+  }
+
   async parseJSONWithRetry(content: string, retryPrompt: string, maxRetries: number = 3): Promise<any> {
     let lastError: Error | null = null;
 
@@ -148,5 +191,6 @@ export function createAIProvider(): AIProvider {
   return new AIProvider({
     deepseekApiKey: process.env.DEEPSEEK_API_KEY,
     openaiApiKey: process.env.OPENAI_API_KEY,
+    groqApiKey: process.env.GROQ_API_KEY,
   });
 }
