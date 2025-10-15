@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { apiRequest, apiRequestBlob } from '@/lib/queryClient';
 import { DocumentationViewer } from '@/components/DocumentationViewer';
 import { BrandKitExtractor } from '@/components/BrandKitExtractor';
-import { Download, FileText, ExternalLink, Trash2 } from 'lucide-react';
+import { Download, FileText, ExternalLink, Trash2, Globe } from 'lucide-react';
 
 export default function Profile() {
   const [user, setUser] = useState<any>(null);
@@ -86,6 +86,36 @@ export default function Profile() {
     }
   };
 
+  const createCustomDomain = async (id: number) => {
+    try {
+      const { data } = await supabase.auth.getSession();
+      if (!data?.session?.access_token) {
+        toast({ title: 'Sign in required', description: 'Please sign in to create custom domain' });
+        navigate('/');
+        return;
+      }
+
+      const result = await apiRequest(`/api/export/subdomain/${id}`, { method: 'POST' });
+      
+      // Copy URL to clipboard
+      if (result.url) {
+        await navigator.clipboard.writeText(result.url);
+        toast({ 
+          title: 'Custom Domain Created! 🌐', 
+          description: `${result.url} (copied to clipboard)`,
+          duration: 5000
+        });
+      }
+    } catch (err: any) {
+      console.error('Custom domain creation failed', err);
+      toast({ 
+        title: 'Failed to create custom domain', 
+        description: err?.message || 'An error occurred', 
+        variant: 'destructive' 
+      });
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-20">
       <h1 className="text-3xl font-bold mb-6">Profile</h1>
@@ -125,6 +155,9 @@ export default function Profile() {
                     </Button>
                     <Button variant="outline" size="sm" onClick={() => downloadBlob(`/api/export/pdf/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.pdf`)}>
                       <Download className="h-4 w-4"/>PDF
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => createCustomDomain(d.id)} className="gap-1">
+                      <Globe className="h-4 w-4"/>Domain
                     </Button>
                     <Button variant="destructive" size="sm" onClick={() => deleteDoc(d.id)}>
                       <Trash2 className="h-4 w-4"/>Delete
