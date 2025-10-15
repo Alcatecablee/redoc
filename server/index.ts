@@ -52,6 +52,39 @@ app.use(async (req, res, next) => {
             .replace(/'/g, '&#039;');
         };
         
+        // Helper function to validate and sanitize URLs - only allow safe protocols
+        const sanitizeUrl = (url: string): string => {
+          if (!url) return '#';
+          const urlStr = String(url).trim();
+          
+          // Block protocol-relative URLs (//evil.com) - XSS risk
+          if (urlStr.startsWith('//')) {
+            return '#';
+          }
+          
+          // Check for dangerous protocols (including URL-encoded variants)
+          const lowerUrl = urlStr.toLowerCase().replace(/%20/g, ' ').replace(/\s/g, '');
+          const dangerousProtocols = ['javascript:', 'data:', 'vbscript:', 'file:', 'about:'];
+          
+          for (const protocol of dangerousProtocols) {
+            if (lowerUrl.startsWith(protocol) || lowerUrl.includes(':' + protocol)) {
+              return '#';
+            }
+          }
+          
+          // Only allow explicitly safe protocols and relative URLs
+          if (urlStr.startsWith('http://') || 
+              urlStr.startsWith('https://') || 
+              urlStr.startsWith('mailto:') ||
+              urlStr.startsWith('/') ||
+              urlStr.startsWith('#')) {
+            return escapeHtml(urlStr);
+          }
+          
+          // Block everything else including ambiguous cases
+          return '#';
+        };
+        
         // Return a simple HTML page with the documentation
         return res.send(`
 <!DOCTYPE html>
@@ -101,7 +134,7 @@ app.use(async (req, res, next) => {
             if (block.type === 'list') return `<ul>${(block.items || []).map((item: string) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`;
             if (block.type === 'code') return `<pre><code>${escapeHtml(block.code || '')}</code></pre>${block.caption ? `<p><em>${escapeHtml(block.caption)}</em></p>` : ''}`;
             if (block.type === 'callout') return `<div class="callout ${escapeHtml(block.calloutType || 'info')}">${escapeHtml(block.text || '')}</div>`;
-            if (block.type === 'image') return `<img src="${escapeHtml(block.url || '')}" alt="${escapeHtml(block.alt || '')}" />${block.caption ? `<p><em>${escapeHtml(block.caption)}</em></p>` : ''}`;
+            if (block.type === 'image') return `<img src="${sanitizeUrl(block.url || '')}" alt="${escapeHtml(block.alt || '')}" />${block.caption ? `<p><em>${escapeHtml(block.caption)}</em></p>` : ''}`;
             return '';
           }).join('')}
         </div>
@@ -109,7 +142,7 @@ app.use(async (req, res, next) => {
     </div>
     <div class="footer">
       <p>Documentation hosted on ${escapeHtml(subdomain)}.${escapeHtml(parts.slice(1).join('.'))}</p>
-      <p>Generated from: <a href="${escapeHtml(doc.url)}">${escapeHtml(doc.url)}</a></p>
+      <p>Generated from: <a href="${sanitizeUrl(doc.url)}">${escapeHtml(doc.url)}</a></p>
     </div>
   </div>
 </body>

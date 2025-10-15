@@ -132,16 +132,44 @@ router.get("/api/progress/:sessionId", (req, res) => {
   });
 });
 
-// Helper to generate unique subdomain
+// Helper to generate unique subdomain (hardened with validation)
 function generateSubdomain(url: string, title?: string): string {
   try {
     const urlObj = new URL(url);
-    let base = urlObj.hostname.replace(/\./g, '-').replace(/[^a-z0-9-]/gi, '');
+    let base = urlObj.hostname
+      .toLowerCase()
+      .replace(/\./g, '-')
+      .replace(/[^a-z0-9-]/g, '')
+      .replace(/-+/g, '-')  // Replace consecutive hyphens with single hyphen
+      .replace(/^-+|-+$/g, '');  // Remove leading/trailing hyphens
+      
     if (title) {
-      base = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 20);
+      base = title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/-+/g, '-')  // Prevent consecutive hyphens
+        .replace(/^-+|-+$/g, '')  // Remove leading/trailing hyphens
+        .slice(0, 20);
     }
+    
     const random = Math.random().toString(36).substring(2, 8);
-    return `${base}-${random}`.slice(0, 50);
+    let subdomain = `${base}-${random}`
+      .replace(/-+/g, '-')  // Clean up any double hyphens
+      .replace(/^-+|-+$/g, '')  // Remove leading/trailing hyphens
+      .toLowerCase()
+      .slice(0, 50);
+    
+    // Ensure minimum length
+    if (subdomain.length < 3) {
+      subdomain = `docs-${random}`;
+    }
+    
+    // Final validation check
+    if (!/^[a-z0-9]([a-z0-9-]{0,48}[a-z0-9])?$/.test(subdomain) || /--/.test(subdomain)) {
+      return `docs-${Math.random().toString(36).substring(2, 15)}`;
+    }
+    
+    return subdomain;
   } catch {
     return `docs-${Math.random().toString(36).substring(2, 15)}`;
   }
@@ -734,10 +762,17 @@ Return ONLY valid JSON.`
     // Generate or use provided subdomain
     let subdomain = requestedSubdomain || generateSubdomain(url, title);
     
-    // Validate subdomain format
-    if (!/^[a-z0-9-]{3,50}$/.test(subdomain)) {
+    // Validate subdomain format:
+    // - Must be 3-50 characters
+    // - Only lowercase letters, numbers, and hyphens
+    // - Cannot start or end with a hyphen
+    // - Cannot contain consecutive hyphens
+    const subdomainRegex = /^[a-z0-9]([a-z0-9-]{0,48}[a-z0-9])?$/;
+    const hasConsecutiveHyphens = /--/.test(subdomain);
+    
+    if (!subdomainRegex.test(subdomain) || hasConsecutiveHyphens) {
       return res.status(400).json({ 
-        error: "Invalid subdomain format. Use only lowercase letters, numbers, and hyphens (3-50 characters)" 
+        error: "Invalid subdomain format. Must be 3-50 lowercase alphanumeric characters with single hyphens only. Cannot start, end, or have consecutive hyphens." 
       });
     }
     
@@ -746,26 +781,20 @@ Return ONLY valid JSON.`
       const existing = await storage.getDocumentationBySubdomain(subdomain);
       if (existing) {
         // If user requested a specific subdomain that's taken, generate a unique one
+        const originalSubdomain = subdomain;
         subdomain = generateSubdomain(url, title);
-        console.log(`Subdomain ${requestedSubdomain} already taken, using ${subdomain} instead`);
+        console.log(`[SUBDOMAIN] Requested subdomain "${originalSubdomain}" already exists. Generated fallback: "${subdomain}"`);
       }
     }
     
     // Save to database (store as JSON string for now)
     let documentation;
-    try {
-      documentation = await storage.createDocumentation({
-        url,
-        title,
-        content: JSON.stringify(finalDoc),
-        user_id: req.user?.id || null,
-        subdomain,
-      } as any);
-    } catch (err: any) {
-      // Handle unique constraint violation
-      if (err?.message?.includes('unique') || err?.code === '23505') {
-        // Generate a new unique subdomain and retry
-        subdomain = generateSubdomain(url, title);
+    let retryCount = 0;
+    const maxRetries = 3;
+    let lastError: any = null;
+    
+    while (retryCount < maxRetries) {
+      try {
         documentation = await storage.createDocumentation({
           url,
           title,
@@ -773,9 +802,41 @@ Return ONLY valid JSON.`
           user_id: req.user?.id || null,
           subdomain,
         } as any);
-      } else {
-        throw err;
+        console.log(`[SUBDOMAIN] Successfully created documentation with subdomain: "${subdomain}"`);
+        break; // Success, exit loop
+      } catch (err: any) {
+        lastError = err;
+        // Handle unique constraint violation (subdomain collision)
+        if ((err?.message?.includes('unique') || err?.code === '23505') && retryCount < maxRetries - 1) {
+          const previousSubdomain = subdomain;
+          subdomain = generateSubdomain(url, title);
+          retryCount++;
+          console.log(`[SUBDOMAIN] Collision detected on "${previousSubdomain}". Retry ${retryCount}/${maxRetries} with: "${subdomain}"`);
+        } else if (err?.message?.includes('unique') || err?.code === '23505') {
+          // Max retries reached for unique constraint - return 409 Conflict
+          console.error(`[SUBDOMAIN] Failed to find unique subdomain after ${maxRetries} attempts`);
+          return res.status(409).json({ 
+            error: 'Unable to generate unique subdomain',
+            details: 'Please try again or contact support if this persists'
+          });
+        } else {
+          // Other database errors - return 500
+          console.error(`[SUBDOMAIN] Database error:`, err?.message || err);
+          return res.status(500).json({ 
+            error: 'Database error occurred',
+            details: err?.message || 'Unknown error'
+          });
+        }
       }
+    }
+    
+    // Safeguard: ensure documentation was created
+    if (!documentation) {
+      console.error(`[SUBDOMAIN] Documentation creation failed unexpectedly`);
+      return res.status(500).json({ 
+        error: 'Failed to create documentation',
+        details: lastError?.message || 'Unknown error'
+      });
     }
 
     console.log("Documentation generated successfully with 4-stage AI pipeline (Extract → Write �� Metadata → Quality Check)");
