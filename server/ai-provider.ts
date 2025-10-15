@@ -33,28 +33,28 @@ export class AIProvider {
   ): Promise<AIResponse> {
     const { jsonMode = false, maxRetries = 3 } = options;
     
-    // Try DeepSeek first if available
-    if (this.config.deepseekApiKey) {
-      console.log('🔵 Trying DeepSeek API...');
-      try {
-        const response = await this.callDeepSeek(messages, jsonMode);
-        console.log('✅ DeepSeek API succeeded');
-        return response;
-      } catch (error) {
-        console.log('❌ DeepSeek API failed:', (error as Error).message);
-        console.log('⚠️ Falling back to OpenAI...');
-      }
-    }
-
-    // Fallback to OpenAI
+    // Try OpenAI first if available
     if (this.config.openaiApiKey) {
-      console.log('🟢 Using OpenAI API...');
+      console.log('🟢 Trying OpenAI API...');
       try {
         const response = await this.callOpenAI(messages, jsonMode);
         console.log('✅ OpenAI API succeeded');
         return response;
       } catch (error) {
         console.log('❌ OpenAI API failed:', (error as Error).message);
+        console.log('⚠️ Falling back to DeepSeek...');
+      }
+    }
+
+    // Fallback to DeepSeek
+    if (this.config.deepseekApiKey) {
+      console.log('🔵 Using DeepSeek API...');
+      try {
+        const response = await this.callDeepSeek(messages, jsonMode);
+        console.log('✅ DeepSeek API succeeded');
+        return response;
+      } catch (error) {
+        console.log('❌ DeepSeek API failed:', (error as Error).message);
         console.log('⚠️ Falling back to Groq...');
       }
     }
@@ -71,7 +71,7 @@ export class AIProvider {
       }
     }
 
-    throw new Error('No AI provider API keys configured. Please set DEEPSEEK_API_KEY, OPENAI_API_KEY, or GROQ_API_KEY');
+    throw new Error('No AI provider API keys configured. Please set OPENAI_API_KEY, DEEPSEEK_API_KEY, or GROQ_API_KEY');
   }
 
   private async callDeepSeek(messages: AIMessage[], jsonMode: boolean): Promise<AIResponse> {
