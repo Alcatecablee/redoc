@@ -63,7 +63,11 @@ async function fetchSitemaps(baseUrl: string, extraHosts: string[] = []): Promis
 // Enhanced site discovery and crawling
 export async function discoverSiteStructure(baseUrl: string) {
   try {
-    const homepage = await fetch(baseUrl);
+    const homepage = await fetch(baseUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      }
+    });
     if (!homepage.ok) throw new Error(`Failed to fetch homepage: ${homepage.statusText}`);
     
     const html = await homepage.text();
