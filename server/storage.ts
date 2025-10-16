@@ -1,5 +1,6 @@
-import { type Documentation, type InsertDocumentation } from "@shared/schema";
-import { createClient } from '@supabase/supabase-js';
+import { type Documentation, type InsertDocumentation, documentations } from "../shared/schema";
+import { db } from "./db";
+import { eq, desc, and } from "drizzle-orm";
 
 export interface IStorage {
   getDocumentation(id: number): Promise<Documentation | undefined>;
@@ -9,64 +10,43 @@ export interface IStorage {
   deleteDocumentation(id: number, userId?: string): Promise<Documentation | undefined>;
 }
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
-
-let supabaseClient: ReturnType<typeof createClient> | null = null;
-if (SUPABASE_URL && SUPABASE_ANON_KEY) {
-  supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: { persistSession: false },
-  });
-} else {
-  console.warn('SUPABASE_URL or SUPABASE_ANON_KEY not set; Supabase storage disabled.');
-}
-
-class SupabaseStorage implements IStorage {
-  private client: ReturnType<typeof createClient>;
-  constructor(client: ReturnType<typeof createClient>) {
-    this.client = client;
-  }
-
+class DatabaseStorage implements IStorage {
   async getDocumentation(id: number): Promise<Documentation | undefined> {
-    const { data, error } = await this.client.from('documentations').select('*').eq('id', id).limit(1).single();
-    if (error) throw error;
-    return data as Documentation | undefined;
+    if (!db) throw new Error("Database not initialized");
+    const [doc] = await db.select().from(documentations).where(eq(documentations.id, id));
+    return doc || undefined;
   }
 
   async getDocumentationBySubdomain(subdomain: string): Promise<Documentation | undefined> {
-    const { data, error} = await this.client.from('documentations').select('*').eq('subdomain', subdomain).limit(1).single();
-    if (error) {
-      if (error.code === 'PGRST116') return undefined; // Not found
-      throw error;
-    }
-    return data as Documentation | undefined;
+    if (!db) throw new Error("Database not initialized");
+    const [doc] = await db.select().from(documentations).where(eq(documentations.subdomain, subdomain));
+    return doc || undefined;
   }
 
   async getAllDocumentations(userId?: string): Promise<Documentation[]> {
-    let query = this.client.from('documentations').select('*').order('generated_at', { ascending: false });
+    if (!db) throw new Error("Database not initialized");
     if (userId) {
-      query = query.eq('user_id', userId);
+      return await db.select().from(documentations).where(eq(documentations.user_id, userId)).orderBy(desc(documentations.generatedAt));
     }
-    const { data, error } = await query;
-    if (error) throw error;
-    return (data as any) || [];
+    return await db.select().from(documentations).orderBy(desc(documentations.generatedAt));
   }
 
   async createDocumentation(data: InsertDocumentation): Promise<Documentation> {
-    const { data: inserted, error } = await this.client.from('documentations').insert([{ ...data }]).select().single();
-    if (error) throw error;
-    return inserted as Documentation;
+    if (!db) throw new Error("Database not initialized");
+    const [doc] = await db.insert(documentations).values(data).returning();
+    return doc;
   }
 
   async deleteDocumentation(id: number, userId?: string): Promise<Documentation | undefined> {
-    // If userId provided, ensure deletion only affects that user's doc
-    let query = this.client.from('documentations').delete().eq('id', id).limit(1).select();
+    if (!db) throw new Error("Database not initialized");
     if (userId) {
-      query = query.eq('user_id', userId);
+      const [deleted] = await db.delete(documentations)
+        .where(and(eq(documentations.id, id), eq(documentations.user_id, userId)))
+        .returning();
+      return deleted || undefined;
     }
-    const { data, error } = await query;
-    if (error) throw error;
-    return (data && data[0]) as Documentation | undefined;
+    const [deleted] = await db.delete(documentations).where(eq(documentations.id, id)).returning();
+    return deleted || undefined;
   }
 }
 
@@ -111,4 +91,4 @@ class InMemoryStorage implements IStorage {
   }
 }
 
-export const storage: IStorage = supabaseClient ? new SupabaseStorage(supabaseClient) : new InMemoryStorage();
+export const storage: IStorage = db ? new DatabaseStorage() : new InMemoryStorage();
