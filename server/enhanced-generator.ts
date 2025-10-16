@@ -675,13 +675,12 @@ External sources: ${comprehensiveData.external_research.total_sources}`
     });
   }
   
-  // Save to database without subdomain
+  // Save to database
   const documentation = await storage.createDocumentation({
     url,
     title: finalDoc.title,
     content: JSON.stringify(finalDoc),
     user_id: userId,
-    subdomain: null,
   } as any);
   
   if (sessionId) {
