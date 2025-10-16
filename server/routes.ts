@@ -715,13 +715,12 @@ Return ONLY valid JSON.`
     const title = finalDoc.title;
     const description = finalDoc.description;
     
-    // Save to database without subdomain
+    // Save to database
     const documentation = await storage.createDocumentation({
       url,
       title,
       content: JSON.stringify(finalDoc),
       user_id: req.user?.id || null,
-      subdomain: null,
     } as any);
 
     console.log("Documentation generated successfully with 4-stage AI pipeline (Extract → Write �� Metadata → Quality Check)");
