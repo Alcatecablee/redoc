@@ -151,7 +151,7 @@ export async function discoverSiteStructure(baseUrl: string) {
 
     // Parse sitemaps from base and discovered hosts
     const sitemapUrls = await fetchSitemaps(baseUrl, discoveredHosts);
-    
+
     return {
       productName,
       baseUrl,
@@ -162,12 +162,13 @@ export async function discoverSiteStructure(baseUrl: string) {
     };
   } catch (error) {
     console.error('Site discovery failed:', error);
+    // Return fallback with base URL to continue pipeline
     return {
       productName: 'Unknown Product',
       baseUrl,
-      validDocPaths: [],
+      validDocPaths: [baseUrl], // Include base URL as fallback
       navLinks: [],
-      allInternalLinks: [],
+      allInternalLinks: [baseUrl],
       sitemapUrls: []
     };
   }
