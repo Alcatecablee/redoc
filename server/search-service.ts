@@ -1,14 +1,17 @@
 import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
+import { retryWithFallback } from './utils/retry-with-fallback';
+import { scoreSource, filterTrustedSources, deduplicateContent, type ScoredSource } from './utils/source-quality-scorer';
 
 // Search result interface
 export interface SearchResult {
   title: string;
   url: string;
   snippet: string;
-  source: 'serpapi' | 'brave';
+  source: 'serpapi' | 'brave' | 'cache';
   position?: number;
   domain?: string;
+  qualityScore?: number;
 }
 
 // Stack Overflow answer interface
@@ -42,34 +45,82 @@ export class SearchService {
   }
 
   /**
-   * Perform web search using SerpAPI (primary) with Brave fallback
+   * Perform web search using multi-provider fallback chain with retry logic
+   * SerpAPI → Brave → Cached results (robust implementation)
    */
   async search(query: string, numResults: number = 10): Promise<SearchResult[]> {
-    // Try SerpAPI first (primary)
+    const providers: Array<() => Promise<SearchResult[]>> = [];
+    
+    // Provider 1: SerpAPI
     if (this.serpApiKey) {
-      try {
-        console.log(`🔍 Searching with SerpAPI: "${query}"`);
-        return await this.searchWithSerpAPI(query, numResults);
-      } catch (error) {
-        console.warn('⚠️ SerpAPI failed, falling back to Brave:', error.message);
-      }
-    } else {
-      console.log('ℹ️ SerpAPI key not configured, using Brave Search');
+      providers.push(() => this.searchWithSerpAPI(query, numResults));
     }
-
-    // Fallback to Brave Search
+    
+    // Provider 2: Brave Search
     if (this.braveApiKey) {
-      try {
-        console.log(`🔍 Searching with Brave: "${query}"`);
-        return await this.searchWithBrave(query, numResults);
-      } catch (error) {
-        console.error('❌ Brave Search also failed:', error.message);
-        return [];
-      }
+      providers.push(() => this.searchWithBrave(query, numResults));
     }
-
-    console.error('❌ No search API keys configured');
-    return [];
+    
+    // Provider 3: Basic fallback (cached/empty)
+    providers.push(() => Promise.resolve([]));
+    
+    try {
+      const result = await retryWithFallback(providers, {
+        maxRetries: 3,
+        timeout: 15000,
+        cacheResults: true,
+        cacheKey: `search:${query}:${numResults}`, // Unique cache key per query
+      });
+      
+      console.log(`✅ Search succeeded via ${result.provider}${result.fromCache ? ' (cached)' : ''}`);
+      
+      // Apply quality scoring if we got results
+      if (result.data.length > 0) {
+        return this.applyQualityScoring(result.data);
+      }
+      
+      return result.data;
+    } catch (error) {
+      console.error('❌ All search providers failed:', (error as Error).message);
+      return [];
+    }
+  }
+  
+  /**
+   * Apply quality scoring to search results
+   */
+  private applyQualityScoring(results: SearchResult[]): SearchResult[] {
+    const scoredResults = results.map(result => {
+      const scored = scoreSource({
+        url: result.url,
+        content: result.snippet,
+        domainAuthority: this.getDomainScore(result.url),
+      });
+      
+      return {
+        ...result,
+        qualityScore: scored.qualityScore,
+      };
+    });
+    
+    // Filter and return high-quality results
+    return scoredResults.filter(r => (r.qualityScore || 0) >= 50);
+  }
+  
+  /**
+   * Get domain score for quality assessment
+   */
+  private getDomainScore(url: string): number {
+    try {
+      const domain = new URL(url).hostname;
+      if (domain.includes('stackoverflow.com')) return 90;
+      if (domain.includes('github.com')) return 90;
+      if (domain.includes('.gov') || domain.includes('.edu')) return 95;
+      if (domain.includes('docs.')) return 85;
+      return 50;
+    } catch {
+      return 20;
+    }
   }
 
   /**

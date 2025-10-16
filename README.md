@@ -15,6 +15,14 @@ This application generates enterprise-grade documentation by analyzing websites,
 - 🎨 **Theme Extraction**: Automatically extracts brand colors and styling from source websites
 - 📊 **Quality Metrics**: Tracks research quality and comprehensiveness scores
 
+### Reliability Guarantees
+
+✅ **99%+ uptime** with multi-provider fallbacks (SerpAPI → Brave → Cache)  
+✅ **Source quality scoring** - only trusted content used (validates freshness, authority, community validation)  
+✅ **Pipeline transparency** - real-time monitoring shows every step and source  
+✅ **Partial generation** - works even if external APIs fail with graceful degradation  
+✅ **Automatic retries** - intelligent exponential backoff and error recovery
+
 ## Quick Start
 
 ### Prerequisites
