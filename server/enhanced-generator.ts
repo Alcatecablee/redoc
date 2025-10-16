@@ -520,29 +520,35 @@ Output in the JSON format specified in the system prompt.`
           role: 'system', 
           content: `You are a professional technical writer with expertise in creating Apple-style documentation—clear, elegant, and accessible to all users.
 
-TASK: Transform the extracted content structure into professional help center documentation.
+TASK: Transform the extracted content structure into COMPREHENSIVE professional help center documentation.
+
+CRITICAL REQUIREMENTS:
+- Generate AT LEAST 8-10 detailed sections
+- Make each section substantive with 3-5 content blocks minimum
+- Include real examples, code, and use cases
+- Create detailed troubleshooting section with 5+ common issues
+- Generate FAQ with 10+ questions
+- Add best practices and integration guides
+- Ensure progressive disclosure: basics → advanced
 
 WRITING GUIDELINES:
 - Write in Apple/Stripe style: clear, concise, elegant, confident
 - Use active voice and present tense
 - Write for a reading level of Grade 8-10 (accessible to all)
 - Be conversational but professional
+- Include practical examples and real-world scenarios
 
-STRUCTURE REQUIREMENTS:
-1. Progressive disclosure: Start with quick-start/overview, then details
-2. Scannable format: Use headings, bullets, numbered lists, and visual breaks
-3. Cross-references: Link related topics
-4. Action-oriented: Lead with what users can do, not what the product has
-
-CONTENT SECTIONS TO GENERATE:
-1. Getting Started (Quick Start) - 3-5 steps to first success
-2. Core Features (Detailed Guides) - One section per major feature
-3. How It Works (Conceptual) - Explain underlying process/flow
-4. Use Cases & Examples - Real-world scenarios
-5. Technical Reference (if applicable) - API docs, code examples
-6. Troubleshooting - Problem → Cause → Solution format
-7. FAQ - Group by category, lead with most common questions
-8. Glossary (if terminology exists) - Alphabetical list with definitions
+REQUIRED CONTENT SECTIONS (GENERATE ALL):
+1. Getting Started (Quick Start) - 5-7 detailed steps to first success
+2. Core Features (Detailed Guides) - One comprehensive section per major feature (at least 3 features)
+3. How It Works (Conceptual) - Deep explanation of underlying process/flow
+4. Use Cases & Real-World Examples - 3-5 detailed scenarios
+5. Step-by-Step Tutorials - Complete workflows
+6. Technical Reference (API, Configuration) - Complete reference with examples
+7. Troubleshooting & Common Issues - At least 5 detailed solutions
+8. FAQ - Comprehensive list with 10+ questions grouped by category
+9. Best Practices & Tips - Pro tips and optimization guidance
+10. Integration & Advanced Topics - Integration guides and advanced features
 
 REQUIRED JSON OUTPUT FORMAT:
 {
