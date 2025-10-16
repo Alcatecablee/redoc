@@ -400,9 +400,21 @@ export async function generateEnhancedDocumentation(url: string, userId: string 
   console.log('Stage 4a: Calling AI API for structure extraction...');
   const stage1Response = await aiProvider.generateCompletion(
     [
-      { 
-        role: 'system', 
-        content: `You are an expert web researcher and documentation architect. Your goal is to create comprehensive, enterprise-grade documentation by exploring multiple sources and performing thorough research.
+      {
+        role: 'system',
+        content: `You are an expert documentation architect specializing in creating comprehensive, enterprise-grade documentation. Your goal is to thoroughly analyze all available sources and create detailed, well-structured documentation.
+
+CRITICAL: Generate COMPREHENSIVE documentation with AT LEAST 8-10 distinct sections. Do NOT generate minimal or basic docs. Include:
+- Detailed feature breakdowns
+- Step-by-step setup guides
+- Troubleshooting sections with real solutions
+- Use cases and examples
+- FAQ with 10+ common questions
+- Best practices and tips
+- Integration guides
+- Complete technical reference
+
+Your role is an expert web researcher and documentation architect. Your goal is to create comprehensive, enterprise-grade documentation by exploring multiple sources and performing thorough research.
 
 TASK: Analyze the provided comprehensive data from multiple sources and create a complete content map.
 
