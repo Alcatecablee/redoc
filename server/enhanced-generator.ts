@@ -312,8 +312,8 @@ export async function parseJSONWithRetry(aiProvider: ReturnType<typeof createAIP
 // Enhanced documentation generation pipeline
 export async function generateEnhancedDocumentation(url: string, userId: string | null, sessionId?: string) {
   const aiProvider = createAIProvider();
-  if (!process.env.DEEPSEEK_API_KEY && !process.env.OPENAI_API_KEY) {
-    throw new Error('No AI provider API keys configured. Please set DEEPSEEK_API_KEY or OPENAI_API_KEY');
+  if (!process.env.DEEPSEEK_API_KEY && !process.env.OPENAI_API_KEY && !process.env.GROQ_API_KEY) {
+    throw new Error('No AI provider API keys configured. Please set GROQ_API_KEY or DEEPSEEK_API_KEY/OPENAI_API_KEY');
   }
 
   console.log('Stage 1: Discovering site structure...');
@@ -367,6 +367,27 @@ export async function generateEnhancedDocumentation(url: string, userId: string 
     });
   }
   const externalResearch = await performExternalResearch(siteStructure.productName, url);
+  // Partial success notification via progress if sources missing
+  if (sessionId) {
+    const totalSources = externalResearch.total_sources || 0;
+    if (totalSources === 0) {
+      progressTracker.emitProgress(sessionId, {
+        stage: 3,
+        stageName: 'Research & Analysis',
+        description: 'External research unavailable (API limits) – proceeding with site content only',
+        progress: 55,
+        status: 'progress'
+      } as any);
+    } else if (totalSources < 5) {
+      progressTracker.emitProgress(sessionId, {
+        stage: 3,
+        stageName: 'Research & Analysis',
+        description: `Partial research: ${totalSources} sources found – results may be limited`,
+        progress: 58,
+        status: 'progress'
+      } as any);
+    }
+  }
   
   console.log('Stage 4: Synthesizing comprehensive data...');
   if (sessionId) {
@@ -427,7 +448,7 @@ GITHUB: ${JSON.stringify(limitedGitHubIssues.map(i => ({title: i.title?.substrin
 Create 8-10 comprehensive sections covering: getting started, core features, configuration, tutorials, troubleshooting (5+ issues), FAQ (10+ questions), best practices, API reference. Include real examples. Return JSON with sections array.`
         }
       ],
-    { jsonMode: true }
+    { jsonMode: true, maxRetries: 2, timeoutMs: 60000 }
   );
 
   console.log(`✅ Stage 4b: AI response received (${stage1Response.provider}), parsing data...`);

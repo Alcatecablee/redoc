@@ -158,9 +158,11 @@ router.post("/api/generate-docs", verifySupabaseAuth, async (req, res) => {
     }
 
     const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-    if (!OPENAI_API_KEY) {
-      console.error('generate-docs: OPENAI_API_KEY not configured');
-      return res.status(500).json({ error: "OPENAI_API_KEY is not configured" });
+    const GROQ_API_KEY = process.env.GROQ_API_KEY;
+    const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
+    if (!OPENAI_API_KEY && !GROQ_API_KEY && !DEEPSEEK_API_KEY) {
+      console.error('generate-docs: No AI provider API key configured');
+      return res.status(500).json({ error: "AI provider API key is not configured (GROQ/OPENAI/DEEPSEEK)" });
     }
 
     // Use client-provided sessionId or generate one

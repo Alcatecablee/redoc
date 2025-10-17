@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
 import { retryWithFallback } from './utils/retry-with-fallback';
-import { scoreSource, filterTrustedSources, deduplicateContent, type ScoredSource } from './utils/source-quality-scorer';
+import { scoreSource, filterTrustedSources, deduplicateContent, validateLinks, crossVerifyContent, type ScoredSource, type SourceMetrics } from './utils/source-quality-scorer';
 
 // Search result interface
 export interface SearchResult {
@@ -76,7 +76,7 @@ export class SearchService {
       
       // Apply quality scoring if we got results
       if (result.data.length > 0) {
-        return this.applyQualityScoring(result.data);
+        return await this.applyQualityScoring(result.data);
       }
       
       return result.data;
@@ -89,22 +89,39 @@ export class SearchService {
   /**
    * Apply quality scoring to search results
    */
-  private applyQualityScoring(results: SearchResult[]): SearchResult[] {
-    const scoredResults = results.map(result => {
-      const scored = scoreSource({
-        url: result.url,
-        content: result.snippet,
-        domainAuthority: this.getDomainScore(result.url),
-      });
-      
-      return {
-        ...result,
-        qualityScore: scored.qualityScore,
-      };
-    });
-    
-    // Filter and return high-quality results
-    return scoredResults.filter(r => (r.qualityScore || 0) >= 50);
+  private async applyQualityScoring(results: SearchResult[]): Promise<SearchResult[]> {
+    if (results.length === 0) return [];
+
+    // 1) Validate links (skip 404s/timeouts)
+    const sourceMetrics: SourceMetrics[] = results.map(r => ({
+      url: r.url,
+      content: r.snippet,
+    }));
+    const validSources = await validateLinks(sourceMetrics);
+    const validUrlSet = new Set(validSources.map(v => v.url));
+    const validResults = results.filter(r => validUrlSet.has(r.url));
+
+    // 2) Score sources
+    const scored: ScoredSource[] = validResults.map(r =>
+      scoreSource({ url: r.url, content: r.snippet })
+    );
+
+    // 3) Deduplicate near-identical content
+    const deduped = deduplicateContent(scored);
+
+    // 4) Filter by quality threshold and map back
+    const trusted = filterTrustedSources(deduped);
+
+    // 5) Optional cross-verification logging (not gating)
+    crossVerifyContent(trusted, 3);
+
+    const trustedSet = new Map(trusted.map(s => [s.url, s.qualityScore]));
+    const mapped = validResults
+      .filter(r => trustedSet.has(r.url))
+      .map(r => ({ ...r, qualityScore: trustedSet.get(r.url)! }))
+      .sort((a, b) => (b.qualityScore || 0) - (a.qualityScore || 0));
+
+    return mapped;
   }
   
   /**

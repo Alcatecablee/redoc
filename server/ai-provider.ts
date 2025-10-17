@@ -1,4 +1,5 @@
 import fetch from 'node-fetch';
+import { withTimeout } from './utils/retry-with-fallback';
 
 export interface AIMessage {
   role: 'system' | 'user' | 'assistant';
@@ -29,26 +30,47 @@ export class AIProvider {
     options: {
       jsonMode?: boolean;
       maxRetries?: number;
+      timeoutMs?: number;
     } = {}
   ): Promise<AIResponse> {
-    const { jsonMode = false, maxRetries = 3 } = options;
+    const { jsonMode = false, maxRetries = 3, timeoutMs = 60000 } = options;
 
-    // OpenAI and DeepSeek are currently disabled
-    // They will be re-enabled when explicitly activated in environment config
+    const providers: Array<{
+      name: AIResponse['provider'];
+      fn: () => Promise<AIResponse>;
+      enabled: boolean;
+    }> = [
+      { name: 'groq', enabled: !!this.config.groqApiKey, fn: () => this.callGroq(messages, jsonMode) },
+      { name: 'openai', enabled: !!this.config.openaiApiKey, fn: () => this.callOpenAI(messages, jsonMode) },
+      { name: 'deepseek', enabled: !!this.config.deepseekApiKey, fn: () => this.callDeepSeek(messages, jsonMode) },
+    ];
 
-    // Use Groq as the primary provider
-    if (this.config.groqApiKey) {
-      console.log('🟠 Using Groq API...');
-      try {
-        const response = await this.callGroq(messages, jsonMode);
-        console.log('✅ Groq API succeeded');
-        return response;
-      } catch (error) {
-        throw new Error(`Groq API failed: ${(error as Error).message}`);
-      }
+    const activeProviders = providers.filter(p => p.enabled);
+    if (activeProviders.length === 0) {
+      throw new Error('No AI provider API keys configured. Please set GROQ_API_KEY, OPENAI_API_KEY, or DEEPSEEK_API_KEY');
     }
 
-    throw new Error('No AI provider API keys configured. Please set GROQ_API_KEY');
+    let lastError: Error | null = null;
+    for (const provider of activeProviders) {
+      for (let attempt = 0; attempt < Math.max(1, maxRetries); attempt++) {
+        try {
+          console.log(`🔄 AI call via ${provider.name} (attempt ${attempt + 1}/${maxRetries})`);
+          const response = await withTimeout(provider.fn(), timeoutMs, `${provider.name} timed out after ${timeoutMs}ms`);
+          console.log(`✅ ${provider.name} succeeded`);
+          return response;
+        } catch (err) {
+          lastError = err as Error;
+          console.warn(`⚠️ ${provider.name} attempt ${attempt + 1} failed:`, lastError.message);
+          // small linear backoff between attempts
+          if (attempt < maxRetries - 1) {
+            await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+          }
+        }
+      }
+      console.log(`❌ ${provider.name} failed after ${maxRetries} attempts, trying next provider...`);
+    }
+
+    throw lastError || new Error('All AI providers failed');
   }
 
   private async callDeepSeek(messages: AIMessage[], jsonMode: boolean): Promise<AIResponse> {
