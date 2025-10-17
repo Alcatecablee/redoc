@@ -396,100 +396,35 @@ export async function generateEnhancedDocumentation(url: string, userId: string 
     }
   };
 
-  // Stage 1: Enhanced structure extraction with comprehensive data
+  // Stage 1: Enhanced structure extraction with optimized data for Groq token limits
   console.log('Stage 4a: Calling AI API for structure extraction...');
+
+  // Limit data to prevent token overload on Groq
+  const limitedPages = comprehensiveData.site_content.pages.slice(0, 5);
+  const limitedSearchResults = comprehensiveData.external_research.search_results.slice(0, 5);
+  const limitedSOAnswers = comprehensiveData.external_research.stackoverflow_answers.slice(0, 3);
+  const limitedGitHubIssues = comprehensiveData.external_research.github_issues.slice(0, 3);
+
   const stage1Response = await aiProvider.generateCompletion(
     [
       {
         role: 'system',
-        content: `You are an expert documentation architect specializing in creating comprehensive, enterprise-grade documentation. Your goal is to thoroughly analyze all available sources and create detailed, well-structured documentation.
-
-CRITICAL: Generate COMPREHENSIVE documentation with AT LEAST 8-10 distinct sections. Do NOT generate minimal or basic docs. Include:
-- Detailed feature breakdowns
-- Step-by-step setup guides
-- Troubleshooting sections with real solutions
-- Use cases and examples
-- FAQ with 10+ common questions
-- Best practices and tips
-- Integration guides
-- Complete technical reference
-
-Your role is an expert web researcher and documentation architect. Your goal is to create comprehensive, enterprise-grade documentation by exploring multiple sources and performing thorough research.
-
-TASK: Analyze the provided comprehensive data from multiple sources and create a complete content map.
-
-PHASE 1: SITE DISCOVERY & CRAWLING
-- Analyze all discovered pages and their content
-- Identify key documentation sections from navigation, footer, and site structure
-- Include subdomains (docs., help., support., developer., dev., community., forum., status., api., blog.) and sitemap-derived pages
-- Extract technical content, code examples, visual elements, and workflows
-
-PHASE 2: MULTI-PAGE CONTENT EXTRACTION
-- Process content from all scraped pages (target at least 15 unique pages)
-- Extract code examples, API endpoints, configuration options
-- Identify screenshots, diagrams, and related resources
-
-PHASE 3: EXTERNAL RESEARCH
-- Analyze search results for common issues and solutions
-- Extract best practices and troubleshooting information
-- Identify community insights and real-world use cases
-- Require per-item source URLs for citation
-
-PHASE 4: COMPREHENSIVE ANALYSIS
-- Classify the site type and target audience
-- Map content sections to standard documentation categories
-- Compile common problems and solutions from all sources
-- Extract real-world use cases and best practices
-- Provide coverage stats and explicit gaps
-
-Return ONLY valid JSON in the specified structure. The JSON MUST include fields: explored_urls, source_citations, coverage, gaps.`
+        content: `Create comprehensive documentation with 8+ sections: Getting Started, Features, Tutorials, Troubleshooting, FAQ, Best Practices, API Reference, Use Cases. Include real examples, code, and solutions. Return valid JSON with: title, description, sections array, metadata, theme, searchability.`
         },
-        { 
-          role: 'user', 
-          content: `COMPREHENSIVE DATA ANALYSIS:
+        {
+          role: 'user',
+          content: `PRODUCT: ${comprehensiveData.product_name}
+URL: ${comprehensiveData.base_url}
 
-PRODUCT: ${comprehensiveData.product_name}
-BASE URL: ${comprehensiveData.base_url}
+SITE DATA (${comprehensiveData.site_content.pages_scraped} pages, ${comprehensiveData.site_content.total_words} words):
+${JSON.stringify(limitedPages, null, 2)}
 
-SITE CONTENT:
-- Pages analyzed: ${comprehensiveData.site_content.pages_scraped}
-- Total words: ${comprehensiveData.site_content.total_words.toLocaleString()}
-- Code examples found: ${comprehensiveData.site_content.code_examples.length}
-- Images found: ${comprehensiveData.site_content.images.length}
+RESEARCH (${comprehensiveData.external_research.search_results.length} results):
+SEARCH: ${JSON.stringify(limitedSearchResults.map(r => ({title: r.title, snippet: r.snippet?.substring(0, 100)})), null, 2)}
+STACKOVERFLOW: ${JSON.stringify(limitedSOAnswers.map(a => ({question: a.question?.substring(0, 80), answer: a.answer?.substring(0, 100)})), null, 2)}
+GITHUB: ${JSON.stringify(limitedGitHubIssues.map(i => ({title: i.title?.substring(0, 80), body: i.body?.substring(0, 100)})), null, 2)}
 
-DETAILED PAGE CONTENT:
-${JSON.stringify(comprehensiveData.site_content.pages, null, 2)}
-
-EXTERNAL RESEARCH:
-- Search results: ${comprehensiveData.external_research.search_results.length}
-- Stack Overflow answers: ${comprehensiveData.external_research.stackoverflow_answers.length}
-- GitHub issues: ${comprehensiveData.external_research.github_issues.length}
-- Total external sources: ${comprehensiveData.external_research.total_sources}
-- Research quality score: ${(comprehensiveData.external_research.quality_score * 100).toFixed(1)}%
-
-SEARCH RESULTS:
-${JSON.stringify(comprehensiveData.external_research.search_results.slice(0, 20), null, 2)}
-
-STACK OVERFLOW ANSWERS (Common Issues & Solutions):
-${JSON.stringify(comprehensiveData.external_research.stackoverflow_answers, null, 2)}
-
-GITHUB ISSUES (Known Problems & Discussions):
-${JSON.stringify(comprehensiveData.external_research.github_issues, null, 2)}
-
-TASK: Create comprehensive documentation structure that includes:
-1. All features found across official pages
-2. Common problems and solutions from external research
-3. Best practices and troubleshooting information
-4. Step-by-step tutorials combining all sources
-5. Real-world use cases and examples
-
-Additionally, return:
-- explored_urls: list of URLs considered with origin (nav|sitemap|subdomain|internal)
-- source_citations: map of section ids to arrays of URLs
-- coverage: { pages_analyzed, min_pages_target: 15, external_sources, min_external_sources_target: 15, sections_detected }
-- gaps: list of missing or thin sections
-
-Output in the JSON format specified in the system prompt.`
+Create 8-10 comprehensive sections covering: getting started, core features, configuration, tutorials, troubleshooting (5+ issues), FAQ (10+ questions), best practices, API reference. Include real examples. Return JSON with sections array.`
         }
       ],
     { jsonMode: true }
