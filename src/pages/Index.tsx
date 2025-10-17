@@ -231,12 +231,11 @@ const Index = () => {
             {/* Left column: headline + subhead + CTAs */}
             <div>
               <h1 className="text-5xl md:text-6xl font-extrabold leading-tight">
-                <span className="block text-gradient">Predictable</span>
-                <span className="block">Documentation Quality</span>
-                <span className="block text-foreground">is Possible.</span>
+                <span className="block text-gradient">Stop Writing Docs.</span>
+                <span className="block">Start Researching Them.</span>
               </h1>
               <p className="mt-6 text-xl text-muted-foreground max-w-xl">
-                DocSnap helps your team track the right content, structure, and formatting to turn any website into professional, export‑ready documentation.
+                While others just scrape your site, we research how developers actually use your product across Stack Overflow, GitHub, and the web—then generate beautiful, Apple-quality docs that match your brand.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button size="lg" className="bg-gradient-primary" onClick={() => setShowSignIn(true)}>
@@ -377,49 +376,49 @@ const Index = () => {
         <section id="why" className="container mx-auto px-4 py-24">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 items-start">
             <div className="lg:col-span-3">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">The truth is you have a lot on your plate…</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Most Documentation Tools Miss the Real Story</h2>
               <p className="text-lg text-muted-foreground mb-8">
-                Creating great documentation shouldn’t slow down your team. But keeping content accurate, consistent, and export‑ready across formats is hard.
+                Your website tells one part of the story. But the real knowledge—troubleshooting, common issues, best practices—lives in Stack Overflow threads, GitHub issues, and community discussions.
               </p>
-              <h3 className="text-xl font-semibold mb-4">You might be struggling with:</h3>
+              <h3 className="text-xl font-semibold mb-4">Traditional tools fall short because they:</h3>
               <Accordion type="single" collapsible className="w-full">
                 <AccordionItem value="item-1">
-                  <AccordionTrigger>Figuring out what to include and where it lives</AccordionTrigger>
+                  <AccordionTrigger>Only scrape your website—missing community knowledge</AccordionTrigger>
                   <AccordionContent>
                     <ul className="list-disc ml-5 space-y-2 text-muted-foreground">
-                      <li>Scattered content across pages, wikis, and subdomains</li>
-                      <li>Unclear structure for onboarding, troubleshooting, and APIs</li>
-                      <li>Stakeholders add content in different places and formats</li>
+                      <li>Ignore Stack Overflow solutions to common problems</li>
+                      <li>Miss GitHub Issues where users report real bugs</li>
+                      <li>Skip community forums with best practices</li>
                     </ul>
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-2">
-                  <AccordionTrigger>Keeping docs up‑to‑date as your product changes</AccordionTrigger>
+                  <AccordionTrigger>Generate incomplete troubleshooting sections</AccordionTrigger>
                   <AccordionContent>
                     <ul className="list-disc ml-5 space-y-2 text-muted-foreground">
-                      <li>Features evolve faster than your documentation</li>
-                      <li>Version drift between guides, screenshots, and UI labels</li>
-                      <li>No clear workflow for reviews and approvals</li>
+                      <li>FAQs based on guesses, not real user questions</li>
+                      <li>Missing edge cases and error messages</li>
+                      <li>No validation of content quality or sources</li>
                     </ul>
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-3">
-                  <AccordionTrigger>Inconsistent tone, style, and formatting</AccordionTrigger>
+                  <AccordionTrigger>Require manual styling and brand matching</AccordionTrigger>
                   <AccordionContent>
                     <ul className="list-disc ml-5 space-y-2 text-muted-foreground">
-                      <li>Different authors produce different structures and voice</li>
-                      <li>Manual formatting is tedious and error‑prone</li>
-                      <li>Exporting to PDF, DOCX, and web breaks styling</li>
+                      <li>Generic templates that don't match your brand</li>
+                      <li>Manual color and font configuration</li>
+                      <li>Inconsistent formatting across export formats</li>
                     </ul>
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-4">
-                  <AccordionTrigger>Time‑consuming exports and distribution</AccordionTrigger>
+                  <AccordionTrigger>Lack transparency and reliability</AccordionTrigger>
                   <AccordionContent>
                     <ul className="list-disc ml-5 space-y-2 text-muted-foreground">
-                      <li>Generating consistent PDFs and DOCX files takes hours</li>
-                      <li>Manual updates across multiple destinations</li>
-                      <li>Hard to apply branding across all outputs</li>
+                      <li>No visibility into what sources were used</li>
+                      <li>Single-point failures kill the entire pipeline</li>
+                      <li>No quality scores or source attribution</li>
                     </ul>
                   </AccordionContent>
                 </AccordionItem>
@@ -440,8 +439,8 @@ const Index = () => {
       {!generatedDoc && (
         <section id="pipeline" className="container mx-auto px-4 py-20 border-t border-white/10">
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">A predictable research-driven pipeline</h2>
-            <p className="text-lg text-muted-foreground">From raw web content and external sources to polished, export-ready documentation.</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Multi-Source Research Engine</h2>
+            <p className="text-lg text-muted-foreground">We don't just scrape—we research. Stack Overflow + GitHub Issues + Real Google Results = Comprehensive Docs.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="glass-effect rounded-2xl p-6">
@@ -463,7 +462,7 @@ const Index = () => {
                 <BookOpen className="h-6 w-6 text-primary" />
               </div>
               <h4 className="font-semibold mb-2">External Research</h4>
-              <p className="text-sm text-muted-foreground">SerpAPI/Brave-backed search, Stack Overflow answers, and GitHub issues with quality scoring.</p>
+              <p className="text-sm text-muted-foreground">SerpAPI (real Google results) + Brave Search for redundancy. Pulls Stack Overflow solutions and GitHub Issues automatically.</p>
             </div>
             <div className="glass-effect rounded-2xl p-6">
               <div className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4">
@@ -481,9 +480,9 @@ const Index = () => {
         <section id="features" className="container mx-auto px-4 pb-24">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">Enterprise-Grade Documentation Platform</h2>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6">Documentation Built on Real User Knowledge</h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-                Advanced multi-stage pipeline that discovers, researches, and generates comprehensive documentation with professional theming and export capabilities
+                Our multi-source research engine finds how developers actually use your product, then generates Stripe-quality docs with automatic brand matching
               </p>
             </div>
             
@@ -500,8 +499,8 @@ const Index = () => {
                 <div className="h-14 w-14 rounded-2xl bg-primary flex items-center justify-center mb-6 shadow-glow group-hover:shadow-glow transition-shadow">
                   <Search className="h-7 w-7 text-primary-foreground" />
                 </div>
-                <h3 className="text-2xl font-semibold mb-3">External Research</h3>
-                <p className="text-muted-foreground leading-relaxed">SerpAPI/Brave results plus Stack Overflow and GitHub insights with source scoring.</p>
+                <h3 className="text-2xl font-semibold mb-3">Multi-Source Research</h3>
+                <p className="text-muted-foreground leading-relaxed">Goes beyond your site: SerpAPI (real Google results), Stack Overflow answers, GitHub Issues, and community forums—all with quality scoring.</p>
               </div>
               
               <div className="glass-effect rounded-2xl p-8 hover:scale-[1.02] transition-all duration-300 group">
@@ -518,8 +517,8 @@ const Index = () => {
                 <div className="h-14 w-14 rounded-2xl bg-primary flex items-center justify-center mb-6 shadow-glow group-hover:shadow-glow transition-shadow">
                   <Palette className="h-7 w-7 text-primary-foreground" />
                 </div>
-                <h3 className="text-2xl font-semibold mb-3">Advanced Theming</h3>
-                <p className="text-muted-foreground leading-relaxed">Brand kit extraction, custom theme builder, and professional presets. Automatic color and font detection from source sites.</p>
+                <h3 className="text-2xl font-semibold mb-3">Automatic Apple/Stripe Styling</h3>
+                <p className="text-muted-foreground leading-relaxed">Automatic brand color extraction from your CSS. Professional, polished formatting out of the box. No manual styling needed.</p>
               </div>
               
               <div className="glass-effect rounded-2xl p-8 hover:scale-[1.02] transition-all duration-300 group">
