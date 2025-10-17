@@ -451,66 +451,13 @@ Create 8-10 comprehensive sections covering: getting started, core features, con
   }
   const stage2Response = await aiProvider.generateCompletion(
     [
-        { 
-          role: 'system', 
-          content: `You are a professional technical writer with expertise in creating Apple-style documentation—clear, elegant, and accessible to all users.
-
-TASK: Transform the extracted content structure into COMPREHENSIVE professional help center documentation.
-
-CRITICAL REQUIREMENTS:
-- Generate AT LEAST 8-10 detailed sections
-- Make each section substantive with 3-5 content blocks minimum
-- Include real examples, code, and use cases
-- Create detailed troubleshooting section with 5+ common issues
-- Generate FAQ with 10+ questions
-- Add best practices and integration guides
-- Ensure progressive disclosure: basics → advanced
-
-WRITING GUIDELINES:
-- Write in Apple/Stripe style: clear, concise, elegant, confident
-- Use active voice and present tense
-- Write for a reading level of Grade 8-10 (accessible to all)
-- Be conversational but professional
-- Include practical examples and real-world scenarios
-
-REQUIRED CONTENT SECTIONS (GENERATE ALL):
-1. Getting Started (Quick Start) - 5-7 detailed steps to first success
-2. Core Features (Detailed Guides) - One comprehensive section per major feature (at least 3 features)
-3. How It Works (Conceptual) - Deep explanation of underlying process/flow
-4. Use Cases & Real-World Examples - 3-5 detailed scenarios
-5. Step-by-Step Tutorials - Complete workflows
-6. Technical Reference (API, Configuration) - Complete reference with examples
-7. Troubleshooting & Common Issues - At least 5 detailed solutions
-8. FAQ - Comprehensive list with 10+ questions grouped by category
-9. Best Practices & Tips - Pro tips and optimization guidance
-10. Integration & Advanced Topics - Integration guides and advanced features
-
-REQUIRED JSON OUTPUT FORMAT:
-{
-  "title": "Documentation title",
-  "description": "Brief description",
-  "sections": [
-    {
-      "id": "getting-started",
-      "title": "Getting Started",
-      "icon": "Rocket",
-      "content": [
-        { "type": "paragraph", "text": "Introduction text..." },
-        { "type": "heading", "level": 3, "text": "Subheading" },
-        { "type": "list", "items": ["Step 1", "Step 2", "Step 3"] },
-        { "type": "code", "language": "javascript", "code": "code example" },
-        { "type": "callout", "calloutType": "info", "text": "Important note" }
-      ]
-    }
-  ]
-}
-
-Content block types: paragraph, heading (level 2-4), list, code, callout (info/warning/tip/success), table, image.
-ALWAYS include the "sections" array with at least 5-8 comprehensive sections.`
+        {
+          role: 'system',
+          content: `Write professional Apple-style documentation with 8+ sections: Getting Started, Features, Tutorials, Configuration, Troubleshooting (5+ issues), FAQ (10+ Q&A), Best Practices, API Reference. Each section has content blocks (paragraph, heading, list, code, callout, table). Return JSON: {title, description, sections: [{id, title, icon, content}]}.`
         },
-        { 
-          role: 'user', 
-          content: `Source Data (Enhanced Structure): ${JSON.stringify(extractedStructure)}` 
+        {
+          role: 'user',
+          content: `Create comprehensive documentation from this structure. Include setup guide, features detailed, tutorials, troubleshooting with solutions, FAQ, best practices, API. Return valid JSON.`
         }
       ],
     { jsonMode: true }
