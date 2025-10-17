@@ -436,12 +436,12 @@ const Index = () => {
         </section>
       )}
 
-      {/* HOW Section: Here's how we can help */}
+      {/* Pipeline Section: mirrors actual pipeline (Discovery → Extraction → Research → Synthesis → Export) */}
       {!generatedDoc && (
-        <section id="how" className="container mx-auto px-4 py-20 border-t border-white/10">
+        <section id="pipeline" className="container mx-auto px-4 py-20 border-t border-white/10">
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Here’s how we can help</h2>
-            <p className="text-lg text-muted-foreground">A predictable pipeline from raw web content to polished, branded documentation.</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">A predictable research-driven pipeline</h2>
+            <p className="text-lg text-muted-foreground">From raw web content and external sources to polished, export-ready documentation.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="glass-effect rounded-2xl p-6">
@@ -449,28 +449,28 @@ const Index = () => {
                 <Globe className="h-6 w-6 text-primary" />
               </div>
               <h4 className="font-semibold mb-2">Site Discovery</h4>
-              <p className="text-sm text-muted-foreground">Multi‑domain crawling, sitemap parsing, subdomain detection.</p>
+              <p className="text-sm text-muted-foreground">Multi‑domain crawling, sitemap parsing, subdomain probing, nav link extraction.</p>
             </div>
             <div className="glass-effect rounded-2xl p-6">
               <div className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4">
                 <Search className="h-6 w-6 text-primary" />
               </div>
-              <h4 className="font-semibold mb-2">Research & Analysis</h4>
-              <p className="text-sm text-muted-foreground">External research and community insights to fill gaps.</p>
+              <h4 className="font-semibold mb-2">Content Extraction</h4>
+              <p className="text-sm text-muted-foreground">Multi‑page scraping with code blocks, images, headings, and content structure.</p>
             </div>
             <div className="glass-effect rounded-2xl p-6">
               <div className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4">
                 <BookOpen className="h-6 w-6 text-primary" />
               </div>
-              <h4 className="font-semibold mb-2">Draft & Structure</h4>
-              <p className="text-sm text-muted-foreground">Consistent voice, headings, and patterns with review workflows.</p>
+              <h4 className="font-semibold mb-2">External Research</h4>
+              <p className="text-sm text-muted-foreground">SerpAPI/Brave-backed search, Stack Overflow answers, and GitHub issues with quality scoring.</p>
             </div>
             <div className="glass-effect rounded-2xl p-6">
               <div className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4">
                 <Layers className="h-6 w-6 text-primary" />
               </div>
-              <h4 className="font-semibold mb-2">Export & Publish</h4>
-              <p className="text-sm text-muted-foreground">Multi‑format exports (PDF, DOCX, HTML, Markdown) with branding.</p>
+              <h4 className="font-semibold mb-2">Synthesis & Export</h4>
+              <p className="text-sm text-muted-foreground">AI synthesis into 8+ sections and export to PDF, DOCX, HTML, Markdown, or hosted subdomain.</p>
             </div>
           </div>
         </section>
@@ -493,7 +493,7 @@ const Index = () => {
                   <Globe className="h-7 w-7 text-primary-foreground" />
                 </div>
                 <h3 className="text-2xl font-semibold mb-3">Comprehensive Discovery</h3>
-                <p className="text-muted-foreground leading-relaxed">Multi-domain crawling across subdomains, sitemaps, and documentation sections. Analyzes up to 60+ pages per site.</p>
+                <p className="text-muted-foreground leading-relaxed">Subdomain probing, sitemaps parsing, and nav link extraction for deep coverage.</p>
               </div>
               
               <div className="glass-effect rounded-2xl p-8 hover:scale-[1.02] transition-all duration-300 group">
@@ -501,7 +501,7 @@ const Index = () => {
                   <Search className="h-7 w-7 text-primary-foreground" />
                 </div>
                 <h3 className="text-2xl font-semibold mb-3">External Research</h3>
-                <p className="text-muted-foreground leading-relaxed">Integrates Stack Overflow, GitHub issues, and search engine results for comprehensive troubleshooting and best practices.</p>
+                <p className="text-muted-foreground leading-relaxed">SerpAPI/Brave results plus Stack Overflow and GitHub insights with source scoring.</p>
               </div>
               
               <div className="glass-effect rounded-2xl p-8 hover:scale-[1.02] transition-all duration-300 group">
@@ -509,7 +509,7 @@ const Index = () => {
                   <Shield className="h-7 w-7 text-primary-foreground" />
                 </div>
                 <h3 className="text-2xl font-semibold mb-3">Enterprise Quality</h3>
-                <p className="text-muted-foreground leading-relaxed">Apple-style documentation with professional formatting, accessibility compliance, and SEO optimization.</p>
+                <p className="text-muted-foreground leading-relaxed">Pipeline monitoring, quality scoring, retries/fallbacks, and accessibility-focused exports.</p>
               </div>
             </div>
 
@@ -527,7 +527,7 @@ const Index = () => {
                   <Layers className="h-7 w-7 text-primary-foreground" />
                 </div>
                 <h3 className="text-2xl font-semibold mb-3">Multi-Format Export</h3>
-                <p className="text-muted-foreground leading-relaxed">PDF, DOCX, HTML, Markdown, and JSON exports with consistent theming. Batch export and live preview capabilities.</p>
+                <p className="text-muted-foreground leading-relaxed">PDF, DOCX, HTML, Markdown, JSON, and hosted subdomain exports with theme metadata.</p>
               </div>
               
               <div className="glass-effect rounded-2xl p-8 hover:scale-[1.02] transition-all duration-300 group">
@@ -535,9 +535,65 @@ const Index = () => {
                   <Settings className="h-7 w-7 text-primary-foreground" />
                 </div>
                 <h3 className="text-2xl font-semibold mb-3">Production Ready</h3>
-                <p className="text-muted-foreground leading-relaxed">Metadata generation, cross-references, validation checks, and deployment-ready output with accessibility scoring.</p>
+                <p className="text-muted-foreground leading-relaxed">Metadata & searchability, validation checks, subdomain routing, and pipeline status monitoring.</p>
               </div>
             </div>
+          </div>
+        </section>
+      )}
+
+      {/* Quality & Reliability section pulled from backend capabilities */}
+      {!generatedDoc && (
+        <section id="quality" className="container mx-auto px-4 pb-24">
+          <div className="max-w-5xl mx-auto text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">Quality, Reliability, and Transparency</h2>
+            <p className="text-muted-foreground mb-10">Real pipeline monitoring, multi-provider fallbacks, and research quality scoring give predictable outcomes.</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="glass-effect rounded-2xl p-6">
+                <h4 className="font-semibold mb-2">Pipeline Monitoring</h4>
+                <p className="text-sm text-muted-foreground">Stage-by-stage progress with recommendations and partial success handling.</p>
+              </div>
+              <div className="glass-effect rounded-2xl p-6">
+                <h4 className="font-semibold mb-2">Fallbacks & Retries</h4>
+                <p className="text-sm text-muted-foreground">Provider rotation (OpenAI/Groq/Local), exponential backoff, timeouts, and cache.</p>
+              </div>
+              <div className="glass-effect rounded-2xl p-6">
+                <h4 className="font-semibold mb-2">Research Quality Score</h4>
+                <p className="text-sm text-muted-foreground">Weighted by authority, freshness, and consensus across sources.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Exports section highlighting routes */}
+      {!generatedDoc && (
+        <section id="exports" className="container mx-auto px-4 pb-24">
+          <div className="max-w-5xl mx-auto text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">Exports that fit your workflow</h2>
+            <p className="text-muted-foreground mb-10">Export to PDF, DOCX, HTML, Markdown, JSON, or host on a subdomain.</p>
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+              {['PDF','DOCX','HTML','Markdown','JSON'].map((fmt) => (
+                <div key={fmt} className="glass-effect rounded-2xl p-6">
+                  <h4 className="font-semibold mb-2">{fmt}</h4>
+                  <p className="text-sm text-muted-foreground">One click from the dashboard or via API.</p>
+                </div>
+              ))}
+              <div className="glass-effect rounded-2xl p-6 md:col-span-5">
+                <h4 className="font-semibold mb-2">Hosted Subdomain</h4>
+                <p className="text-sm text-muted-foreground">Publish at <code>your-docs.example.com</code> with theme metadata baked in.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Security/Privacy concise note */}
+      {!generatedDoc && (
+        <section id="security" className="container mx-auto px-4 pb-24">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Security & Privacy</h2>
+            <p className="text-muted-foreground">Token-based API access, role-aware exports, and optional on-prem operation. No vendor lock-in—exports are portable.</p>
           </div>
         </section>
       )}

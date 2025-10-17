@@ -10,12 +10,13 @@ const Header = () => {
   const [user, setUser] = useState<any>(null);
   const [showSignIn, setShowSignIn] = useState(false);
 
-  // Landing anchors to mirror Parakeeto's primary sections
+  // Landing anchors tailored to the product capabilities
   const navLinks = [
     { name: "Home", href: "/" },
-    { name: "Why DocSnap", href: "#why" },
-    { name: "How it Works", href: "#how" },
-    { name: "Customers", href: "#customers" },
+    { name: "Pipeline", href: "#pipeline" },
+    { name: "Quality", href: "#quality" },
+    { name: "Exports", href: "#exports" },
+    { name: "Security", href: "#security" },
     { name: "Features", href: "#features" },
   ];
 
