@@ -1,14 +1,14 @@
 import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
 import { retryWithFallback } from './utils/retry-with-fallback';
-import { scoreSource, filterTrustedSources, deduplicateContent, type ScoredSource } from './utils/source-quality-scorer';
+import { scoreSource, filterTrustedSources, deduplicateContent, validateLinks, type ScoredSource, type SourceMetrics } from './utils/source-quality-scorer';
 
 // Search result interface
 export interface SearchResult {
   title: string;
   url: string;
   snippet: string;
-  source: 'serpapi' | 'brave' | 'cache';
+  source: 'serpapi' | 'brave' | 'cache' | 'crawl';
   position?: number;
   domain?: string;
   qualityScore?: number;
@@ -38,6 +38,8 @@ export interface GitHubIssue {
 export class SearchService {
   private serpApiKey: string | undefined;
   private braveApiKey: string | undefined;
+  private staticCache: Map<string, { data: SearchResult[]; timestamp: number }> = new Map();
+  private static readonly CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
 
   constructor(serpApiKey?: string, braveApiKey?: string) {
     this.serpApiKey = serpApiKey || process.env.SERPAPI_KEY;
@@ -51,6 +53,9 @@ export class SearchService {
   async search(query: string, numResults: number = 10): Promise<SearchResult[]> {
     const providers: Array<() => Promise<SearchResult[]>> = [];
     
+    // Provider 0: Cached results
+    providers.push(() => this.searchFromCache(query, numResults));
+
     // Provider 1: SerpAPI
     if (this.serpApiKey) {
       providers.push(() => this.searchWithSerpAPI(query, numResults));
@@ -61,8 +66,8 @@ export class SearchService {
       providers.push(() => this.searchWithBrave(query, numResults));
     }
     
-    // Provider 3: Basic fallback (cached/empty)
-    providers.push(() => Promise.resolve([]));
+    // Provider 3: Basic last-resort crawl if query includes a URL/domain
+    providers.push(() => this.basicWebCrawlFromQuery(query, numResults));
     
     try {
       const result = await retryWithFallback(providers, {
@@ -72,16 +77,17 @@ export class SearchService {
         cacheKey: `search:${query}:${numResults}`, // Unique cache key per query
       });
       
-      console.log(`✅ Search succeeded via ${result.provider}${result.fromCache ? ' (cached)' : ''}`);
+      // Save to local cache as well for explicit cached provider
+      this.setCache(query, numResults, result.data);
       
       // Apply quality scoring if we got results
       if (result.data.length > 0) {
-        return this.applyQualityScoring(result.data);
+        return this.applyQualityScoring(query, result.data);
       }
       
       return result.data;
     } catch (error) {
-      console.error('❌ All search providers failed:', (error as Error).message);
+      console.error('All search providers failed:', (error as Error).message);
       return [];
     }
   }
@@ -89,22 +95,40 @@ export class SearchService {
   /**
    * Apply quality scoring to search results
    */
-  private applyQualityScoring(results: SearchResult[]): SearchResult[] {
-    const scoredResults = results.map(result => {
-      const scored = scoreSource({
-        url: result.url,
-        content: result.snippet,
-        domainAuthority: this.getDomainScore(result.url),
-      });
-      
-      return {
-        ...result,
-        qualityScore: scored.qualityScore,
-      };
-    });
-    
-    // Filter and return high-quality results
-    return scoredResults.filter(r => (r.qualityScore || 0) >= 50);
+  private async applyQualityScoring(query: string, results: SearchResult[]): Promise<SearchResult[]> {
+    if (results.length === 0) return [];
+
+    // Validate links (skip broken URLs)
+    const validated = await validateLinks(results.map<SourceMetrics>(r => ({
+      url: r.url,
+      content: r.snippet,
+      domainAuthority: this.getDomainScore(r.url),
+      contentRelevance: this.calculateRelevance(query, `${r.title} ${r.snippet}`)
+    })));
+
+    // Score and filter by threshold (70+)
+    const scored: ScoredSource[] = validated.map(m => scoreSource(m));
+    const trusted = filterTrustedSources(scored);
+    const deduped = deduplicateContent(trusted);
+
+    // Map back to SearchResult, preserve original order when possible
+    const qualityByUrl = new Map(deduped.map(s => [s.url, s.qualityScore] as const));
+    const filtered = results
+      .filter(r => qualityByUrl.has(r.url))
+      .map(r => ({ ...r, qualityScore: qualityByUrl.get(r.url) } as SearchResult));
+
+    // If filtering removes too many, fall back to top-N by simple heuristics
+    if (filtered.length === 0) {
+      return results
+        .map(r => ({
+          ...r,
+          qualityScore: this.getDomainScore(r.url) + this.calculateRelevance(query, `${r.title} ${r.snippet}`) / 2,
+        }))
+        .sort((a, b) => (b.qualityScore || 0) - (a.qualityScore || 0))
+        .slice(0, Math.min(results.length, 10));
+    }
+
+    return filtered.slice(0, Math.min(filtered.length, 10));
   }
   
   /**
@@ -121,6 +145,22 @@ export class SearchService {
     } catch {
       return 20;
     }
+  }
+
+  /**
+   * Basic content relevance based on term overlap
+   */
+  private calculateRelevance(query: string, text: string): number {
+    if (!query || !text) return 50;
+    const terms = query.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+    if (terms.length === 0) return 50;
+    const corpus = text.toLowerCase();
+    let hits = 0;
+    for (const t of terms) {
+      if (corpus.includes(t)) hits++;
+    }
+    const ratio = hits / terms.length;
+    return Math.max(10, Math.min(100, Math.round(ratio * 100)));
   }
 
   /**
@@ -202,6 +242,77 @@ export class SearchService {
       position: index + 1,
       domain: this.extractDomain(result.url)
     }));
+  }
+
+  /**
+   * Provider: Cached results (if available)
+   */
+  private async searchFromCache(query: string, numResults: number): Promise<SearchResult[]> {
+    const key = this.cacheKey(query, numResults);
+    const now = Date.now();
+    const cached = this.staticCache.get(key);
+    if (cached && now - cached.timestamp < SearchService.CACHE_TTL_MS) {
+      return cached.data.map(r => ({ ...r, source: 'cache' as const }));
+    }
+    // Force a failure to move to next provider
+    throw new Error('No cached search results');
+  }
+
+  private setCache(query: string, numResults: number, data: SearchResult[]) {
+    const key = this.cacheKey(query, numResults);
+    this.staticCache.set(key, { data, timestamp: Date.now() });
+  }
+
+  private cacheKey(query: string, numResults: number) {
+    return `${query}::${numResults}`;
+  }
+
+  /**
+   * Last-resort: attempt to crawl a domain if present in query
+   */
+  private async basicWebCrawlFromQuery(query: string, numResults: number): Promise<SearchResult[]> {
+    const domain = this.extractDomainFromQuery(query);
+    if (!domain) {
+      // Give up to let caller continue gracefully
+      return [];
+    }
+    const origin = `https://${domain}`;
+    try {
+      const resp = await fetch(origin, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+      if (!resp.ok) return [];
+      const html = await resp.text();
+      const $ = cheerio.load(html);
+      const links: SearchResult[] = [];
+      $('a[href]').each((i, el) => {
+        if (links.length >= numResults) return;
+        const href = $(el).attr('href') || '';
+        const text = $(el).text().trim();
+        if (!href) return;
+        // Prefer documentation-like links
+        const isDocLike = /doc|help|support|guide|tutorial|api|developer|faq|question|blog|article/i.test(href + ' ' + text);
+        if (!isDocLike) return;
+        try {
+          const absolute = new URL(href, origin).href;
+          links.push({
+            title: text || absolute,
+            url: absolute,
+            snippet: `Discovered via basic crawl on ${domain}`,
+            source: 'crawl',
+            position: links.length + 1,
+            domain: this.extractDomain(absolute),
+          });
+        } catch {}
+      });
+      return links;
+    } catch {
+      return [];
+    }
+  }
+
+  private extractDomainFromQuery(query: string): string | null {
+    const m = query.match(/(?:https?:\/\/)?([a-z0-9.-]+\.[a-z]{2,})(?:\/[\S]*)?/i);
+    if (m && m[1]) return m[1].toLowerCase();
+    return null;
   }
 
   /**
@@ -398,7 +509,7 @@ export class SearchService {
         // Rate limiting
         await new Promise(resolve => setTimeout(resolve, 1000));
       } catch (error) {
-        console.error(`Search failed for "${query}":`, error.message);
+        console.error(`Search failed for "${query}":`, (error as Error).message);
       }
     }
 
