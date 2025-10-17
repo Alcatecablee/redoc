@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
 import { retryWithFallback } from './utils/retry-with-fallback';
-import { scoreSource, filterTrustedSources, deduplicateContent, validateLinks, type ScoredSource, type SourceMetrics } from './utils/source-quality-scorer';
+import { scoreSource, filterTrustedSources, deduplicateContent, validateLinks, crossVerifyContent, type ScoredSource, type SourceMetrics } from './utils/source-quality-scorer';
 
 // Search result interface
 export interface SearchResult {
@@ -82,7 +82,7 @@ export class SearchService {
       
       // Apply quality scoring if we got results
       if (result.data.length > 0) {
-        return this.applyQualityScoring(query, result.data);
+        return await this.applyQualityScoring(query, result.data);
       }
       
       return result.data;
@@ -98,7 +98,7 @@ export class SearchService {
   private async applyQualityScoring(query: string, results: SearchResult[]): Promise<SearchResult[]> {
     if (results.length === 0) return [];
 
-    // Validate links (skip broken URLs)
+    // 1) Validate links (skip broken URLs)
     const validated = await validateLinks(results.map<SourceMetrics>(r => ({
       url: r.url,
       content: r.snippet,
@@ -106,10 +106,11 @@ export class SearchService {
       contentRelevance: this.calculateRelevance(query, `${r.title} ${r.snippet}`)
     })));
 
-    // Score and filter by threshold (70+)
+    // 2) Score and filter by threshold (70+), dedupe, and cross-verify
     const scored: ScoredSource[] = validated.map(m => scoreSource(m));
     const trusted = filterTrustedSources(scored);
     const deduped = deduplicateContent(trusted);
+    crossVerifyContent(deduped, 3);
 
     // Map back to SearchResult, preserve original order when possible
     const qualityByUrl = new Map(deduped.map(s => [s.url, s.qualityScore] as const));

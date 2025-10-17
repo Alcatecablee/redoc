@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { retryWithFallback } from './utils/retry-with-fallback';
+import { withTimeout, retryWithFallback } from './utils/retry-with-fallback';
 
 export interface AIMessage {
   role: 'system' | 'user' | 'assistant';
@@ -36,32 +36,32 @@ export class AIProvider {
       timeoutMs?: number;
     } = {}
   ): Promise<AIResponse> {
-    const { jsonMode = false, maxRetries = 3, timeoutMs = 30000 } = options;
+    const { jsonMode = false, maxRetries = 3, timeoutMs = 60000 } = options;
 
-    // Build provider call chain based on configured order and available credentials
+    // Build provider order from config with sensible default
     const order = (this.config.providerOrder && this.config.providerOrder.length > 0)
       ? this.config.providerOrder
-      : ['openai', 'groq', 'deepseek', 'ollama'];
+      : ['groq', 'openai', 'deepseek', 'ollama'];
 
     const providers: Array<() => Promise<AIResponse>> = [];
 
     for (const p of order) {
-      if (p === 'openai' && this.config.openaiApiKey) {
-        providers.push(() => this.callOpenAI(messages, jsonMode));
-      }
       if (p === 'groq' && this.config.groqApiKey) {
-        providers.push(() => this.callGroq(messages, jsonMode));
+        providers.push(() => withTimeout(this.callGroq(messages, jsonMode), timeoutMs, 'groq timed out'));
+      }
+      if (p === 'openai' && this.config.openaiApiKey) {
+        providers.push(() => withTimeout(this.callOpenAI(messages, jsonMode), timeoutMs, 'openai timed out'));
       }
       if (p === 'deepseek' && this.config.deepseekApiKey) {
-        providers.push(() => this.callDeepSeek(messages, jsonMode));
+        providers.push(() => withTimeout(this.callDeepSeek(messages, jsonMode), timeoutMs, 'deepseek timed out'));
       }
       if (p === 'ollama' && (this.config.ollamaBaseUrl || process.env.OLLAMA_BASE_URL)) {
-        providers.push(() => this.callOllama(messages, jsonMode));
+        providers.push(() => withTimeout(this.callOllama(messages, jsonMode), timeoutMs, 'ollama timed out'));
       }
     }
 
     if (providers.length === 0) {
-      throw new Error('No AI providers configured. Set at least one of OPENAI_API_KEY, GROQ_API_KEY, DEEPSEEK_API_KEY, or OLLAMA_BASE_URL');
+      throw new Error('No AI providers configured. Set at least one of GROQ_API_KEY, OPENAI_API_KEY, DEEPSEEK_API_KEY, or OLLAMA_BASE_URL');
     }
 
     const result = await retryWithFallback<AIResponse>(providers, {

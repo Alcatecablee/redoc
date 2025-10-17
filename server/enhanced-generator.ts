@@ -313,7 +313,7 @@ export async function parseJSONWithRetry(aiProvider: ReturnType<typeof createAIP
 // Enhanced documentation generation pipeline
 export async function generateEnhancedDocumentation(url: string, userId: string | null, sessionId?: string) {
   const aiProvider = createAIProvider();
-  // Allow Groq and Ollama-only configurations via provider rotation
+  // Allow any configured provider via provider rotation
 
   console.log('Stage 1: Discovering site structure...');
   const pmId = sessionId || `sess_${Math.random().toString(36).slice(2)}`;
@@ -374,12 +374,27 @@ export async function generateEnhancedDocumentation(url: string, userId: string 
     });
   }
   const externalResearch = await performExternalResearch(siteStructure.productName, url);
+  // Partial success notification via progress and pipeline monitor if sources missing
   const missing: string[] = [];
   if (!process.env.SERPAPI_KEY && !process.env.BRAVE_API_KEY) missing.push('Search APIs');
   if (externalResearch.github_issues.length === 0) missing.push('GitHub issues');
+  const hasSources = (externalResearch.total_sources || 0) > 0;
+  if (sessionId) {
+    const totalSources = externalResearch.total_sources || 0;
+    const desc = totalSources === 0
+      ? 'External research unavailable (API limits) – proceeding with site content only'
+      : `Partial research: ${totalSources} sources found${missing.length ? ` – missing ${missing.join(', ')}` : ''}`;
+    progressTracker.emitProgress(sessionId, {
+      stage: 3,
+      stageName: 'Research & Analysis',
+      description: desc,
+      progress: totalSources === 0 ? 55 : 58,
+      status: 'progress'
+    } as any);
+  }
   pipelineMonitor.updateStage(pmId, 3, { 
-    status: externalResearch.total_sources > 0 ? 'completed' : 'partial', 
-    progress: externalResearch.total_sources > 0 ? 100 : 70,
+    status: hasSources ? 'completed' : 'partial', 
+    progress: hasSources ? 100 : 70,
     details: { itemsProcessed: externalResearch.total_sources, itemsTotal: 1, warnings: missing.length ? [`Missing: ${missing.join(', ')}`] : [] }
   });
   
@@ -443,7 +458,7 @@ GITHUB: ${JSON.stringify(limitedGitHubIssues.map(i => ({title: i.title?.substrin
 Create 8-10 comprehensive sections covering: getting started, core features, configuration, tutorials, troubleshooting (5+ issues), FAQ (10+ questions), best practices, API reference. Include real examples. Return JSON with sections array.`
         }
       ],
-    { jsonMode: true }
+    { jsonMode: true, maxRetries: 2, timeoutMs: 60000 }
   );
 
   console.log(`✅ Stage 4b: AI response received (${stage1Response.provider}), parsing data...`);

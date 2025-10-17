@@ -39,20 +39,25 @@ interface Section {
   content: ContentBlock[];
 }
 
-interface Theme {
+interface ViewerTheme {
   primaryColor: string;
   secondaryColor: string;
-  accentColor: string;
-  colors: string[];
-  fonts: string[];
+  accentColor?: string;
   primaryFont: string;
+  backgroundColor?: string;
+  textColor?: string;
+  codeBgColor?: string;
+  headingSizes?: { h1: string; h2: string; h3: string };
+  spacing?: { section: string; paragraph: string; list_item: string; density?: "compact" | "comfortable" | "spacious" };
+  styling?: { border_radius: string; code_border_radius: string; shadow: string };
+  layout?: { orientation: "single" | "multi" };
 }
 
 interface DocumentationViewerProps {
   title: string;
   description?: string;
   sections: Section[];
-  theme?: Theme;
+  theme?: ViewerTheme;
 }
 
 const iconMap: Record<string, any> = {
@@ -86,29 +91,41 @@ export function DocumentationViewer({ title, description, sections, theme }: Doc
   const primaryColor = theme?.primaryColor || '#8B5CF6';
   const secondaryColor = theme?.secondaryColor || '#6366F1';
   const primaryFont = theme?.primaryFont || 'Inter, system-ui, sans-serif';
+  const codeBgColor = theme?.codeBgColor || '#1e1e1e';
+  const textColor = theme?.textColor || undefined;
+  const headingSizes = theme?.headingSizes || { h1: '2.5rem', h2: '2rem', h3: '1.5rem' };
+  const spacing = theme?.spacing || { section: '3rem', paragraph: '1.5rem', list_item: '0.5rem', density: 'comfortable' };
+  const styling = theme?.styling || { border_radius: '8px', code_border_radius: '6px', shadow: '0 1px 3px rgba(0,0,0,0.1)' };
+  const orientation = theme?.layout?.orientation || 'multi';
+  const contentPaddingClass = spacing.density === 'compact' ? 'p-6' : spacing.density === 'spacious' ? 'p-10' : 'p-8';
 
   const renderContent = (block: ContentBlock, index: number) => {
     switch (block.type) {
       case "paragraph":
         return (
-          <p key={index} className="text-base text-muted-foreground leading-relaxed mb-4">
+          <p
+            key={index}
+            className="text-base text-muted-foreground leading-relaxed"
+            style={{ marginBottom: spacing.paragraph }}
+          >
             {block.text}
           </p>
         );
 
       case "heading":
         const HeadingTag = `h${block.level}` as keyof JSX.IntrinsicElements;
+        const size = block.level === 2 ? headingSizes.h2 : block.level === 3 ? headingSizes.h3 : headingSizes.h3;
         const headingClasses = {
-          2: "text-2xl font-bold mt-8 mb-4",
-          3: "text-xl font-semibold mt-6 mb-3",
-          4: "text-lg font-medium mt-4 mb-2"
+          2: "font-bold mt-8 mb-4",
+          3: "font-semibold mt-6 mb-3",
+          4: "font-medium mt-4 mb-2"
         }[block.level || 3];
         
         return (
           <HeadingTag 
             key={index} 
             className={headingClasses}
-            style={{ color: block.level === 2 ? primaryColor : secondaryColor }}
+            style={{ color: block.level === 2 ? primaryColor : secondaryColor, fontSize: size }}
           >
             {block.text}
           </HeadingTag>
@@ -116,9 +133,9 @@ export function DocumentationViewer({ title, description, sections, theme }: Doc
 
       case "list":
         return (
-          <ul key={index} className="space-y-2 mb-4 ml-6">
+          <ul key={index} className="mb-4 ml-6">
             {block.items?.map((item, i) => (
-              <li key={i} className="flex items-start gap-2">
+              <li key={i} className="flex items-start gap-2" style={{ marginBottom: spacing.list_item }}>
                 <ChevronRight 
                   className="h-5 w-5 mt-0.5 flex-shrink-0" 
                   style={{ color: primaryColor }}
@@ -131,14 +148,22 @@ export function DocumentationViewer({ title, description, sections, theme }: Doc
 
       case "code":
         return (
-          <Card key={index} className="p-4 mb-4 bg-gray-900 border-gray-800">
+          <Card
+            key={index}
+            className="p-4 mb-4"
+            style={{
+              backgroundColor: codeBgColor,
+              borderRadius: styling.code_border_radius,
+              boxShadow: styling.shadow,
+            }}
+          >
             {block.language && (
               <Badge variant="outline" className="mb-2 text-xs">
                 {block.language}
               </Badge>
             )}
             <pre className="overflow-x-auto">
-              <code className="text-sm text-gray-100 font-mono">
+              <code className="text-sm font-mono" style={{ color: textColor }}>
                 {block.code || block.text}
               </code>
             </pre>
@@ -214,16 +239,63 @@ export function DocumentationViewer({ title, description, sections, theme }: Doc
     <div className="max-w-7xl mx-auto" style={{ fontFamily: primaryFont }}>
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-3" style={{ color: primaryColor }}>{title}</h1>
+        <h1 className="mb-3" style={{ color: primaryColor, fontSize: headingSizes.h1, fontWeight: 700 }}>
+          {title}
+        </h1>
         {description && (
           <p className="text-xl text-muted-foreground">{description}</p>
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      {orientation === 'single' ? (
+        <div className="grid grid-cols-1 gap-8">
+          <Card className="p-4" style={{ borderRadius: styling.border_radius, boxShadow: styling.shadow }}>
+            <h3 className="font-semibold mb-4">Table of Contents</h3>
+            <nav className="space-y-1">
+              {sections.map((section) => {
+                const Icon = iconMap[section.icon] || BookOpen;
+                const isActive = activeSection === section.id;
+                return (
+                  <button
+                    key={section.id}
+                    onClick={() => setActiveSection(section.id)}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                      isActive ? 'text-white' : 'hover:bg-accent text-muted-foreground'
+                    }`}
+                    style={isActive ? { backgroundColor: primaryColor } : {}}
+                  >
+                    <Icon className="h-4 w-4 flex-shrink-0" style={isActive ? {} : { color: primaryColor }} />
+                    <span className="text-sm font-medium">{section.title}</span>
+                  </button>
+                );
+              })}
+            </nav>
+          </Card>
+          <Card className={contentPaddingClass} style={{ borderRadius: styling.border_radius, boxShadow: styling.shadow }}>
+            {activeContent && (
+              <>
+                <div className="flex items-center gap-3 mb-6">
+                  {(() => {
+                    const Icon = iconMap[activeContent.icon] || BookOpen;
+                    return <Icon className="h-6 w-6" style={{ color: primaryColor }} />;
+                  })()}
+                  <h2 className="font-bold" style={{ color: primaryColor, fontSize: headingSizes.h2 }}>
+                    {activeContent.title}
+                  </h2>
+                </div>
+                <Separator className="mb-6" />
+                <div className="prose prose-slate max-w-none">
+                  {activeContent.content.map((block, index) => renderContent(block, index))}
+                </div>
+              </>
+            )}
+          </Card>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Table of Contents */}
         <aside className="lg:col-span-1">
-          <Card className="sticky top-20 p-4">
+          <Card className="sticky top-20 p-4" style={{ borderRadius: styling.border_radius, boxShadow: styling.shadow }}>
             <h3 className="font-semibold mb-4">Table of Contents</h3>
             <nav className="space-y-1">
               {sections.map((section) => {
@@ -252,7 +324,7 @@ export function DocumentationViewer({ title, description, sections, theme }: Doc
 
         {/* Main Content */}
         <main className="lg:col-span-3">
-          <Card className="p-8">
+          <Card className={contentPaddingClass} style={{ borderRadius: styling.border_radius, boxShadow: styling.shadow }}>
             {activeContent && (
               <>
                 <div className="flex items-center gap-3 mb-6">
@@ -260,7 +332,7 @@ export function DocumentationViewer({ title, description, sections, theme }: Doc
                     const Icon = iconMap[activeContent.icon] || BookOpen;
                     return <Icon className="h-6 w-6" style={{ color: primaryColor }} />;
                   })()}
-                  <h2 className="text-3xl font-bold" style={{ color: primaryColor }}>{activeContent.title}</h2>
+                  <h2 className="font-bold" style={{ color: primaryColor, fontSize: headingSizes.h2 }}>{activeContent.title}</h2>
                 </div>
                 <Separator className="mb-6" />
                 <div className="prose prose-slate max-w-none">
@@ -273,6 +345,7 @@ export function DocumentationViewer({ title, description, sections, theme }: Doc
           </Card>
         </main>
       </div>
+      )}
     </div>
   );
 }

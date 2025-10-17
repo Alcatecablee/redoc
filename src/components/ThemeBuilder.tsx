@@ -43,6 +43,7 @@ export function ThemeBuilder({ onThemeCreated }: ThemeBuilderProps) {
     font_family: "Inter, -apple-system, system-ui, sans-serif",
     heading_font: "Inter, -apple-system, system-ui, sans-serif",
     code_font: "'Fira Code', Monaco, Consolas, monospace",
+    heading_sizes: { h1: "2.5rem", h2: "2rem", h3: "1.5rem" }
   });
 
   const accessibilityResults = validateThemeAccessibility({
@@ -72,13 +73,15 @@ export function ThemeBuilder({ onThemeCreated }: ThemeBuilderProps) {
       spacing: {
         section: "3rem",
         paragraph: "1.5rem",
-        list_item: "0.5rem"
+        list_item: "0.5rem",
+        density: "comfortable"
       },
       styling: {
         border_radius: "8px",
         code_border_radius: "6px",
         shadow: "0 1px 3px rgba(0,0,0,0.1)"
-      }
+      },
+      layout: { orientation: "multi" }
     };
 
     onThemeCreated(theme);
@@ -102,13 +105,15 @@ export function ThemeBuilder({ onThemeCreated }: ThemeBuilderProps) {
       spacing: {
         section: "3rem",
         paragraph: "1.5rem",
-        list_item: "0.5rem"
+        list_item: "0.5rem",
+        density: "comfortable"
       },
       styling: {
         border_radius: "8px",
         code_border_radius: "6px",
         shadow: "0 1px 3px rgba(0,0,0,0.1)"
-      }
+      },
+      layout: { orientation: "multi" }
     };
 
     const dataStr = JSON.stringify(theme, null, 2);
@@ -140,7 +145,8 @@ export function ThemeBuilder({ onThemeCreated }: ThemeBuilderProps) {
           setTypography({
             font_family: theme.typography.font_family,
             heading_font: theme.typography.heading_font,
-            code_font: theme.typography.code_font
+            code_font: theme.typography.code_font,
+            heading_sizes: theme.typography.heading_sizes || { h1: "2.5rem", h2: "2rem", h3: "1.5rem" }
           });
         }
         toast({
