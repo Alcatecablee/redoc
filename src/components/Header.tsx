@@ -10,9 +10,13 @@ const Header = () => {
   const [user, setUser] = useState<any>(null);
   const [showSignIn, setShowSignIn] = useState(false);
 
-  // Minimal nav
+  // Landing anchors to mirror Parakeeto's primary sections
   const navLinks = [
     { name: "Home", href: "/" },
+    { name: "Why DocSnap", href: "#why" },
+    { name: "How it Works", href: "#how" },
+    { name: "Customers", href: "#customers" },
+    { name: "Features", href: "#features" },
   ];
 
   useEffect(() => {
@@ -61,9 +65,13 @@ const Header = () => {
               </span>
             </div>
 
-            {/* Desktop Navigation: minimal */}
+            {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-6">
-              <a href="/" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Home</a>
+              {navLinks.map((link) => (
+                <a key={link.name} href={link.href} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                  {link.name}
+                </a>
+              ))}
               {user ? (
                 <a href="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Dashboard</a>
               ) : null}
@@ -94,7 +102,11 @@ const Header = () => {
               </SheetTrigger>
               <SheetContent side="right" className="w-[280px]">
                 <div className="flex flex-col gap-4 mt-8">
-                  <a href="/" onClick={() => setIsOpen(false)} className="text-base font-medium text-muted-foreground hover:text-primary transition-colors py-2">Home</a>
+                  {navLinks.map((link) => (
+                    <a key={link.name} href={link.href} onClick={() => setIsOpen(false)} className="text-base font-medium text-muted-foreground hover:text-primary transition-colors py-2">
+                      {link.name}
+                    </a>
+                  ))}
                   <div className="flex flex-col gap-3 mt-4 pt-4 border-t">
                     {user ? (
                       <>
