@@ -470,16 +470,12 @@ Create 8-10 comprehensive sections covering: getting started, core features, con
     'Ensure the output is valid JSON with proper comprehensive documentation structure'
   );
 
-  // Stage 3: Enhanced metadata generation
+  // Stage 3: Metadata generation
   const stage3Response = await aiProvider.generateCompletion(
     [
-        { 
-          role: 'system', 
-          content: `You are a documentation engineer preparing content for production deployment in a professional help center.
-
-TASK: Generate comprehensive metadata and format the documentation for export.
-
-OUTPUT FORMAT (JSON):
+        {
+          role: 'system',
+          content: `Generate metadata for documentation. Return JSON with: metadata (title, description, keywords), searchability (primary_tags, synonyms, search_keywords), validation (status).
 {
   "metadata": {
     "title": "Primary document title (SEO-optimized)",
