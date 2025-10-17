@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { withTimeout } from './utils/retry-with-fallback';
+import { withTimeout, retryWithFallback } from './utils/retry-with-fallback';
 
 export interface AIMessage {
   role: 'system' | 'user' | 'assistant';
@@ -8,7 +8,7 @@ export interface AIMessage {
 
 export interface AIResponse {
   content: string;
-  provider: 'deepseek' | 'openai' | 'groq';
+  provider: 'deepseek' | 'openai' | 'groq' | 'ollama';
   model: string;
 }
 
@@ -16,6 +16,9 @@ interface AIProviderConfig {
   deepseekApiKey?: string;
   openaiApiKey?: string;
   groqApiKey?: string;
+  ollamaBaseUrl?: string;
+  ollamaModel?: string;
+  providerOrder?: string[]; // e.g. ['openai','groq','deepseek','ollama']
 }
 
 export class AIProvider {
@@ -35,42 +38,39 @@ export class AIProvider {
   ): Promise<AIResponse> {
     const { jsonMode = false, maxRetries = 3, timeoutMs = 60000 } = options;
 
-    const providers: Array<{
-      name: AIResponse['provider'];
-      fn: () => Promise<AIResponse>;
-      enabled: boolean;
-    }> = [
-      { name: 'groq', enabled: !!this.config.groqApiKey, fn: () => this.callGroq(messages, jsonMode) },
-      { name: 'openai', enabled: !!this.config.openaiApiKey, fn: () => this.callOpenAI(messages, jsonMode) },
-      { name: 'deepseek', enabled: !!this.config.deepseekApiKey, fn: () => this.callDeepSeek(messages, jsonMode) },
-    ];
+    // Build provider order from config with sensible default
+    const order = (this.config.providerOrder && this.config.providerOrder.length > 0)
+      ? this.config.providerOrder
+      : ['groq', 'openai', 'deepseek', 'ollama'];
 
-    const activeProviders = providers.filter(p => p.enabled);
-    if (activeProviders.length === 0) {
-      throw new Error('No AI provider API keys configured. Please set GROQ_API_KEY, OPENAI_API_KEY, or DEEPSEEK_API_KEY');
-    }
+    const providers: Array<() => Promise<AIResponse>> = [];
 
-    let lastError: Error | null = null;
-    for (const provider of activeProviders) {
-      for (let attempt = 0; attempt < Math.max(1, maxRetries); attempt++) {
-        try {
-          console.log(`🔄 AI call via ${provider.name} (attempt ${attempt + 1}/${maxRetries})`);
-          const response = await withTimeout(provider.fn(), timeoutMs, `${provider.name} timed out after ${timeoutMs}ms`);
-          console.log(`✅ ${provider.name} succeeded`);
-          return response;
-        } catch (err) {
-          lastError = err as Error;
-          console.warn(`⚠️ ${provider.name} attempt ${attempt + 1} failed:`, lastError.message);
-          // small linear backoff between attempts
-          if (attempt < maxRetries - 1) {
-            await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
-          }
-        }
+    for (const p of order) {
+      if (p === 'groq' && this.config.groqApiKey) {
+        providers.push(() => withTimeout(this.callGroq(messages, jsonMode), timeoutMs, 'groq timed out'));
       }
-      console.log(`❌ ${provider.name} failed after ${maxRetries} attempts, trying next provider...`);
+      if (p === 'openai' && this.config.openaiApiKey) {
+        providers.push(() => withTimeout(this.callOpenAI(messages, jsonMode), timeoutMs, 'openai timed out'));
+      }
+      if (p === 'deepseek' && this.config.deepseekApiKey) {
+        providers.push(() => withTimeout(this.callDeepSeek(messages, jsonMode), timeoutMs, 'deepseek timed out'));
+      }
+      if (p === 'ollama' && (this.config.ollamaBaseUrl || process.env.OLLAMA_BASE_URL)) {
+        providers.push(() => withTimeout(this.callOllama(messages, jsonMode), timeoutMs, 'ollama timed out'));
+      }
     }
 
-    throw lastError || new Error('All AI providers failed');
+    if (providers.length === 0) {
+      throw new Error('No AI providers configured. Set at least one of GROQ_API_KEY, OPENAI_API_KEY, DEEPSEEK_API_KEY, or OLLAMA_BASE_URL');
+    }
+
+    const result = await retryWithFallback<AIResponse>(providers, {
+      maxRetries,
+      timeout: timeoutMs,
+      cacheResults: false,
+    });
+
+    return result.data;
   }
 
   private async callDeepSeek(messages: AIMessage[], jsonMode: boolean): Promise<AIResponse> {
@@ -160,6 +160,38 @@ export class AIProvider {
     };
   }
 
+  private async callOllama(messages: AIMessage[], jsonMode: boolean): Promise<AIResponse> {
+    const baseUrl = (this.config.ollamaBaseUrl || process.env.OLLAMA_BASE_URL || 'http://localhost:11434').replace(/\/$/, '');
+    const model = this.config.ollamaModel || process.env.OLLAMA_MODEL || 'llama3.1:8b-instruct';
+
+    const response = await fetch(`${baseUrl}/v1/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model,
+        messages,
+        // Ollama is OpenAI-compatible; send response_format only when needed
+        ...(jsonMode && { response_format: { type: 'json_object' } }),
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Ollama API error (${response.status}): ${errorText}`);
+    }
+
+    const data = await response.json() as any;
+    const content = data.choices?.[0]?.message?.content || '';
+
+    return {
+      content,
+      provider: 'ollama',
+      model,
+    };
+  }
+
   async parseJSONWithRetry(content: string, retryPrompt: string, maxRetries: number = 3): Promise<any> {
     let lastError: Error | null = null;
 
@@ -191,5 +223,8 @@ export function createAIProvider(): AIProvider {
     deepseekApiKey: process.env.DEEPSEEK_API_KEY,
     openaiApiKey: process.env.OPENAI_API_KEY,
     groqApiKey: process.env.GROQ_API_KEY,
+    ollamaBaseUrl: process.env.OLLAMA_BASE_URL,
+    ollamaModel: process.env.OLLAMA_MODEL,
+    providerOrder: (process.env.AI_PROVIDER_ORDER || '').split(',').map(s => s.trim()).filter(Boolean),
   });
 }
