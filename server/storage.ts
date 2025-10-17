@@ -6,6 +6,7 @@ export interface IStorage {
   getDocumentationBySubdomain(subdomain: string): Promise<Documentation | undefined>;
   getAllDocumentations(userId?: string): Promise<Documentation[]>;
   createDocumentation(data: InsertDocumentation): Promise<Documentation>;
+  updateDocumentation(id: number, updates: Partial<Documentation>): Promise<Documentation>;
   deleteDocumentation(id: number, userId?: string): Promise<Documentation | undefined>;
 }
 
@@ -58,6 +59,17 @@ class SupabaseStorage implements IStorage {
     return inserted as Documentation;
   }
 
+  async updateDocumentation(id: number, updates: Partial<Documentation>): Promise<Documentation> {
+    const { data, error } = await this.client
+      .from('documentations')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data as Documentation;
+  }
+
   async deleteDocumentation(id: number, userId?: string): Promise<Documentation | undefined> {
     // If userId provided, ensure deletion only affects that user's doc
     let query = this.client.from('documentations').delete().eq('id', id).limit(1).select();
@@ -101,6 +113,13 @@ class InMemoryStorage implements IStorage {
     };
     this.docs.push(doc);
     return doc as Documentation;
+  }
+
+  async updateDocumentation(id: number, updates: Partial<Documentation>): Promise<Documentation> {
+    const idx = this.docs.findIndex(d => d.id === id);
+    if (idx === -1) throw new Error('Documentation not found');
+    this.docs[idx] = { ...this.docs[idx], ...updates };
+    return this.docs[idx];
   }
 
   async deleteDocumentation(id: number, userId?: string): Promise<Documentation | undefined> {
