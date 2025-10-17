@@ -1,4 +1,5 @@
 import fetch from 'node-fetch';
+import { retryWithFallback } from './utils/retry-with-fallback';
 
 export interface AIMessage {
   role: 'system' | 'user' | 'assistant';
@@ -7,7 +8,7 @@ export interface AIMessage {
 
 export interface AIResponse {
   content: string;
-  provider: 'deepseek' | 'openai' | 'groq';
+  provider: 'deepseek' | 'openai' | 'groq' | 'ollama';
   model: string;
 }
 
@@ -15,6 +16,9 @@ interface AIProviderConfig {
   deepseekApiKey?: string;
   openaiApiKey?: string;
   groqApiKey?: string;
+  ollamaBaseUrl?: string;
+  ollamaModel?: string;
+  providerOrder?: string[]; // e.g. ['openai','groq','deepseek','ollama']
 }
 
 export class AIProvider {
@@ -29,26 +33,44 @@ export class AIProvider {
     options: {
       jsonMode?: boolean;
       maxRetries?: number;
+      timeoutMs?: number;
     } = {}
   ): Promise<AIResponse> {
-    const { jsonMode = false, maxRetries = 3 } = options;
+    const { jsonMode = false, maxRetries = 3, timeoutMs = 30000 } = options;
 
-    // OpenAI and DeepSeek are currently disabled
-    // They will be re-enabled when explicitly activated in environment config
+    // Build provider call chain based on configured order and available credentials
+    const order = (this.config.providerOrder && this.config.providerOrder.length > 0)
+      ? this.config.providerOrder
+      : ['openai', 'groq', 'deepseek', 'ollama'];
 
-    // Use Groq as the primary provider
-    if (this.config.groqApiKey) {
-      console.log('🟠 Using Groq API...');
-      try {
-        const response = await this.callGroq(messages, jsonMode);
-        console.log('✅ Groq API succeeded');
-        return response;
-      } catch (error) {
-        throw new Error(`Groq API failed: ${(error as Error).message}`);
+    const providers: Array<() => Promise<AIResponse>> = [];
+
+    for (const p of order) {
+      if (p === 'openai' && this.config.openaiApiKey) {
+        providers.push(() => this.callOpenAI(messages, jsonMode));
+      }
+      if (p === 'groq' && this.config.groqApiKey) {
+        providers.push(() => this.callGroq(messages, jsonMode));
+      }
+      if (p === 'deepseek' && this.config.deepseekApiKey) {
+        providers.push(() => this.callDeepSeek(messages, jsonMode));
+      }
+      if (p === 'ollama' && (this.config.ollamaBaseUrl || process.env.OLLAMA_BASE_URL)) {
+        providers.push(() => this.callOllama(messages, jsonMode));
       }
     }
 
-    throw new Error('No AI provider API keys configured. Please set GROQ_API_KEY');
+    if (providers.length === 0) {
+      throw new Error('No AI providers configured. Set at least one of OPENAI_API_KEY, GROQ_API_KEY, DEEPSEEK_API_KEY, or OLLAMA_BASE_URL');
+    }
+
+    const result = await retryWithFallback<AIResponse>(providers, {
+      maxRetries,
+      timeout: timeoutMs,
+      cacheResults: false,
+    });
+
+    return result.data;
   }
 
   private async callDeepSeek(messages: AIMessage[], jsonMode: boolean): Promise<AIResponse> {
@@ -138,6 +160,38 @@ export class AIProvider {
     };
   }
 
+  private async callOllama(messages: AIMessage[], jsonMode: boolean): Promise<AIResponse> {
+    const baseUrl = (this.config.ollamaBaseUrl || process.env.OLLAMA_BASE_URL || 'http://localhost:11434').replace(/\/$/, '');
+    const model = this.config.ollamaModel || process.env.OLLAMA_MODEL || 'llama3.1:8b-instruct';
+
+    const response = await fetch(`${baseUrl}/v1/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model,
+        messages,
+        // Ollama is OpenAI-compatible; send response_format only when needed
+        ...(jsonMode && { response_format: { type: 'json_object' } }),
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Ollama API error (${response.status}): ${errorText}`);
+    }
+
+    const data = await response.json() as any;
+    const content = data.choices?.[0]?.message?.content || '';
+
+    return {
+      content,
+      provider: 'ollama',
+      model,
+    };
+  }
+
   async parseJSONWithRetry(content: string, retryPrompt: string, maxRetries: number = 3): Promise<any> {
     let lastError: Error | null = null;
 
@@ -169,5 +223,8 @@ export function createAIProvider(): AIProvider {
     deepseekApiKey: process.env.DEEPSEEK_API_KEY,
     openaiApiKey: process.env.OPENAI_API_KEY,
     groqApiKey: process.env.GROQ_API_KEY,
+    ollamaBaseUrl: process.env.OLLAMA_BASE_URL,
+    ollamaModel: process.env.OLLAMA_MODEL,
+    providerOrder: (process.env.AI_PROVIDER_ORDER || '').split(',').map(s => s.trim()).filter(Boolean),
   });
 }

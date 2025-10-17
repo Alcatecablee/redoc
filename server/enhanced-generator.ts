@@ -2,6 +2,7 @@ import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
 import { storage } from './storage';
 import { searchService, SearchResult, StackOverflowAnswer, GitHubIssue } from './search-service';
+import { pipelineMonitor } from './utils/pipeline-monitor';
 import { progressTracker } from './progress-tracker';
 import { createAIProvider } from './ai-provider';
 
@@ -312,11 +313,12 @@ export async function parseJSONWithRetry(aiProvider: ReturnType<typeof createAIP
 // Enhanced documentation generation pipeline
 export async function generateEnhancedDocumentation(url: string, userId: string | null, sessionId?: string) {
   const aiProvider = createAIProvider();
-  if (!process.env.DEEPSEEK_API_KEY && !process.env.OPENAI_API_KEY) {
-    throw new Error('No AI provider API keys configured. Please set DEEPSEEK_API_KEY or OPENAI_API_KEY');
-  }
+  // Allow Groq and Ollama-only configurations via provider rotation
 
   console.log('Stage 1: Discovering site structure...');
+  const pmId = sessionId || `sess_${Math.random().toString(36).slice(2)}`;
+  pipelineMonitor.startPipeline(pmId);
+  pipelineMonitor.updateStage(pmId, 1, { status: 'in_progress', progress: 10 });
   if (sessionId) {
     progressTracker.emitProgress(sessionId, {
       stage: 1,
@@ -326,8 +328,10 @@ export async function generateEnhancedDocumentation(url: string, userId: string 
     });
   }
   const siteStructure = await discoverSiteStructure(url);
+  pipelineMonitor.updateStage(pmId, 1, { status: 'completed', progress: 100, details: { itemsProcessed: siteStructure.allInternalLinks.length, itemsTotal: siteStructure.allInternalLinks.length } });
   
   console.log('Stage 2: Extracting multi-page content...');
+  pipelineMonitor.updateStage(pmId, 2, { status: 'in_progress', progress: 30 });
   if (sessionId) {
     progressTracker.emitProgress(sessionId, {
       stage: 2,
@@ -346,6 +350,7 @@ export async function generateEnhancedDocumentation(url: string, userId: string 
 
   // First pass
   let extractedContent = await extractMultiPageContent(candidateUrls.slice(0, 60));
+  pipelineMonitor.updateStage(pmId, 2, { status: 'partial', progress: Math.min(60, Math.round((extractedContent.length / Math.max(candidateUrls.length, 1)) * 100)), warnings: extractedContent.length < 15 ? ['Low page coverage, attempting second pass'] : [] });
   // Coverage target
   const MIN_PAGES = 15;
   if (extractedContent.length < MIN_PAGES) {
@@ -356,8 +361,10 @@ export async function generateEnhancedDocumentation(url: string, userId: string 
       extractedContent = Array.from(new Set([...extractedContent, ...more]));
     }
   }
+  pipelineMonitor.updateStage(pmId, 2, { status: 'completed', progress: 100, details: { itemsProcessed: extractedContent.length, itemsTotal: candidateUrls.length } });
   
   console.log('Stage 3: Performing external research...');
+  pipelineMonitor.updateStage(pmId, 3, { status: 'in_progress', progress: 50 });
   if (sessionId) {
     progressTracker.emitProgress(sessionId, {
       stage: 3,
@@ -367,8 +374,17 @@ export async function generateEnhancedDocumentation(url: string, userId: string 
     });
   }
   const externalResearch = await performExternalResearch(siteStructure.productName, url);
+  const missing: string[] = [];
+  if (!process.env.SERPAPI_KEY && !process.env.BRAVE_API_KEY) missing.push('Search APIs');
+  if (externalResearch.github_issues.length === 0) missing.push('GitHub issues');
+  pipelineMonitor.updateStage(pmId, 3, { 
+    status: externalResearch.total_sources > 0 ? 'completed' : 'partial', 
+    progress: externalResearch.total_sources > 0 ? 100 : 70,
+    details: { itemsProcessed: externalResearch.total_sources, itemsTotal: 1, warnings: missing.length ? [`Missing: ${missing.join(', ')}`] : [] }
+  });
   
   console.log('Stage 4: Synthesizing comprehensive data...');
+  pipelineMonitor.updateStage(pmId, 4, { status: 'in_progress', progress: 70 });
   if (sessionId) {
     progressTracker.emitProgress(sessionId, {
       stage: 4,
@@ -438,6 +454,7 @@ Create 8-10 comprehensive sections covering: getting started, core features, con
   );
   
   console.log('✅ Stage 4c: Structure extracted successfully');
+  pipelineMonitor.updateStage(pmId, 5, { status: 'in_progress', progress: 75 });
 
   // Stage 2: Enhanced documentation writing
   console.log('Stage 5: Writing documentation...');
@@ -517,6 +534,7 @@ Return JSON: {metadata: {title, description, keywords}, searchability: {primary_
   };
   
   console.log(`✅ Final doc assembled: ${finalDoc.sections.length} sections, title: ${finalDoc.title}`);
+  pipelineMonitor.updateStage(pmId, 6, { status: 'completed', progress: 100 });
 
   // Save to database
   if (sessionId) {
@@ -544,6 +562,7 @@ Return JSON: {metadata: {title, description, keywords}, searchability: {primary_
       progress: 100,
     });
   }
+  pipelineMonitor.completePipeline(pmId);
 
   return { documentation, finalDoc };
 }

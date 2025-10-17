@@ -125,9 +125,9 @@ export function PipelineMonitor({
           </div>
         ))}
         
-        {sourcesUsed > 0 && (
+        {sourcesUsed !== undefined && (
           <div className="pt-4 border-t">
-            <p className="text-sm font-medium">📚 Sources Used: {sourcesUsed}</p>
+            <p className="text-sm font-medium">Sources Used: {sourcesUsed || 0}</p>
             {sourcesMissing.length > 0 && (
               <p className="text-xs text-muted-foreground mt-1">
                 Missing: {sourcesMissing.join(', ')}

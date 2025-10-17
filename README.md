@@ -17,11 +17,11 @@ This application generates enterprise-grade documentation by analyzing websites,
 
 ### Reliability Guarantees
 
-✅ **99%+ uptime** with multi-provider fallbacks (SerpAPI → Brave → Cache)  
-✅ **Source quality scoring** - only trusted content used (validates freshness, authority, community validation)  
-✅ **Pipeline transparency** - real-time monitoring shows every step and source  
-✅ **Partial generation** - works even if external APIs fail with graceful degradation  
-✅ **Automatic retries** - intelligent exponential backoff and error recovery
+✅ 99%+ uptime with multi-provider fallbacks (SerpAPI → Brave → Cache → Basic crawl)
+✅ Source quality scoring - only trusted content used (freshness, authority, community validation, relevance)
+✅ Pipeline transparency - real-time stage-by-stage monitoring with progress and warnings
+✅ Partial generation - continues even if external APIs fail, with clear user notification
+✅ Automatic retries - exponential backoff and provider rotation (OpenAI → Groq → DeepSeek → Local Llama)
 
 ## Quick Start
 
