@@ -138,18 +138,21 @@ export function BrandKitExtractor({ onThemeGenerated }: BrandKitExtractorProps) 
         code_font: "'Fira Code', Monaco, Consolas, monospace",
         base_size: "16px",
         line_height: "1.6",
-        heading_weights: { h1: 700, h2: 600, h3: 600 }
+        heading_weights: { h1: 700, h2: 600, h3: 600 },
+        heading_sizes: { h1: "2.5rem", h2: "2rem", h3: "1.5rem" }
       },
       spacing: {
         section: "3rem",
         paragraph: "1.5rem",
-        list_item: "0.5rem"
+        list_item: "0.5rem",
+        density: "comfortable"
       },
       styling: {
         border_radius: "8px",
         code_border_radius: "6px",
         shadow: "0 1px 3px rgba(0,0,0,0.1)"
-      }
+      },
+      layout: { orientation: "multi" }
     };
 
     onThemeGenerated(theme);

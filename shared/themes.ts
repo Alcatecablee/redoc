@@ -24,18 +24,28 @@ export interface ThemeTypography {
     h2: number;
     h3: number;
   };
+  heading_sizes: {
+    h1: string;
+    h2: string;
+    h3: string;
+  };
 }
 
 export interface ThemeSpacing {
   section: string;
   paragraph: string;
   list_item: string;
+  density?: "compact" | "comfortable" | "spacious";
 }
 
 export interface ThemeStyling {
   border_radius: string;
   code_border_radius: string;
   shadow: string;
+}
+
+export interface ThemeLayout {
+  orientation: "single" | "multi";
 }
 
 export interface Theme {
@@ -45,6 +55,7 @@ export interface Theme {
   typography: ThemeTypography;
   spacing: ThemeSpacing;
   styling: ThemeStyling;
+  layout: ThemeLayout;
 }
 
 export const themePresets: Record<string, Theme> = {
@@ -75,17 +86,26 @@ export const themePresets: Record<string, Theme> = {
         h1: 700,
         h2: 600,
         h3: 600
+      },
+      heading_sizes: {
+        h1: "2.5rem",
+        h2: "2rem",
+        h3: "1.5rem"
       }
     },
     spacing: {
       section: "4rem",
       paragraph: "1.5rem",
-      list_item: "0.5rem"
+      list_item: "0.5rem",
+      density: "comfortable"
     },
     styling: {
       border_radius: "12px",
       code_border_radius: "8px",
       shadow: "0 2px 8px rgba(0,0,0,0.08)"
+    },
+    layout: {
+      orientation: "multi"
     }
   },
   "github-dark": {
@@ -115,17 +135,26 @@ export const themePresets: Record<string, Theme> = {
         h1: 600,
         h2: 600,
         h3: 600
+      },
+      heading_sizes: {
+        h1: "2.25rem",
+        h2: "1.75rem",
+        h3: "1.25rem"
       }
     },
     spacing: {
       section: "3rem",
       paragraph: "1.5rem",
-      list_item: "0.5rem"
+      list_item: "0.5rem",
+      density: "compact"
     },
     styling: {
       border_radius: "6px",
       code_border_radius: "6px",
       shadow: "0 8px 24px rgba(0,0,0,0.4)"
+    },
+    layout: {
+      orientation: "multi"
     }
   },
   "stripe-modern": {
@@ -155,17 +184,26 @@ export const themePresets: Record<string, Theme> = {
         h1: 700,
         h2: 600,
         h3: 600
+      },
+      heading_sizes: {
+        h1: "2.5rem",
+        h2: "2rem",
+        h3: "1.5rem"
       }
     },
     spacing: {
       section: "3.5rem",
       paragraph: "1.5rem",
-      list_item: "0.5rem"
+      list_item: "0.5rem",
+      density: "comfortable"
     },
     styling: {
       border_radius: "8px",
       code_border_radius: "6px",
       shadow: "0 4px 6px rgba(0,0,0,0.07)"
+    },
+    layout: {
+      orientation: "multi"
     }
   },
   "notion-default": {
@@ -195,17 +233,26 @@ export const themePresets: Record<string, Theme> = {
         h1: 700,
         h2: 600,
         h3: 600
+      },
+      heading_sizes: {
+        h1: "2.25rem",
+        h2: "1.75rem",
+        h3: "1.25rem"
       }
     },
     spacing: {
       section: "3rem",
       paragraph: "1.5rem",
-      list_item: "0.5rem"
+      list_item: "0.5rem",
+      density: "comfortable"
     },
     styling: {
       border_radius: "4px",
       code_border_radius: "3px",
       shadow: "0 1px 3px rgba(0,0,0,0.08)"
+    },
+    layout: {
+      orientation: "multi"
     }
   },
   "modern-light": {
@@ -235,18 +282,343 @@ export const themePresets: Record<string, Theme> = {
         h1: 700,
         h2: 600,
         h3: 600
+      },
+      heading_sizes: {
+        h1: "2.5rem",
+        h2: "2rem",
+        h3: "1.5rem"
       }
     },
     spacing: {
       section: "3rem",
       paragraph: "1.5rem",
-      list_item: "0.5rem"
+      list_item: "0.5rem",
+      density: "comfortable"
     },
     styling: {
       border_radius: "8px",
       code_border_radius: "6px",
       shadow: "0 1px 3px rgba(0,0,0,0.1)"
+    },
+    layout: {
+      orientation: "multi"
     }
+  },
+  // Minimal / Clean (Linear / Framer-inspired)
+  "minimal-clean-light": {
+    id: "minimal-clean-light",
+    name: "Minimal Clean (Light)",
+    colors: {
+      primary: "#0ea5e9",
+      secondary: "#64748b",
+      accent: "#10b981",
+      background: "#ffffff",
+      surface: "#f8fafc",
+      text: "#0f172a",
+      text_secondary: "#475569",
+      border: "#e2e8f0",
+      code_bg: "#f1f5f9",
+      success: "#10b981",
+      warning: "#f59e0b",
+      error: "#ef4444"
+    },
+    typography: {
+      font_family: "Inter, -apple-system, system-ui, sans-serif",
+      heading_font: "Inter, -apple-system, system-ui, sans-serif",
+      code_font: "'Fira Code', Monaco, Consolas, monospace",
+      base_size: "16px",
+      line_height: "1.7",
+      heading_weights: { h1: 700, h2: 600, h3: 600 },
+      heading_sizes: { h1: "2.75rem", h2: "2rem", h3: "1.25rem" }
+    },
+    spacing: {
+      section: "4rem",
+      paragraph: "1.25rem",
+      list_item: "0.5rem",
+      density: "spacious"
+    },
+    styling: {
+      border_radius: "10px",
+      code_border_radius: "8px",
+      shadow: "0 1px 2px rgba(0,0,0,0.04)"
+    },
+    layout: { orientation: "single" }
+  },
+  "minimal-clean-dark": {
+    id: "minimal-clean-dark",
+    name: "Minimal Clean (Dark)",
+    colors: {
+      primary: "#38bdf8",
+      secondary: "#94a3b8",
+      accent: "#22c55e",
+      background: "#0b0f17",
+      surface: "#111827",
+      text: "#e5e7eb",
+      text_secondary: "#9ca3af",
+      border: "#1f2937",
+      code_bg: "#0b1220",
+      success: "#22c55e",
+      warning: "#f59e0b",
+      error: "#ef4444"
+    },
+    typography: {
+      font_family: "Inter, -apple-system, system-ui, sans-serif",
+      heading_font: "Inter, -apple-system, system-ui, sans-serif",
+      code_font: "'Fira Code', Monaco, Consolas, monospace",
+      base_size: "16px",
+      line_height: "1.7",
+      heading_weights: { h1: 700, h2: 600, h3: 600 },
+      heading_sizes: { h1: "2.75rem", h2: "2rem", h3: "1.25rem" }
+    },
+    spacing: {
+      section: "4rem",
+      paragraph: "1.25rem",
+      list_item: "0.5rem",
+      density: "spacious"
+    },
+    styling: {
+      border_radius: "10px",
+      code_border_radius: "8px",
+      shadow: "0 10px 30px rgba(0,0,0,0.35)"
+    },
+    layout: { orientation: "single" }
+  },
+  // Tech / Developer-focused
+  "tech-dev-light": {
+    id: "tech-dev-light",
+    name: "Tech Developer (Light)",
+    colors: {
+      primary: "#2563eb",
+      secondary: "#475569",
+      accent: "#10b981",
+      background: "#ffffff",
+      surface: "#0b1220",
+      text: "#0f172a",
+      text_secondary: "#475569",
+      border: "#e2e8f0",
+      code_bg: "#0b1220",
+      success: "#16a34a",
+      warning: "#d97706",
+      error: "#dc2626"
+    },
+    typography: {
+      font_family: "Inter, -apple-system, system-ui, sans-serif",
+      heading_font: "Inter, -apple-system, system-ui, sans-serif",
+      code_font: "'Fira Code', Menlo, Consolas, monospace",
+      base_size: "15px",
+      line_height: "1.6",
+      heading_weights: { h1: 700, h2: 700, h3: 600 },
+      heading_sizes: { h1: "2.25rem", h2: "1.75rem", h3: "1.25rem" }
+    },
+    spacing: {
+      section: "2.5rem",
+      paragraph: "1rem",
+      list_item: "0.4rem",
+      density: "compact"
+    },
+    styling: {
+      border_radius: "6px",
+      code_border_radius: "6px",
+      shadow: "0 1px 2px rgba(0,0,0,0.06)"
+    },
+    layout: { orientation: "multi" }
+  },
+  "tech-dev-dark": {
+    id: "tech-dev-dark",
+    name: "Tech Developer (Dark)",
+    colors: {
+      primary: "#58a6ff",
+      secondary: "#8b949e",
+      accent: "#3fb950",
+      background: "#0d1117",
+      surface: "#161b22",
+      text: "#c9d1d9",
+      text_secondary: "#8b949e",
+      border: "#30363d",
+      code_bg: "#0b1220",
+      success: "#3fb950",
+      warning: "#d29922",
+      error: "#f85149"
+    },
+    typography: {
+      font_family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif",
+      heading_font: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif",
+      code_font: "'Fira Code', Menlo, Consolas, monospace",
+      base_size: "15px",
+      line_height: "1.55",
+      heading_weights: { h1: 700, h2: 700, h3: 600 },
+      heading_sizes: { h1: "2.25rem", h2: "1.75rem", h3: "1.25rem" }
+    },
+    spacing: {
+      section: "2.5rem",
+      paragraph: "1rem",
+      list_item: "0.4rem",
+      density: "compact"
+    },
+    styling: {
+      border_radius: "6px",
+      code_border_radius: "6px",
+      shadow: "0 8px 24px rgba(0,0,0,0.4)"
+    },
+    layout: { orientation: "multi" }
+  },
+  // Professional / Corporate
+  "corporate-light": {
+    id: "corporate-light",
+    name: "Corporate (Light)",
+    colors: {
+      primary: "#1d4ed8",
+      secondary: "#6b7280",
+      accent: "#0ea5e9",
+      background: "#ffffff",
+      surface: "#f9fafb",
+      text: "#111827",
+      text_secondary: "#6b7280",
+      border: "#e5e7eb",
+      code_bg: "#f3f4f6",
+      success: "#15803d",
+      warning: "#b45309",
+      error: "#b91c1c"
+    },
+    typography: {
+      font_family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+      heading_font: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+      code_font: "'Source Code Pro', Monaco, monospace",
+      base_size: "16px",
+      line_height: "1.65",
+      heading_weights: { h1: 700, h2: 600, h3: 600 },
+      heading_sizes: { h1: "2.5rem", h2: "2rem", h3: "1.25rem" }
+    },
+    spacing: {
+      section: "3.5rem",
+      paragraph: "1.25rem",
+      list_item: "0.5rem",
+      density: "comfortable"
+    },
+    styling: {
+      border_radius: "6px",
+      code_border_radius: "6px",
+      shadow: "0 2px 8px rgba(0,0,0,0.08)"
+    },
+    layout: { orientation: "multi" }
+  },
+  "corporate-dark": {
+    id: "corporate-dark",
+    name: "Corporate (Dark)",
+    colors: {
+      primary: "#60a5fa",
+      secondary: "#9ca3af",
+      accent: "#38bdf8",
+      background: "#0f172a",
+      surface: "#111827",
+      text: "#e5e7eb",
+      text_secondary: "#9ca3af",
+      border: "#1f2937",
+      code_bg: "#0b1220",
+      success: "#22c55e",
+      warning: "#f59e0b",
+      error: "#ef4444"
+    },
+    typography: {
+      font_family: "Inter, -apple-system, system-ui, sans-serif",
+      heading_font: "Inter, -apple-system, system-ui, sans-serif",
+      code_font: "'Source Code Pro', Monaco, monospace",
+      base_size: "16px",
+      line_height: "1.65",
+      heading_weights: { h1: 700, h2: 600, h3: 600 },
+      heading_sizes: { h1: "2.5rem", h2: "2rem", h3: "1.25rem" }
+    },
+    spacing: {
+      section: "3.5rem",
+      paragraph: "1.25rem",
+      list_item: "0.5rem",
+      density: "comfortable"
+    },
+    styling: {
+      border_radius: "6px",
+      code_border_radius: "6px",
+      shadow: "0 12px 32px rgba(0,0,0,0.35)"
+    },
+    layout: { orientation: "multi" }
+  },
+  // Creative / Modern
+  "creative-modern-light": {
+    id: "creative-modern-light",
+    name: "Creative Modern (Light)",
+    colors: {
+      primary: "#7c3aed",
+      secondary: "#111827",
+      accent: "#22d3ee",
+      background: "#ffffff",
+      surface: "#fdfcff",
+      text: "#0f172a",
+      text_secondary: "#4b5563",
+      border: "#ece7fe",
+      code_bg: "#f7f3ff",
+      success: "#16a34a",
+      warning: "#ea580c",
+      error: "#dc2626"
+    },
+    typography: {
+      font_family: "Poppins, Inter, -apple-system, system-ui, sans-serif",
+      heading_font: "Poppins, Inter, -apple-system, system-ui, sans-serif",
+      code_font: "'Fira Code', Monaco, Consolas, monospace",
+      base_size: "16px",
+      line_height: "1.7",
+      heading_weights: { h1: 800, h2: 700, h3: 600 },
+      heading_sizes: { h1: "3rem", h2: "2.25rem", h3: "1.5rem" }
+    },
+    spacing: {
+      section: "4.5rem",
+      paragraph: "1.5rem",
+      list_item: "0.6rem",
+      density: "spacious"
+    },
+    styling: {
+      border_radius: "16px",
+      code_border_radius: "12px",
+      shadow: "0 10px 30px rgba(124,58,237,0.15)"
+    },
+    layout: { orientation: "multi" }
+  },
+  "creative-modern-dark": {
+    id: "creative-modern-dark",
+    name: "Creative Modern (Dark)",
+    colors: {
+      primary: "#a78bfa",
+      secondary: "#e5e7eb",
+      accent: "#22d3ee",
+      background: "#0b0f17",
+      surface: "#0f172a",
+      text: "#f3f4f6",
+      text_secondary: "#9ca3af",
+      border: "#1f2937",
+      code_bg: "#0b1220",
+      success: "#22c55e",
+      warning: "#f59e0b",
+      error: "#ef4444"
+    },
+    typography: {
+      font_family: "Poppins, Inter, -apple-system, system-ui, sans-serif",
+      heading_font: "Poppins, Inter, -apple-system, system-ui, sans-serif",
+      code_font: "'Fira Code', Monaco, Consolas, monospace",
+      base_size: "16px",
+      line_height: "1.7",
+      heading_weights: { h1: 800, h2: 700, h3: 600 },
+      heading_sizes: { h1: "3rem", h2: "2.25rem", h3: "1.5rem" }
+    },
+    spacing: {
+      section: "4.5rem",
+      paragraph: "1.5rem",
+      list_item: "0.6rem",
+      density: "spacious"
+    },
+    styling: {
+      border_radius: "16px",
+      code_border_radius: "12px",
+      shadow: "0 25px 60px rgba(0,0,0,0.45)"
+    },
+    layout: { orientation: "multi" }
   }
 };
 

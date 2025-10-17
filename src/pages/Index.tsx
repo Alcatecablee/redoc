@@ -18,13 +18,33 @@ import { getDefaultTheme, Theme } from "../../shared/themes";
 
 function convertToViewerTheme(theme: Theme) {
   return {
+    // Colors
     primaryColor: theme.colors.primary,
     secondaryColor: theme.colors.secondary,
     accentColor: theme.colors.accent,
-    colors: Object.values(theme.colors),
+    backgroundColor: theme.colors.background,
+    textColor: theme.colors.text,
+    codeBgColor: theme.colors.code_bg,
+    // Fonts
     fonts: [theme.typography.font_family, theme.typography.heading_font, theme.typography.code_font],
-    primaryFont: theme.typography.font_family
-  };
+    primaryFont: theme.typography.font_family,
+    // Structural tokens
+    headingSizes: theme.typography.heading_sizes,
+    spacing: {
+      section: theme.spacing.section,
+      paragraph: theme.spacing.paragraph,
+      list_item: theme.spacing.list_item,
+      density: theme.spacing.density,
+    },
+    styling: {
+      border_radius: theme.styling.border_radius,
+      code_border_radius: theme.styling.code_border_radius,
+      shadow: theme.styling.shadow,
+    },
+    layout: {
+      orientation: theme.layout.orientation,
+    },
+  } as const;
 }
 
 const Index = () => {
