@@ -170,6 +170,39 @@ Indexes
 Acceptance
 - Changing theme instantly updates hosted docs; exports reflect theme consistently; contrast checks pass WCAG AA.
 
+### Brand Color Extraction from Site CSS (Deep Dive)
+
+Goals
+- Extract brand colors automatically from the target site’s CSS (not only inline styles).
+- Build an accessible, stable palette (primary/secondary/accent/background/text) with WCAG AA contrast.
+- Fall back to logo-based extraction when CSS signals are weak.
+
+Implementation
+- External CSS discovery:
+  - Parse `<link rel="stylesheet">` in HTML and resolve absolute URLs.
+  - Follow `@import` rules inside stylesheets (depth ≤ 2, same-origin by default).
+  - Respect robots.txt and timeouts; cache responses per host.
+- CSS parsing and tokenization:
+  - Use `postcss` or `css-tree` to parse declarations.
+  - Collect color values from: color/background/border/fill/stroke, gradients, and CSS variables.
+  - Resolve CSS variables defined in `:root` and common theme scopes; dereference `var()` chains with defaults.
+- Brand signal weighting:
+  - Boost selectors likely to represent brand (e.g., `:root`, `body`, `.btn-primary`, header/nav/hero sections).
+  - Down-weight low-value neutrals and ephemeral utility classes.
+  - Prefer colors used across multiple stylesheets and media contexts.
+- Palette building:
+  - Choose top candidates with clustering in perceptual color space (Lab/LCH).
+  - Validate contrast for text on background; auto-adjust via minimal delta E when needed.
+  - Produce tokens: `primary`, `secondary`, `accent`, `background`, `surface`, `text`, `text_secondary`, and a 5–8 color swatch.
+- Fallbacks:
+  - If CSS extraction is inconclusive, run logo palette extraction and merge.
+  - If both fail, use default theme.
+
+Acceptance
+- For ≥80% of tested sites with non-trivial CSS, extract ≥3 distinct brand colors.
+- Generated theme passes WCAG AA for primary text on background.
+- Extraction completes within 3–5s per site on P95 with caching enabled.
+
 ---
 
 ## Auto‑Sync — Technical Plan
@@ -195,6 +228,33 @@ Formats
 Acceptance
 - All exports open without errors; links/images intact; headings/TOC consistent; re‑import to Notion/Confluence succeeds using their native import flows.
 
+### Images — Extraction & Embedding (Deep Dive)
+
+Goals
+- Capture meaningful images/screenshots from source pages and include them in generated docs across all export formats.
+
+Implementation
+- Extraction:
+  - Collect `<img>` elements (skip logos/icons/avatars via filename/size heuristics).
+  - Resolve relative URLs; deduplicate via perceptual hash; store alt text when available.
+  - Optional screenshot capture of critical sections (hero, dashboards) in a later phase.
+- Composition:
+  - Insert images into relevant sections via heuristics (nearest heading/topic) or create a “Screenshots” appendix when confidence is low.
+  - Add captions sourced from alt text or generated summaries (≤120 chars).
+  - Add source attribution where applicable.
+- Hosting and safety:
+  - Proxy remote images (optional) to avoid mixed content and broken links; cache with content hash.
+  - Sanitize URLs in hosted views; lazy-load in the app.
+- Exports:
+  - HTML/Markdown: already supported; ensure relative paths work in zip bundles.
+  - PDF: embed images with layout constraints and captions.
+  - DOCX: embed as media with alt text and captions.
+
+Acceptance
+- ≥70% of pages with meaningful images produce at least one embedded image in the doc.
+- PDF and DOCX exports include images without layout breakage (P95 render < 15s for 30 images).
+- Broken or unsafe image URLs are safely skipped and logged.
+
 ---
 
 ## Custom Domains — Technical Plan
@@ -205,6 +265,35 @@ Acceptance
 
 Acceptance
 - After CNAME propagation, HTTPS works; theme and content load via CDN; domain removal cleans SSL/bindings.
+
+### Publishing as a Primary Export (Product & UX)
+
+Goals
+- Make “Publish” (subdomain/custom domain) the primary export path, with a fast “one-click” shareable URL.
+
+Implementation
+- UI/UX:
+  - Promote a “Publish” button next to “View” as the first action.
+  - Optional “Auto‑publish after generation” toggle in the generate form.
+  - Show the live URL + copy‑to‑clipboard + “Open” on success.
+  - Display publish status and last published timestamp per doc.
+- Platform subdomain:
+  - Keep on‑demand subdomain creation; ensure idempotent updates on re‑publish.
+  - Preserve the same subdomain per doc; updating content requires no further action.
+- True custom domains:
+  - Add `custom_domain` column; POST `/api/custom-domain/:id` to request binding.
+  - DNS verification (TXT/CNAME), polling, and UI checklist.
+  - Automated TLS (Let’s Encrypt/Cloudflare) and Host‑based routing to the same renderer.
+  - Unbind/rotate flows with safety checks.
+
+Acceptance
+- “Publish” is visible and first-class; a new user can generate and publish in ≤ 2 clicks.
+- Subdomain publish completes in < 3s; custom domain binds within 10 minutes post‑DNS.
+- Re‑publishing updates the live page with no URL changes.
+
+### Hosting Mode (Static + CDN) — Optional Phase
+- Add static site build of the doc for CDN hosting, with cache-busted assets and edge headers.
+- Use the same renderer to export a static bundle; serve via CDN for custom domains.
 
 ---
 
@@ -249,6 +338,36 @@ Engineering KPIs
 
 ---
 
+## Multi‑Source Content Synthesis & Attribution — Technical Plan
+
+Goals
+- Combine official docs with community knowledge (Stack Overflow, GitHub Issues, high‑quality blogs) into one comprehensive doc with transparent sources.
+
+Implementation
+- Ingestion:
+  - Official docs prioritized by domain trust; crawl depth/coverage heuristics.
+  - Stack Overflow answers filtered by score (e.g., upvotes ≥ 10), recency, and accepted flags.
+  - GitHub issues with maintainer responses or linked fixes; exclude “me too” noise.
+  - Blogs/tutorials whitelisted by domain and validated by runnable code blocks when possible.
+  - Dual search providers (SerpAPI + Brave) with graceful degradation and caching.
+- Scoring:
+  - Compute a Source Trust Score (domain authority, recency, votes, author signals).
+  - De‑duplication and clustering of near‑duplicate content; prefer most trusted source.
+- Composition:
+  - Insert “Community Solutions” blocks where they augment official guidance.
+  - Add inline citations and source badges (Official, Stack Overflow, GitHub, Blog) with links.
+  - Maintain a references appendix with all citations.
+- Governance:
+  - Honor robots.txt and TOS; provide opt‑out for site owners.
+  - Clearly attribute sources; never copy private content.
+
+Acceptance
+- Each major section includes at least one official reference and (when available) one community citation.
+- Community items meet minimum quality thresholds (votes/recency) and render with badges.
+- A references appendix is generated with working outbound links.
+
+---
+
 ## Milestones & Timeline (sequence‑based)
 
 1. Phase 1 (2–3 weeks)
@@ -270,7 +389,13 @@ Phase 1
 
 Phase 2
 - [ ] Pro users can brand docs, schedule daily sync, and attach custom domain.
-- [ ] Exports (MD/HTML/PDF/DOCX) render correctly and include theme.
+- [ ] Exports (MD/HTML/PDF/DOCX) render correctly and include theme and images.
+- [ ] “Publish” is a primary export; on-demand subdomain works in ≤3s; optional auto‑publish post‑generation.
+- [ ] Custom domain flow: DNS verification UI, automated TLS, and Host routing.
+- [ ] External CSS fetched and parsed; variables resolved; meta `theme-color` honored.
+- [ ] Palette passes WCAG AA; fallback to logo extraction when CSS signals are weak.
+- [ ] Source badges and inline citations render; references appendix included.
+- [ ] Low-quality community content filtered by score/recency thresholds.
 
 Phase 3
 - [ ] Teams collaborate with roles; API/webhooks fully documented with examples.
