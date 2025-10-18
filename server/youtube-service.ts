@@ -1,4 +1,5 @@
 import fetch from 'node-fetch';
+import { videoContentAnalyzer, VideoAnalysis } from './video-content-analyzer';
 
 export interface YouTubeVideo {
   id: string;
@@ -13,7 +14,11 @@ export interface YouTubeVideo {
   channelId: string;
   publishedAt: string;
   transcript?: string;
+  timestamps?: Array<{time: string, title: string, seconds: number}>;
   trustScore: number;
+  summary?: string;
+  keyTopics?: string[];
+  analysis?: VideoAnalysis;
 }
 
 export interface YouTubeSearchResult {
@@ -140,14 +145,59 @@ export class YouTubeService {
         return null;
       }
 
-      // Note: Getting actual transcript content requires additional API calls
-      // For now, we'll return a placeholder indicating transcript is available
-      return `[Transcript available for ${videoId}]`;
+      // For now, we'll use a placeholder that indicates transcript availability
+      // In a production environment, you'd need to use the YouTube Transcript API
+      // or a service like youtube-transcript-api to get the actual transcript content
+      return `[Transcript available for ${videoId} - ${caption.snippet.name}]`;
 
     } catch (error) {
       console.error('YouTube transcript error:', error);
       return null;
     }
+  }
+
+  /**
+   * Extract video timestamps from transcript or description
+   */
+  async extractVideoTimestamps(videoId: string, description?: string): Promise<Array<{time: string, title: string, seconds: number}>> {
+    const timestamps: Array<{time: string, title: string, seconds: number}> = [];
+    
+    // Try to extract timestamps from description
+    if (description) {
+      const timestampRegex = /(\d{1,2}:\d{2}(?::\d{2})?)\s+(.+)/g;
+      let match;
+      
+      while ((match = timestampRegex.exec(description)) !== null) {
+        const timeStr = match[1];
+        const title = match[2].trim();
+        const seconds = this.timeStringToSeconds(timeStr);
+        
+        timestamps.push({
+          time: timeStr,
+          title,
+          seconds
+        });
+      }
+    }
+    
+    return timestamps;
+  }
+
+  /**
+   * Convert time string (MM:SS or HH:MM:SS) to seconds
+   */
+  private timeStringToSeconds(timeStr: string): number {
+    const parts = timeStr.split(':').map(Number);
+    
+    if (parts.length === 2) {
+      // MM:SS format
+      return parts[0] * 60 + parts[1];
+    } else if (parts.length === 3) {
+      // HH:MM:SS format
+      return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    }
+    
+    return 0;
   }
 
   /**
@@ -213,6 +263,58 @@ export class YouTubeService {
     } else {
       return `${minutes}:${seconds.toString().padStart(2, '0')}`;
     }
+  }
+
+  /**
+   * Perform comprehensive video content analysis
+   */
+  async analyzeVideoContent(video: YouTubeVideo, enableTranscripts: boolean = false): Promise<YouTubeVideo> {
+    try {
+      console.log(`🎬 Analyzing video content: ${video.title}`);
+
+      // Get transcript if enabled
+      if (enableTranscripts) {
+        video.transcript = await this.getVideoTranscript(video.id);
+      }
+
+      // Extract timestamps
+      video.timestamps = await this.extractVideoTimestamps(video.id, video.description);
+
+      // Generate AI analysis
+      const analysis = await videoContentAnalyzer.analyzeVideoContent(video);
+      video.analysis = analysis;
+      video.summary = analysis.summary;
+      video.keyTopics = analysis.keyTopics;
+
+      console.log(`✅ Video analysis complete: ${video.title}`);
+      return video;
+
+    } catch (error) {
+      console.error('Video content analysis error:', error);
+      return video;
+    }
+  }
+
+  /**
+   * Batch analyze multiple videos
+   */
+  async analyzeVideoBatch(videos: YouTubeVideo[], enableTranscripts: boolean = false): Promise<YouTubeVideo[]> {
+    const analyzedVideos: YouTubeVideo[] = [];
+    
+    for (const video of videos) {
+      try {
+        const analyzed = await this.analyzeVideoContent(video, enableTranscripts);
+        analyzedVideos.push(analyzed);
+        
+        // Rate limiting
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      } catch (error) {
+        console.error(`Failed to analyze video ${video.id}:`, error);
+        analyzedVideos.push(video);
+      }
+    }
+    
+    return analyzedVideos;
   }
 
   /**

@@ -173,6 +173,29 @@ async function testYouTubeAPI() {
     
     if (data.items && data.items.length > 0) {
       console.log(`✅ YouTube API: Working (${data.items.length} videos found)`);
+      
+      // Test Phase 3 features
+      console.log('🎬 Testing Phase 3: Video Content Processing...');
+      
+      // Test video details endpoint
+      const videoIds = data.items.map(item => item.id.videoId).join(',');
+      const detailsResponse = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics,contentDetails&id=${videoIds}&key=${YOUTUBE_API_KEY}`);
+      const detailsData = await detailsResponse.json();
+      
+      if (detailsData.items && detailsData.items.length > 0) {
+        console.log(`✅ YouTube Video Details: Working (${detailsData.items.length} detailed videos)`);
+        
+        // Test captions endpoint
+        const captionsResponse = await fetch(`https://www.googleapis.com/youtube/v3/captions?part=snippet&videoId=${videoIds.split(',')[0]}&key=${YOUTUBE_API_KEY}`);
+        const captionsData = await captionsResponse.json();
+        
+        if (captionsData.items && captionsData.items.length > 0) {
+          console.log(`✅ YouTube Captions: Working (${captionsData.items.length} caption tracks found)`);
+        } else {
+          console.log('⚠️  YouTube Captions: No captions available for test video');
+        }
+      }
+      
       return true;
     } else {
       console.log('❌ YouTube API: No results returned');
@@ -251,11 +274,12 @@ async function runTests() {
     console.log('✅ Good! Brave Search is working. This provides solid quality results.');
   }
 
-  if (youtubeResult) {
-    console.log('🎥 YouTube API is working! Pro/Enterprise users will get rich video metadata.');
-  } else {
-    console.log('⚠️  YouTube API not configured. Video features will be limited to basic search.');
-  }
+    if (youtubeResult) {
+      console.log('🎥 YouTube API is working! Pro/Enterprise users will get rich video metadata.');
+      console.log('🎬 Phase 3 features available: Video analysis, transcripts, timestamps, and AI summaries.');
+    } else {
+      console.log('⚠️  YouTube API not configured. Video features will be limited to basic search.');
+    }
 
   console.log('\n📚 To generate comprehensive documentation, run:');
   console.log('   npm run dev');

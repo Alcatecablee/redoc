@@ -610,3 +610,114 @@ Enhance documentation with YouTube video content, including tutorials, demos, an
 - **FAQ**: Include video explanations for complex topics
 - **Getting Started**: Video walkthroughs for initial setup
 - **Advanced Features**: Demo videos for complex functionality
+
+---
+
+## Phase 3: Advanced Video Content Processing
+
+### Purpose
+
+Process YouTube video content with AI-powered analysis, transcript summarization, and rich video embedding for comprehensive documentation.
+
+### Template
+
+> **System Context**: You are a technical documentation specialist with advanced video content processing capabilities.
+> 
+> **Task**: Process YouTube video data and create rich, interactive documentation sections with video content.
+> 
+> **Instructions**:
+> 1. **Analyze video metadata** (title, description, views, duration, channel, engagement metrics)
+> 2. **Extract and process transcripts** for content summarization
+> 3. **Generate AI-powered summaries** of video content
+> 4. **Extract timestamps and chapters** for direct linking
+> 5. **Identify key topics and difficulty levels** for categorization
+> 6. **Create actionable insights** from video content
+> 7. **Generate video recommendations** based on content analysis
+> 
+> **Enhanced Output Format**:
+> ```markdown
+> ## Video Tutorials
+> 
+> ### [Video Title] - [Difficulty Level]
+> **Source**: [YouTube Channel](video_url) | **Duration**: X minutes | **Views**: X,XXX+
+> 
+> **Summary**: AI-generated summary of video content and learning objectives
+> 
+> **Key Topics**: Topic 1, Topic 2, Topic 3
+> 
+> **Video Chapters**:
+> - [0:00 - Introduction](video_url?t=0)
+> - [2:30 - Setup Process](video_url?t=150)
+> - [5:45 - Implementation](video_url?t=345)
+> - [8:20 - Best Practices](video_url?t=500)
+> 
+> ![Video Thumbnail](thumbnail_url) [Watch Full Tutorial](video_url)
+> 
+> **Key Insights**:
+> - Insight 1 from video content
+> - Insight 2 from video content
+> - Insight 3 from video content
+> 
+> *Source: [YouTube](video_url) | Difficulty: [Level] | Category: [Type]*
+> ```
+> 
+> **For Advanced Documentation**:
+> ```markdown
+> ## Getting Started
+> 
+> ### Step-by-Step Video Guide
+> Follow this comprehensive video tutorial for complete setup:
+> 
+> **Video**: [Complete Setup Guide](video_url)
+> - **Duration**: 15 minutes
+> - **Difficulty**: Beginner
+> - **Chapters**: 6 sections with timestamps
+> 
+> **Quick Start** (2 minutes): [Skip to Setup](video_url?t=120)
+> **Advanced Config** (5 minutes): [Skip to Advanced](video_url?t=300)
+> 
+> ![Setup Tutorial](thumbnail_url) [Watch Tutorial](video_url)
+> 
+> **What You'll Learn**:
+> - Basic configuration and setup
+> - Environment variables and API keys
+> - Database connection and testing
+> - Deployment and production setup
+> 
+> *Source: [YouTube Tutorial](video_url) - See timestamps for specific topics*
+> ```
+> 
+> **For Troubleshooting with Videos**:
+> ```markdown
+> ## Common Issues
+> 
+> ### Authentication Errors
+> **Video Solution**: [Authentication Troubleshooting](video_url?t=180)
+> 
+> This 5-minute video demonstrates how to resolve common authentication issues:
+> 
+> **Key Steps** (from video):
+> 1. Check API key configuration
+> 2. Verify environment variables
+> 3. Test connection with sample request
+> 4. Implement retry logic for failed requests
+> 
+> ![Auth Troubleshooting](thumbnail_url) [Watch Solution](video_url?t=180)
+> 
+> **Additional Resources**:
+> - [Complete Auth Guide](related_video_url)
+> - [API Documentation](docs_url)
+> 
+> *Source: [YouTube](video_url) - See 3:00 for error resolution*
+> ```
+
+### Advanced Features
+
+- **AI-Powered Summaries**: Generate concise, professional summaries of video content
+- **Timestamp Extraction**: Automatically extract and link to video chapters
+- **Difficulty Assessment**: Categorize videos by skill level (beginner/intermediate/advanced)
+- **Topic Extraction**: Identify key technical concepts and frameworks
+- **Engagement Analysis**: Use view counts, likes, and comments for quality scoring
+- **Content Recommendations**: Suggest related videos based on analysis
+- **Transcript Processing**: Extract and summarize spoken content
+- **Interactive Embedding**: Rich video players with chapter navigation

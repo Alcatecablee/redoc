@@ -716,6 +716,10 @@ export class SearchService {
             }
           }
         }
+
+        // Perform comprehensive video content analysis
+        console.log(`🎬 Analyzing video content for ${youtubeVideos.length} videos...`);
+        youtubeVideos = await youtubeService.analyzeVideoBatch(youtubeVideos, youtubeTranscripts);
         
         console.log(`✅ Found ${youtubeVideos.length} YouTube videos`);
       } catch (error) {
