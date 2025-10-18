@@ -15,7 +15,13 @@ export class VideoContentAnalyzer {
   private aiProvider: ReturnType<typeof createAIProvider>;
 
   constructor() {
-    this.aiProvider = createAIProvider();
+    try {
+      this.aiProvider = createAIProvider();
+    } catch (error) {
+      console.error('Failed to initialize AI provider for video analysis:', error);
+      // Fallback to null - will use default analysis
+      this.aiProvider = null as any;
+    }
   }
 
   /**
@@ -50,6 +56,10 @@ export class VideoContentAnalyzer {
    */
   async generateVideoSummary(video: YouTubeVideo): Promise<string> {
     try {
+      if (!this.aiProvider) {
+        return `Video tutorial covering ${video.title} by ${video.channelTitle}`;
+      }
+
       const prompt = `Analyze this YouTube video and create a concise, professional summary:
 
 Title: ${video.title}

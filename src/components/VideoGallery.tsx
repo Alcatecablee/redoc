@@ -37,6 +37,18 @@ export const VideoGallery: React.FC<VideoGalleryProps> = ({
   showFilters = true,
   maxVideos = 6
 }) => {
+  // Validate input data
+  if (!videos || !Array.isArray(videos)) {
+    return (
+      <div className="w-full">
+        <h2 className="text-2xl font-bold mb-6">{title}</h2>
+        <div className="text-center py-8 text-muted-foreground">
+          No videos available
+        </div>
+      </div>
+    );
+  }
+
   const [selectedDifficulty, setSelectedDifficulty] = React.useState<string>('all');
   const [selectedCategory, setSelectedCategory] = React.useState<string>('all');
 

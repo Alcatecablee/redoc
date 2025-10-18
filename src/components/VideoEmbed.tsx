@@ -34,12 +34,27 @@ export const VideoEmbed: React.FC<VideoEmbedProps> = ({
   showAnalysis = true, 
   showTimestamps = true 
 }) => {
+  // Validate required video data
+  if (!video || !video.id || !video.title) {
+    return (
+      <Card className="w-full max-w-4xl mx-auto">
+        <CardContent className="p-6 text-center text-muted-foreground">
+          Invalid video data provided
+        </CardContent>
+      </Card>
+    );
+  }
+
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    try {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch (error) {
+      return 'Invalid date';
+    }
   };
 
   const formatViews = (views: number) => {

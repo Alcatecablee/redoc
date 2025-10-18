@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import { videoContentAnalyzer, VideoAnalysis } from './video-content-analyzer';
+import { errorRecovery } from './error-recovery';
 
 export interface YouTubeVideo {
   id: string;
@@ -47,9 +48,17 @@ export class YouTubeService {
     }
 
     try {
-      // Search for videos
+      // Search for videos with timeout protection
       const searchUrl = `${this.baseUrl}/search?part=snippet&q=${encodeURIComponent(query)}&maxResults=${maxResults}&type=video&key=${this.apiKey}`;
-      const searchResponse = await fetch(searchUrl);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      const searchResponse = await fetch(searchUrl, {
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
       
       if (!searchResponse.ok) {
         throw new Error(`YouTube API search failed: ${searchResponse.status}`);
@@ -300,17 +309,28 @@ export class YouTubeService {
    */
   async analyzeVideoBatch(videos: YouTubeVideo[], enableTranscripts: boolean = false): Promise<YouTubeVideo[]> {
     const analyzedVideos: YouTubeVideo[] = [];
+    const maxConcurrent = 3; // Limit concurrent requests
+    const delayBetweenBatches = 2000; // 2 seconds between batches
     
-    for (const video of videos) {
-      try {
-        const analyzed = await this.analyzeVideoContent(video, enableTranscripts);
-        analyzedVideos.push(analyzed);
-        
-        // Rate limiting
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      } catch (error) {
-        console.error(`Failed to analyze video ${video.id}:`, error);
-        analyzedVideos.push(video);
+    for (let i = 0; i < videos.length; i += maxConcurrent) {
+      const batch = videos.slice(i, i + maxConcurrent);
+      
+      const batchPromises = batch.map(async (video) => {
+        try {
+          const analyzed = await this.analyzeVideoContent(video, enableTranscripts);
+          return analyzed;
+        } catch (error) {
+          console.error(`Failed to analyze video ${video.id}:`, error);
+          return video; // Return original video if analysis fails
+        }
+      });
+      
+      const batchResults = await Promise.all(batchPromises);
+      analyzedVideos.push(...batchResults);
+      
+      // Rate limiting between batches
+      if (i + maxConcurrent < videos.length) {
+        await new Promise(resolve => setTimeout(resolve, delayBetweenBatches));
       }
     }
     

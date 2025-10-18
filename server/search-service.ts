@@ -704,17 +704,20 @@ export class SearchService {
         // Get transcripts if enabled
         if (youtubeTranscripts) {
           console.log(`📝 Extracting transcripts for ${youtubeVideos.length} videos...`);
-          for (const video of youtubeVideos) {
+          const transcriptPromises = youtubeVideos.map(async (video, index) => {
             try {
+              // Stagger requests to avoid rate limiting
+              await new Promise(resolve => setTimeout(resolve, index * 1000));
               const transcript = await youtubeService.getVideoTranscript(video.id);
               if (transcript) {
                 video.transcript = transcript;
               }
-              await new Promise(resolve => setTimeout(resolve, 500)); // Rate limit
             } catch (error) {
               console.error(`Failed to get transcript for ${video.id}:`, error.message);
             }
-          }
+          });
+          
+          await Promise.all(transcriptPromises);
         }
 
         // Perform comprehensive video content analysis

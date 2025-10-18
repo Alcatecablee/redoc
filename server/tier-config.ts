@@ -156,6 +156,23 @@ export function enforceTierLimits(
   limitedByTier: boolean;
   upgradeSuggestion?: string;
 } {
+  // Validate inputs
+  if (!userPlan || typeof userPlan !== 'string') {
+    console.warn('Invalid userPlan provided, defaulting to free tier');
+    userPlan = 'free';
+  }
+  
+  if (!smartScaling || typeof smartScaling !== 'object') {
+    console.warn('Invalid smartScaling provided, using default values');
+    smartScaling = {
+      stackOverflow: 5,
+      github: 5,
+      search: 10,
+      youtube: 5,
+      complexity: 'small'
+    };
+  }
+
   const tierLimits = TIER_CONFIG[userPlan] || TIER_CONFIG.free;
   
   const enforcedLimits = {
