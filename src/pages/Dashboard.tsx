@@ -31,8 +31,10 @@ export default function Dashboard() {
 
       try {
         const json = await apiRequest('/api/documentations');
-        if (mounted) setDocs(json || []);
+        if (mounted) setDocs(Array.isArray(json) ? json : []);
       } catch (e: any) {
+        console.error('Failed to load docs:', e);
+        if (mounted) setDocs([]); // Ensure docs is always an array
         toast({ title: 'Failed to load docs', description: e.message || String(e), variant: 'destructive' });
       }
     })();
@@ -192,7 +194,7 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <ul className="space-y-3">
-                  {docs.map((d) => (
+                  {Array.isArray(docs) && docs.map((d) => (
                     <li key={d.id} className="p-4 rounded-lg bg-[#0b0f17]/60 border border-white/6 hover:border-white/20 transition-colors">
                       <div className="mb-3">
                         <div className="font-semibold truncate mb-1">{d.title}</div>

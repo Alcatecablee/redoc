@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "nodemon --watch server --ignore \"**/*.timestamp-*.mjs\" --ext ts,tsx,js,json --exec \"tsx server/index.ts\"",
     "build": "vite build",
+    "build:server": "tsc --project tsconfig.server.json",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
