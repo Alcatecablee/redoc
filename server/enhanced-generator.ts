@@ -1,8 +1,14 @@
 import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
 import { storage } from './storage';
-import { searchService, SearchResult, StackOverflowAnswer, GitHubIssue } from './search-service';
+import { searchService, SearchResult, StackOverflowAnswer, GitHubIssue, StackExchangeQuestion } from './search-service';
 import { youtubeService, YouTubeVideo } from './youtube-service';
+import { redditService, RedditPost } from './reddit-service';
+import { devToService, DevToArticle } from './devto-service';
+import { codeProjectService, CodeProjectArticle } from './codeproject-service';
+import { quoraService, QuoraAnswer } from './quora-service';
+import { forumsService, ForumPost } from './forums-service';
+import { stackExchangeService } from './stackexchange-service';
 import { pipelineMonitor } from './utils/pipeline-monitor';
 import { progressTracker } from './progress-tracker';
 import { createAIProvider } from './ai-provider';
@@ -357,6 +363,12 @@ export async function performExternalResearch(
       stackoverflow_answers: research.stackOverflowAnswers,
       github_issues: research.gitHubIssues,
       youtube_videos: research.youtubeVideos,
+      reddit_posts: research.redditPosts || [],
+      devto_articles: research.devToArticles || [],
+      codeproject_articles: research.codeProjectArticles || [],
+      stackexchange_questions: research.stackExchangeQuestions || [],
+      quora_answers: research.quoraAnswers || [],
+      forum_posts: research.forumPosts || [],
       quality_score: research.qualityScore,
       total_sources: research.totalSources,
       product_complexity: research.productComplexity
@@ -368,6 +380,12 @@ export async function performExternalResearch(
       stackoverflow_answers: [],
       github_issues: [],
       youtube_videos: [],
+      reddit_posts: [],
+      devto_articles: [],
+      codeproject_articles: [],
+      stackexchange_questions: [],
+      quora_answers: [],
+      forum_posts: [],
       quality_score: 0,
       total_sources: 0,
       product_complexity: 'small' as const
