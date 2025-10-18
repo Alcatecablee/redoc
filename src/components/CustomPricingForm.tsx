@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { DollarSign, FileText, Zap, Globe, Palette, Clock } from 'lucide-react';
+import { DollarSign, FileText, Zap, Globe, Palette, Clock, Search } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface PricingFormData {
@@ -28,6 +28,7 @@ interface PricingFormData {
   customRequirements: string;
   currency: 'USD' | 'ZAR';
   youtubeOptions: string[];
+  seoOptions: string[];
 }
 
 interface PricingBreakdown {
@@ -39,6 +40,7 @@ interface PricingBreakdown {
   brandingAddon: number;
   complexityAddon: number;
   youtubeAddon: number;
+  seoAddon: number;
   total: number;
   currency: string;
 }
@@ -47,6 +49,14 @@ const youtubeOptions = [
   { id: 'youtubeSearch', label: 'YouTube Search', description: 'Include YouTube tutorials and demos', price: 50 },
   { id: 'youtubeApi', label: 'YouTube API Access', description: 'Rich metadata, views, comments', price: 100 },
   { id: 'youtubeTranscripts', label: 'Video Transcripts', description: 'Summarize video content', price: 200 },
+];
+
+const seoOptions = [
+  { id: 'seoMetadata', label: 'SEO Metadata', description: 'Meta titles, descriptions, Open Graph tags', price: 100 },
+  { id: 'schemaMarkup', label: 'Schema Markup', description: 'Structured data for rich snippets', price: 50 },
+  { id: 'keywordTargeting', label: 'Keyword Optimization', description: 'Targeted keyword research and optimization', price: 75 },
+  { id: 'sitemapIndexing', label: 'Sitemap & Indexing', description: 'XML sitemap and Google Search Console submission', price: 50 },
+  { id: 'contentRefresh', label: 'Content Refresh', description: 'Monthly content updates and refresh scheduling', price: 100 },
 ];
 
 export default function CustomPricingForm() {
@@ -61,6 +71,7 @@ export default function CustomPricingForm() {
     customRequirements: '',
     currency: 'USD',
     youtubeOptions: [],
+    seoOptions: [],
   });
 
   const [pricing, setPricing] = useState<PricingBreakdown | null>(null);
@@ -84,6 +95,7 @@ export default function CustomPricingForm() {
           customRequirements: formData.customRequirements,
           currency: formData.currency,
           youtubeOptions: formData.youtubeOptions,
+        seoOptions: formData.seoOptions,
         }),
       });
       const data = await response.json();
@@ -334,6 +346,45 @@ export default function CustomPricingForm() {
               </div>
             </div>
 
+            <div className="space-y-3">
+              <Label className="flex items-center gap-2">
+                <Search className="w-4 h-4" />
+                SEO Optimization
+              </Label>
+              <div className="space-y-2">
+                {seoOptions.map((option) => (
+                  <div key={option.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={option.id}
+                      checked={formData.seoOptions.includes(option.id)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setFormData({
+                            ...formData,
+                            seoOptions: [...formData.seoOptions, option.id],
+                          });
+                        } else {
+                          setFormData({
+                            ...formData,
+                            seoOptions: formData.seoOptions.filter((id) => id !== option.id),
+                          });
+                        }
+                      }}
+                    />
+                    <div className="flex-1">
+                      <Label htmlFor={option.id} className="text-sm font-medium">
+                        {option.label}
+                      </Label>
+                      <p className="text-xs text-muted-foreground">{option.description}</p>
+                    </div>
+                    <Badge variant="outline" className="text-xs">
+                      +{currencySymbol}{option.price}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Textarea
                 id="requirements"
@@ -406,6 +457,12 @@ export default function CustomPricingForm() {
                 <div className="flex justify-between text-sm">
                   <span>YouTube Integration ({formData.youtubeOptions.length} options)</span>
                   <span>+{currencySymbol}{pricing.youtubeAddon.toLocaleString()}</span>
+                </div>
+              )}
+              {pricing.seoAddon > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span>SEO Optimization ({formData.seoOptions.length} options)</span>
+                  <span>+{currencySymbol}{pricing.seoAddon.toLocaleString()}</span>
                 </div>
               )}
             </div>

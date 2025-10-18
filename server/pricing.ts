@@ -6,6 +6,7 @@ export interface PricingConfig {
   branding: 'basic' | 'advanced';
   customRequirements: string;
   youtubeOptions: string[];
+  seoOptions: string[];
 }
 
 export interface PricingBreakdown {
@@ -17,6 +18,7 @@ export interface PricingBreakdown {
   brandingAddon: number;
   complexityAddon: number;
   youtubeAddon: number;
+  seoAddon: number;
   total: number;
   currency: 'USD' | 'ZAR';
 }
@@ -61,7 +63,21 @@ export const calculatePrice = (config: PricingConfig, currency: 'USD' | 'ZAR' = 
     youtubeAddon += youtubePricing[option as keyof typeof youtubePricing] || 0;
   });
   
-  const totalUSD = basePrice + sectionsAddon + depthAddon + deliveryAddon + formatsAddon + brandingAddon + complexityAddon + youtubeAddon;
+    // Calculate SEO addon
+    let seoAddon = 0;
+    const seoPricing = {
+      seoMetadata: 100,
+      schemaMarkup: 50,
+      keywordTargeting: 75,
+      sitemapIndexing: 50,
+      contentRefresh: 100,
+    };
+    
+    config.seoOptions.forEach(option => {
+      seoAddon += seoPricing[option as keyof typeof seoPricing] || 0;
+    });
+    
+    const totalUSD = basePrice + sectionsAddon + depthAddon + deliveryAddon + formatsAddon + brandingAddon + complexityAddon + youtubeAddon + seoAddon;
   
   const total = currency === 'ZAR' ? Math.round(totalUSD * 18) : totalUSD;
   
@@ -74,6 +90,7 @@ export const calculatePrice = (config: PricingConfig, currency: 'USD' | 'ZAR' = 
     brandingAddon: currency === 'ZAR' ? brandingAddon * 18 : brandingAddon,
     complexityAddon: currency === 'ZAR' ? complexityAddon * 18 : complexityAddon,
     youtubeAddon: currency === 'ZAR' ? youtubeAddon * 18 : youtubeAddon,
+    seoAddon: currency === 'ZAR' ? seoAddon * 18 : seoAddon,
     total,
     currency
   };

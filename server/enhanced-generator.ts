@@ -6,6 +6,10 @@ import { youtubeService, YouTubeVideo } from './youtube-service';
 import { pipelineMonitor } from './utils/pipeline-monitor';
 import { progressTracker } from './progress-tracker';
 import { createAIProvider } from './ai-provider';
+import { seoService } from './seo-service';
+import { schemaService } from './schema-service';
+import { sitemapService } from './sitemap-service';
+import { contentRefreshService } from './content-refresh-service';
 import {
   shouldSkipImage,
   fetchImageMetadata,
@@ -601,11 +605,75 @@ Return JSON array of sections: [{id: string, title: string, priority: "high"|"me
   const suggestedSections = await parseJSONWithRetry(aiProvider, sectionsResponse.content, 'Return valid JSON array of sections');
   console.log(`✅ Suggested ${suggestedSections.sections?.length || 8} dynamic sections based on product analysis`);
 
-  // Stage 2: Enhanced documentation writing with source attribution
-  console.log('Stage 5: Writing documentation with source attribution...');
+  // Stage 5: SEO optimization (if not free tier)
+  let seoMetadata;
+  let schemaMarkup;
+  let sitemapEntries;
+  
+  if (userPlan !== 'free') {
+    console.log('Stage 5: Generating SEO metadata and schema markup...');
+    if (sessionId) {
+      progressTracker.emitProgress(sessionId, {
+        stage: 5,
+        stageName: 'SEO Optimization',
+        description: 'Generating SEO metadata and schema markup',
+        progress: 50,
+      });
+    }
+
+    try {
+      console.log('🔍 Generating SEO metadata...');
+      seoMetadata = await seoService.generateSEOMetadata(
+        siteStructure.productName,
+        url,
+        extractedContent.map(c => c.content).join(' ').substring(0, 5000),
+        {
+          stackOverflow: externalResearch.stackoverflow_answers?.length || 0,
+          github: externalResearch.github_issues?.length || 0,
+          youtube: externalResearch.youtube_videos?.length || 0,
+          reddit: externalResearch.reddit_posts?.length || 0,
+          devTo: externalResearch.devto_articles?.length || 0,
+          codeProject: externalResearch.codeproject_articles?.length || 0,
+          stackExchange: externalResearch.stackexchange_questions?.length || 0,
+          quora: externalResearch.quora_answers?.length || 0,
+          forums: externalResearch.forum_posts?.length || 0
+        }
+      );
+
+      console.log('📋 Generating schema markup...');
+      const sections = [
+        { name: 'Getting Started', content: 'Setup and installation guide' },
+        { name: 'API Reference', content: 'API endpoints and methods' },
+        { name: 'Tutorials', content: 'Step-by-step tutorials' },
+        { name: 'FAQ', content: 'Frequently asked questions' }
+      ];
+      
+      schemaMarkup = await schemaService.generateSchemaMarkup(
+        siteStructure.productName,
+        sections,
+        externalResearch.youtube_videos || [],
+        url
+      );
+
+      console.log('🗺️ Generating sitemap entries...');
+      sitemapEntries = sitemapService.generateDocumentationEntries(url, sections.map(s => ({
+        name: s.name,
+        slug: s.name.toLowerCase().replace(/\s+/g, '-'),
+        lastModified: new Date()
+      })));
+
+      console.log('✅ SEO optimization complete');
+    } catch (error) {
+      console.error('SEO generation error:', error);
+      // Continue without SEO if it fails
+    }
+  }
+
+  // Stage 6: Enhanced documentation writing with source attribution
+  console.log('Stage 6: Writing documentation with source attribution...');
   if (sessionId) {
     progressTracker.emitProgress(sessionId, {
-      stage: 5,
+      stage: 6,
       stageName: 'Documentation Writing',
       description: 'Creating professional documentation with sources',
       progress: 85,
@@ -799,7 +867,13 @@ Return JSON: {metadata: {title, description, keywords}, searchability: {primary_
   }
   pipelineMonitor.completePipeline(pmId);
 
-  return { documentation, finalDoc };
+  return { 
+    documentation, 
+    finalDoc,
+    seoMetadata,
+    schemaMarkup,
+    sitemapEntries
+  };
 }
 
 // Extract theme from content
