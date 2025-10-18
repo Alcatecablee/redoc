@@ -286,28 +286,41 @@ export class YouTubeService {
   /**
    * Extract YouTube video ID from various URL formats
    * Supports:
-   * - youtube.com/watch?v=ID
+   * - *.youtube.com/watch?v=ID (any subdomain)
    * - youtu.be/ID
-   * - youtube.com/embed/ID
-   * - youtube.com/v/ID
-   * - youtube.com/shorts/ID
-   * - youtube.com/live/ID
+   * - *.youtube.com/embed/ID
+   * - *.youtube.com/v/ID
+   * - *.youtube.com/shorts/ID
+   * - *.youtube.com/live/ID
+   * - youtube-nocookie.com embeds
+   * Note: Preserves case-sensitivity of video ID
    */
   private extractYouTubeVideoId(url: string): string | null {
-    // Pattern for various YouTube URL formats
+    // Pattern for various YouTube URL formats with any subdomain
+    // Use 'i' flag for case-insensitive host/path matching, but capture preserves ID case
     const patterns = [
-      /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/,  // Standard watch or short URL
-      /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,                      // Embed URL
-      /youtube\.com\/v\/([a-zA-Z0-9_-]{11})/,                          // Old format
-      /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,                     // YouTube Shorts
-      /youtube\.com\/live\/([a-zA-Z0-9_-]{11})/,                       // Live streams
-      /[?&]v=([a-zA-Z0-9_-]{11})/                                      // Query parameter
+      // Standard watch URL with any subdomain
+      /(?:https?:\/\/)?(?:[\w-]+\.)?youtube\.com\/watch\?.*?v=([a-zA-Z0-9_-]{11})/i,
+      // YouTube nocookie domain
+      /(?:https?:\/\/)?(?:[\w-]+\.)?youtube-nocookie\.com\/watch\?.*?v=([a-zA-Z0-9_-]{11})/i,
+      // Short URL
+      /(?:https?:\/\/)?youtu\.be\/([a-zA-Z0-9_-]{11})/i,
+      // Embed URL with any subdomain
+      /(?:https?:\/\/)?(?:[\w-]+\.)?youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/i,
+      // Old format with any subdomain
+      /(?:https?:\/\/)?(?:[\w-]+\.)?youtube\.com\/v\/([a-zA-Z0-9_-]{11})/i,
+      // YouTube Shorts with any subdomain
+      /(?:https?:\/\/)?(?:[\w-]+\.)?youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/i,
+      // Live streams with any subdomain
+      /(?:https?:\/\/)?(?:[\w-]+\.)?youtube\.com\/live\/([a-zA-Z0-9_-]{11})/i,
+      // Query parameter (most generic, try last) - match original URL to preserve case
+      /[?&]v=([a-zA-Z0-9_-]{11})/
     ];
 
     for (const pattern of patterns) {
       const match = url.match(pattern);
       if (match && match[1]) {
-        return match[1];
+        return match[1]; // Return original case from URL
       }
     }
 
