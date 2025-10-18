@@ -1,14 +1,14 @@
 import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
 import { storage } from './storage';
-import { searchService, SearchResult, StackOverflowAnswer, GitHubIssue, StackExchangeQuestion } from './search-service';
+import { searchService, SearchResult, StackOverflowAnswer, GitHubIssue } from './search-service';
 import { youtubeService, YouTubeVideo } from './youtube-service';
 import { redditService, RedditPost } from './reddit-service';
 import { devToService, DevToArticle } from './devto-service';
 import { codeProjectService, CodeProjectArticle } from './codeproject-service';
 import { quoraService, QuoraAnswer } from './quora-service';
 import { forumsService, ForumPost } from './forums-service';
-import { stackExchangeService } from './stackexchange-service';
+import { stackExchangeService, StackExchangeQuestion } from './stackexchange-service';
 import { pipelineMonitor } from './utils/pipeline-monitor';
 import { progressTracker } from './progress-tracker';
 import { createAIProvider } from './ai-provider';
