@@ -24,8 +24,7 @@ import {
   CodeBracketIcon,
   AcademicCapIcon,
   QuestionMarkCircleIcon,
-  BuildingOfficeIcon,
-  SearchIcon
+  BuildingOfficeIcon
 } from "@heroicons/react/24/outline";
 import { useToast } from "@/hooks/use-toast";
 import { DollarSign } from "lucide-react";
@@ -753,7 +752,7 @@ const Index = () => {
                 
                 <div className="group relative overflow-hidden bg-white/40 backdrop-blur-sm border border-gray-900/10 rounded-3xl p-8 hover:shadow-xl transition-all duration-300">
                   <div className="w-14 h-14 rounded-xl bg-gray-900/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                    <SearchIcon className="h-7 w-7 text-gray-900" strokeWidth={1.5} />
+                    <MagnifyingGlassIcon className="h-7 w-7 text-gray-900" strokeWidth={1.5} />
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 mb-3">SEO Optimization</h3>
                   <p className="text-gray-700 text-sm leading-relaxed">Meta tags, schema markup, sitemaps, and keyword optimization</p>
