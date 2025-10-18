@@ -114,14 +114,61 @@ export class ForumsService {
   }
 
   /**
-   * Simulate forum search (replace with actual SerpAPI call)
+   * Search using SerpAPI for forum posts
    */
   private async simulateForumSearch(forum: any, query: string, limit: number): Promise<ForumPost[]> {
-    // This is a placeholder - in production, you'd use SerpAPI
-    // const serpApiResults = await serpApiSearch(query, { limit });
-    
-    // For now, return empty array - this would be replaced with actual SerpAPI integration
-    return [];
+    const serpApiKey = process.env.SERPAPI_KEY;
+    if (!serpApiKey) {
+      console.warn('⚠️ SERPAPI_KEY not set - Forum search disabled');
+      return [];
+    }
+
+    try {
+      const url = new URL('https://serpapi.com/search');
+      url.searchParams.append('api_key', serpApiKey);
+      url.searchParams.append('q', query);
+      url.searchParams.append('num', limit.toString());
+      url.searchParams.append('engine', 'google');
+
+      const response = await fetch(url.toString(), {
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) {
+        console.warn(`SerpAPI request failed: ${response.status}`);
+        return [];
+      }
+
+      const data = await response.json() as { organic_results?: Array<{
+        title?: string;
+        link?: string;
+        snippet?: string;
+      }> };
+
+      if (!data.organic_results || data.organic_results.length === 0) {
+        return [];
+      }
+
+      return data.organic_results.map((result, index) => ({
+        id: `forum-${index}-${Date.now()}`,
+        title: result.title || '',
+        content: result.snippet || '',
+        url: result.link || '',
+        forum: forum.name,
+        author: 'Unknown',
+        replies: 0,
+        views: 0,
+        created: new Date().toISOString(),
+        tags: [],
+        trustScore: 0.85,  // Official forum trust score as per recommendations
+        isOfficial: true,
+        isSticky: false
+      }));
+
+    } catch (error) {
+      console.error('SerpAPI Forum search error:', error);
+      return [];
+    }
   }
 
   /**
