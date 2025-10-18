@@ -109,7 +109,7 @@ export class SitemapService {
    * Build XML sitemap content
    */
   private buildSitemapXML(config: SitemapConfig): string {
-    const header = `<?xml version="1.0" encoding="UTF-8"?>
+    let header = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"`;
 
     if (config.includeImages) {
