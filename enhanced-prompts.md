@@ -542,6 +542,12 @@ Package the comprehensive documentation with professional metadata for deploymen
 - **Rich metadata** for search and analytics
 - **Professional formatting** ready for production deployment
 - **YouTube video integration** with timestamps and summaries
+- **Reddit community insights** for real-world troubleshooting
+- **DEV.to tutorials** and best practices
+- **CodeProject code examples** and technical articles
+- **Stack Exchange specialized Q&A** for expert knowledge
+- **Quora expert answers** for comparisons and insights
+- **Official forum posts** for product-specific guidance
 
 ---
 
@@ -721,3 +727,92 @@ Process YouTube video content with AI-powered analysis, transcript summarization
 - **Content Recommendations**: Suggest related videos based on analysis
 - **Transcript Processing**: Extract and summarize spoken content
 - **Interactive Embedding**: Rich video players with chapter navigation
+
+---
+
+## Multi-Source Research Integration
+
+### Purpose
+
+Integrate 6 additional reliable sources for comprehensive documentation research, capturing community insights, expert knowledge, and real-world troubleshooting.
+
+### Template
+
+> **System Context**: You are a technical documentation specialist with access to multiple high-quality research sources.
+> 
+> **Task**: Process data from diverse sources and create comprehensive documentation sections with rich community insights.
+> 
+> **Instructions**:
+> 1. **Reddit Community Insights** - Real-world troubleshooting and community discussions
+> 2. **DEV.to Tutorials** - Best practices and step-by-step guides
+> 3. **CodeProject Articles** - Technical code examples and implementations
+> 4. **Stack Exchange Q&A** - Specialized expert knowledge and solutions
+> 5. **Quora Expert Answers** - Comparisons and conceptual explanations
+> 6. **Official Forums** - Product-specific guidance and announcements
+> 
+> **Enhanced Output Format**:
+> ```markdown
+> ## Troubleshooting
+> 
+> ### Common Issues
+> 
+> **Reddit Community Solutions**:
+> - Issue: Authentication timeout errors
+> - Solution: Implement retry logic with exponential backoff
+> - Source: [r/webdev](https://reddit.com/r/webdev/comments/abc123)
+> - Upvotes: 45 | Comments: 12
+> 
+> **Stack Exchange Expert Answer**:
+> - Question: "How to handle rate limiting in API calls?"
+> - Answer: Use token bucket algorithm with Redis caching
+> - Source: [Software Engineering SE](https://softwareengineering.stackexchange.com/q/123)
+> - Score: 8 | Accepted: Yes
+> 
+> **Official Forum Guidance**:
+> - Topic: "Production deployment best practices"
+> - Guidance: Use blue-green deployment with health checks
+> - Source: [Stripe Community](https://community.stripe.com/t/456)
+> - Official: Yes | Sticky: Yes
+> ```
+> 
+> **For Tutorials and Best Practices**:
+> ```markdown
+> ## Getting Started
+> 
+> ### Step-by-Step Setup
+> 
+> **DEV.to Tutorial**:
+> - Title: "Complete Supabase Setup Guide
+> - Author: Jane Developer | Reading Time: 8 min
+> - Reactions: 42 | Comments: 15
+> - Source: [DEV.to Article](https://dev.to/jane/complete-supabase-setup)
+> 
+> **CodeProject Implementation**:
+> - Title: "C# API Integration with Error Handling"
+> - Author: Tech Expert | Views: 2,500 | Rating: 4.8/5
+> - Source: [CodeProject](https://codeproject.com/article/789)
+> 
+> **Quora Expert Comparison**:
+> - Question: "Firebase vs Supabase for new projects?"
+> - Answer: Detailed comparison with pros/cons
+> - Source: [Quora](https://quora.com/firebase-vs-supabase)
+> - Upvotes: 120 | Expert Answer: Yes
+> ```
+
+### Source Integration Points
+
+- **Troubleshooting**: Reddit + Stack Exchange + Official Forums
+- **Tutorials**: DEV.to + CodeProject + YouTube
+- **Best Practices**: Stack Exchange + Quora + Official Forums
+- **Code Examples**: CodeProject + GitHub + Stack Overflow
+- **Comparisons**: Quora + Reddit + Official Forums
+- **Community Insights**: Reddit + DEV.to + Official Forums
+
+### Quality Scoring
+
+- **Reddit**: 80% (community-driven, real-world solutions)
+- **DEV.to**: 85% (curated content, developer-focused)
+- **CodeProject**: 85% (technical depth, code examples)
+- **Stack Exchange**: 90% (expert knowledge, structured Q&A)
+- **Quora**: 75% (expert insights, conceptual explanations)
+- **Official Forums**: 85% (product-specific, official guidance)

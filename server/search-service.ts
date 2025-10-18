@@ -3,6 +3,12 @@ import * as cheerio from 'cheerio';
 import { retryWithFallback } from './utils/retry-with-fallback';
 import { scoreSource, filterTrustedSources, deduplicateContent, validateLinks, crossVerifyContent, type ScoredSource, type SourceMetrics } from './utils/source-quality-scorer';
 import { youtubeService, type YouTubeVideo } from './youtube-service';
+import { redditService, type RedditPost } from './reddit-service';
+import { devToService, type DevToArticle } from './devto-service';
+import { codeProjectService, type CodeProjectArticle } from './codeproject-service';
+import { stackExchangeService, type StackExchangeQuestion } from './stackexchange-service';
+import { quoraService, type QuoraAnswer } from './quora-service';
+import { forumsService, type ForumPost } from './forums-service';
 
 // Search result interface
 export interface SearchResult {
@@ -587,12 +593,24 @@ export class SearchService {
     productSize: ProductSize = 'medium',
     crawledPageCount: number = 0,
     youtubeApiAccess: boolean = false,
-    youtubeTranscripts: boolean = false
+    youtubeTranscripts: boolean = false,
+    enableReddit: boolean = true,
+    enableDevTo: boolean = true,
+    enableCodeProject: boolean = true,
+    enableStackExchange: boolean = true,
+    enableQuora: boolean = true,
+    enableForums: boolean = true
   ): Promise<{
     searchResults: SearchResult[];
     stackOverflowAnswers: StackOverflowAnswer[];
     gitHubIssues: GitHubIssue[];
     youtubeVideos: YouTubeVideo[];
+    redditPosts: RedditPost[];
+    devToArticles: DevToArticle[];
+    codeProjectArticles: CodeProjectArticle[];
+    stackExchangeQuestions: StackExchangeQuestion[];
+    quoraAnswers: QuoraAnswer[];
+    forumPosts: ForumPost[];
     qualityScore: number;
     totalSources: number;
     productComplexity: ProductSize;
@@ -730,16 +748,115 @@ export class SearchService {
       }
     }
 
-    const qualityScore = this.calculateQualityScore(uniqueResults);
-    const totalSources = uniqueResults.length + stackOverflowAnswers.length + gitHubIssues.length + youtubeVideos.length;
+    // Extract Reddit posts (community insights)
+    let redditPosts: RedditPost[] = [];
+    if (enableReddit) {
+      try {
+        console.log(`🔍 Searching Reddit for "${productName}"...`);
+        const redditResults = await redditService.searchPosts(`${productName}`, Math.min(limits.searchResults, 10));
+        redditPosts = redditResults.posts.slice(0, Math.min(limits.searchResults, 10));
+        console.log(`✅ Found ${redditPosts.length} Reddit posts`);
+      } catch (error) {
+        console.error('Reddit search failed:', error.message);
+      }
+    }
+
+    // Extract DEV.to articles (tutorials and best practices)
+    let devToArticles: DevToArticle[] = [];
+    if (enableDevTo) {
+      try {
+        console.log(`📝 Searching DEV.to for "${productName}"...`);
+        const devToResults = await devToService.searchArticles(productName, Math.min(limits.searchResults, 8));
+        devToArticles = devToResults.articles.slice(0, Math.min(limits.searchResults, 8));
+        console.log(`✅ Found ${devToArticles.length} DEV.to articles`);
+      } catch (error) {
+        console.error('DEV.to search failed:', error.message);
+      }
+    }
+
+    // Extract CodeProject articles (code examples)
+    let codeProjectArticles: CodeProjectArticle[] = [];
+    if (enableCodeProject) {
+      try {
+        console.log(`💻 Searching CodeProject for "${productName}"...`);
+        const codeProjectResults = await codeProjectService.searchArticles(productName, Math.min(limits.searchResults, 6));
+        codeProjectArticles = codeProjectResults.articles.slice(0, Math.min(limits.searchResults, 6));
+        console.log(`✅ Found ${codeProjectArticles.length} CodeProject articles`);
+      } catch (error) {
+        console.error('CodeProject search failed:', error.message);
+      }
+    }
+
+    // Extract Stack Exchange questions (specialized Q&A)
+    let stackExchangeQuestions: StackExchangeQuestion[] = [];
+    if (enableStackExchange) {
+      try {
+        console.log(`❓ Searching Stack Exchange for "${productName}"...`);
+        const stackExchangeResults = await stackExchangeService.searchQuestions(productName, Math.min(limits.searchResults, 8));
+        stackExchangeQuestions = stackExchangeResults.questions.slice(0, Math.min(limits.searchResults, 8));
+        console.log(`✅ Found ${stackExchangeQuestions.length} Stack Exchange questions`);
+      } catch (error) {
+        console.error('Stack Exchange search failed:', error.message);
+      }
+    }
+
+    // Extract Quora answers (expert insights)
+    let quoraAnswers: QuoraAnswer[] = [];
+    if (enableQuora) {
+      try {
+        console.log(`🤔 Searching Quora for "${productName}"...`);
+        const quoraResults = await quoraService.searchAnswers(productName, Math.min(limits.searchResults, 6));
+        quoraAnswers = quoraResults.answers.slice(0, Math.min(limits.searchResults, 6));
+        console.log(`✅ Found ${quoraAnswers.length} Quora answers`);
+      } catch (error) {
+        console.error('Quora search failed:', error.message);
+      }
+    }
+
+    // Extract forum posts (official communities)
+    let forumPosts: ForumPost[] = [];
+    if (enableForums) {
+      try {
+        console.log(`🏢 Searching official forums for "${productName}"...`);
+        const forumResults = await forumsService.searchForums(productName, Math.min(limits.searchResults, 8));
+        forumPosts = forumResults.posts.slice(0, Math.min(limits.searchResults, 8));
+        console.log(`✅ Found ${forumPosts.length} forum posts`);
+      } catch (error) {
+        console.error('Forum search failed:', error.message);
+      }
+    }
+
+    // Calculate comprehensive quality score including all sources
+    const allSources = [
+      ...uniqueResults,
+      ...stackOverflowAnswers,
+      ...gitHubIssues,
+      ...youtubeVideos,
+      ...redditPosts,
+      ...devToArticles,
+      ...codeProjectArticles,
+      ...stackExchangeQuestions,
+      ...quoraAnswers,
+      ...forumPosts
+    ];
+
+    const qualityScore = this.calculateQualityScore(allSources);
+    const totalSources = allSources.length;
 
     console.log(`📊 Research complete: ${totalSources} sources, quality score: ${qualityScore.toFixed(2)}`);
+    console.log(`📈 Source breakdown: ${uniqueResults.length} search, ${stackOverflowAnswers.length} SO, ${gitHubIssues.length} GitHub, ${youtubeVideos.length} YouTube, ${redditPosts.length} Reddit, ${devToArticles.length} DEV.to, ${codeProjectArticles.length} CodeProject, ${stackExchangeQuestions.length} StackExchange, ${quoraAnswers.length} Quora, ${forumPosts.length} forums`);
 
     return {
       searchResults: uniqueResults,
       stackOverflowAnswers,
       gitHubIssues,
       youtubeVideos,
+      redditPosts,
+      devToArticles,
+      codeProjectArticles,
+      stackExchangeQuestions,
+      quoraAnswers,
+      forumPosts,
       qualityScore,
       totalSources,
       productComplexity: productSize
