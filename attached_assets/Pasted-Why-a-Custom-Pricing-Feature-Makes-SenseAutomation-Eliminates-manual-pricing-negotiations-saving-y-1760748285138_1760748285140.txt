@@ -1,0 +1,161 @@
+Why a Custom Pricing Feature Makes SenseAutomation: Eliminates manual pricing negotiations, saving you time (e.g., no back-and-forth for Taxfy’s “API + compliance docs” gig).
+Scalability: Handles 10-50 gigs/month without extra effort, supporting your Year 1 revenue goal ($5,000/mo from 10 gigs).
+Client Experience: Users (e.g., SaaS startups) get instant, transparent quotes, increasing trust and conversion.
+Competitive Edge: Unlike Mintlify or ReadMe.io, your platform offers tailored pricing tied to specific doc needs (e.g., extra sections, rush delivery), making it feel bespoke without manual work.
+
+Designing the Custom Pricing FeatureThe feature will be a client-facing configuration form (built into your React/Vite frontend) where users select options for their documentation needs. The system calculates the price based on predefined factors (e.g., number of sections, source depth, delivery speed) and integrates with your pipeline to generate the docs. Here’s how it works:1. Client Configuration FormUI Components (using your tech stack: React, TypeScript, TailwindCSS, shadcn/ui):Input Fields:URL: Target website (e.g., taxfy.co.za).
+GitHub Repo (optional): For issue scraping.
+Custom Requirements: Textarea for special requests (e.g., “Focus on SARS compliance”).
+Select Options:Section Count: Dropdown for 8-12, 13-20, or 20+ sections (affects complexity).
+Source Depth: Basic (5 SO questions, 5 GitHub issues), Standard (10/10), Deep (20/15).
+Delivery Speed: Standard (3 days), Rush (1 day), Same-Day (12 hours).
+Export Formats: Checkbox for PDF, DOCX, HTML, Markdown, JSON, Custom Subdomain.
+Branding Level: Basic (auto-theming), Advanced (custom logo + tone).
+Output: Real-time price quote (e.g., “$650”) and “Generate Now” button.
+
+Example Form (React component, src/components/PricingForm.tsx):tsx
+
+import { useState } from 'react';
+import { Button, Input, Select, Checkbox } from 'shadcn/ui';
+
+const PricingForm = () => {
+  const [formData, setFormData] = useState({
+    url: '',
+    githubRepo: '',
+    sections: '8-12',
+    sourceDepth: 'standard',
+    delivery: 'standard',
+    formats: ['pdf', 'markdown'],
+    branding: 'basic',
+    customRequirements: ''
+  });
+
+  const calculatePrice = () => {
+    let price = 500; // Base price
+    price += formData.sections === '13-20' ? 200 : formData.sections === '20+' ? 400 : 0;
+    price += formData.sourceDepth === 'deep' ? 150 : formData.sourceDepth === 'standard' ? 50 : 0;
+    price += formData.delivery === 'rush' ? 100 : formData.delivery === 'same-day' ? 200 : 0;
+    price += formData.formats.length * 50; // $50 per format
+    price += formData.branding === 'advanced' ? 100 : 0;
+    return price;
+  };
+
+  return (
+    <div className="p-4 max-w-md mx-auto">
+      <Input
+        placeholder="Website URL (e.g., taxfy.co.za)"
+        value={formData.url}
+        onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+      />
+      <Input
+        placeholder="GitHub Repo (optional)"
+        value={formData.githubRepo}
+        onChange={(e) => setFormData({ ...formData, githubRepo: e.target.value })}
+      />
+      <Select
+        value={formData.sections}
+        onChange={(e) => setFormData({ ...formData, sections: e.target.value })}
+        options={['8-12', '13-20', '20+']}
+        label="Number of Sections"
+      />
+      <Select
+        value={formData.sourceDepth}
+        onChange={(e) => setFormData({ ...formData, sourceDepth: e.target.value })}
+        options={['basic', 'standard', 'deep']}
+        label="Research Depth"
+      />
+      <Select
+        value={formData.delivery}
+        onChange={(e) => setFormData({ ...formData, delivery: e.target.value })}
+        options={['standard', 'rush', 'same-day']}
+        label="Delivery Speed"
+      />
+      <Checkbox
+        options={['pdf', 'docx', 'html', 'markdown', 'json', 'subdomain']}
+        value={formData.formats}
+        onChange={(formats) => setFormData({ ...formData, formats })}
+        label="Export Formats"
+      />
+      <Select
+        value={formData.branding}
+        onChange={(e) => setFormData({ ...formData, branding: e.target.value })}
+        options={['basic', 'advanced']}
+        label="Branding Level"
+      />
+      <textarea
+        placeholder="Custom Requirements (e.g., focus on SARS compliance)"
+        value={formData.customRequirements}
+        onChange={(e) => setFormData({ ...formData, customRequirements: e.target.value })}
+        className="w-full p-2 border"
+      />
+      <div className="text-xl font-bold">Price: ${calculatePrice()}</div>
+      <Button onClick={() => submitOrder(formData, calculatePrice())}>Generate Docs</Button>
+    </div>
+  );
+};
+export default PricingForm;
+
+2. Pricing LogicFormula (configurable in server/pricing.ts):Base Price: $500 (covers 8-12 sections, standard research, 3-day delivery, PDF/Markdown, basic theming).
+Add-Ons:Sections: +$200 (13-20), +$400 (20+).
+Source Depth: +$50 (Standard: 10 SO/10 GitHub), +$150 (Deep: 20 SO/15 GitHub).
+Delivery: +$100 (Rush), +$200 (Same-Day).
+Formats: +$50 per format (e.g., HTML + JSON = +$100).
+Branding: +$100 (Advanced: custom logo, tone).
+Custom Requirements: +$100 if GPT-4o detects high complexity (e.g., “SARS compliance” needs extra research).
+Example:Taxfy: 13-20 sections, Deep research, Rush delivery, PDF + HTML, Advanced branding.
+Price: $500 + $200 + $150 + $100 + $100 + $100 = $1,150.
+
+Backend Logic (server/pricing.ts):typescript
+
+export const calculatePrice = (config: {
+  sections: string;
+  sourceDepth: string;
+  delivery: string;
+  formats: string[];
+  branding: string;
+  customRequirements: string;
+}) => {
+  let price = 500;
+  price += config.sections === '13-20' ? 200 : config.sections === '20+' ? 400 : 0;
+  price += config.sourceDepth === 'deep' ? 150 : config.sourceDepth === 'standard' ? 50 : 0;
+  price += config.delivery === 'rush' ? 100 : config.delivery === 'same-day' ? 200 : 0;
+  price += config.formats.length * 50;
+  price += config.branding === 'advanced' ? 100 : 0;
+  if (config.customRequirements) {
+    // Optional: Use GPT-4o to assess complexity
+    price += config.customRequirements.includes('compliance') ? 100 : 0;
+  }
+  return price;
+};
+
+3. Integration with PipelineUpdate enhanced-generator.ts:Use form inputs to adjust pipeline parameters:typescript
+
+const sourceLimits = {
+  basic: { soQuestions: 5, githubIssues: 5, searchResults: 10 },
+  standard: { soQuestions: 10, githubIssues: 10, searchResults: 15 },
+  deep: { soQuestions: 20, githubIssues: 15, searchResults: 20 }
+};
+const researchConfig = sourceLimits[formData.sourceDepth];
+const sections = formData.sections === '20+' ? 20 : formData.sections === '13-20' ? 15 : 10;
+Pass custom requirements to GPT-4o:typescript
+
+const sectionPrompt = `
+  ${dynamicSectionPrompt}
+  Additional Requirements: ${formData.customRequirements}
+`;
+Update search-service.ts:Adjust source limits based on formData.sourceDepth.
+Increase truncation to 1,000 chars (per tweaked enhanced-prompts.md).
+Delivery Handling:Queue jobs for Rush/Same-Day using a task scheduler (e.g., BullMQ on Redis).
+Example: Same-Day jobs prioritize GPT-4o batch API for speed.
+4. Source Attribution and BrandingAttribution: Use the tweaked enhanced-prompts.md to embed source links (e.g., [SO #12345](https://stackoverflow.com/questions/12345)).
+Advanced Branding: For “Advanced” option, allow file uploads (logo, style guide) and pass to GPT-4o for tone analysis:typescript
+
+if (formData.branding === 'advanced') {
+  const tonePrompt = `Analyze uploaded style guide: ${formData.styleGuide}. Apply tone to output.`;
+}
+Benefits for Your BusinessEfficiency: Cuts manual work from 2-3 hours/gig to <30 mins (review + tweaks).
+Client Trust: Transparent pricing (e.g., “$650 for 13 sections, deep research”) builds confidence.
+Upsell Path: Clients see value and convert to Pro ($19/mo) for ongoing updates.
+Scalability: Handle 20 gigs/week by automating 95% of the process.
+South African Edge: Offer ZAR pricing (e.g., R9,000 for $500) for local startups like Taxfy, calculated dynamically.
+

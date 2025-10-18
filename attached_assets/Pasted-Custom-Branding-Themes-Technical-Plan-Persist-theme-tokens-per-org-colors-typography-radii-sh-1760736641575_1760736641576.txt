@@ -1,0 +1,40 @@
+Custom Branding/Themes — Technical Plan
+Persist theme tokens per org (colors, typography, radii, shadows); store as JSON.
+Build CSS variables at render time; apply in React and export renderers.
+Include assets (logo, favicon) in exported bundles and hosted docs header.
+Ensure accessibility (contrast pass) and dark mode support.
+Acceptance
+
+Changing theme instantly updates hosted docs; exports reflect theme consistently; contrast checks pass WCAG AA.
+Brand Color Extraction from Site CSS (Deep Dive)
+Goals
+
+Extract brand colors automatically from the target site’s CSS (not only inline styles).
+Build an accessible, stable palette (primary/secondary/accent/background/text) with WCAG AA contrast.
+Fall back to logo-based extraction when CSS signals are weak.
+Implementation
+
+External CSS discovery:
+Parse <link rel="stylesheet"> in HTML and resolve absolute URLs.
+Follow @import rules inside stylesheets (depth ≤ 2, same-origin by default).
+Respect robots.txt and timeouts; cache responses per host.
+CSS parsing and tokenization:
+Use postcss or css-tree to parse declarations.
+Collect color values from: color/background/border/fill/stroke, gradients, and CSS variables.
+Resolve CSS variables defined in :root and common theme scopes; dereference var() chains with defaults.
+Brand signal weighting:
+Boost selectors likely to represent brand (e.g., :root, body, .btn-primary, header/nav/hero sections).
+Down-weight low-value neutrals and ephemeral utility classes.
+Prefer colors used across multiple stylesheets and media contexts.
+Palette building:
+Choose top candidates with clustering in perceptual color space (Lab/LCH).
+Validate contrast for text on background; auto-adjust via minimal delta E when needed.
+Produce tokens: primary, secondary, accent, background, surface, text, text_secondary, and a 5–8 color swatch.
+Fallbacks:
+If CSS extraction is inconclusive, run logo palette extraction and merge.
+If both fail, use default theme.
+Acceptance
+
+For ≥80% of tested sites with non-trivial CSS, extract ≥3 distinct brand colors.
+Generated theme passes WCAG AA for primary text on background.
+Extraction completes within 3–5s per site on P95 with caching enabled.

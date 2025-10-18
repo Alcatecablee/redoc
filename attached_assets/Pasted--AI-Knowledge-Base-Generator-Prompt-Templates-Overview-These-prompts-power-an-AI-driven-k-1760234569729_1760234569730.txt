@@ -1,0 +1,1549 @@
+# AI Knowledge Base Generator – Prompt Templates
+
+# Overview
+
+These prompts power an AI-driven knowledge base generator that scrapes website content and transforms it into professional help center documentation.
+
+---
+
+## Prompt 1: Structure Understanding & Content Extraction
+
+### Purpose
+
+Analyze the website and extract structured content with intelligent classification.
+
+### Template
+
+> **System Context**: You are an expert content analyzer specializing in extracting structured information from websites to create professional documentation.
+> 
+
+> 
+> 
+
+> **Task**: Analyze the provided website content and extract a comprehensive structure.
+> 
+
+> 
+> 
+
+> **Instructions**:
+> 
+
+> 1. **Classify the site type** (SaaS, e-commerce, blog, portfolio, documentation, etc.)
+> 
+
+> 2. **Identify navigation hierarchy** from menus, headers, and site structure
+> 
+
+> 3. **Extract visual elements** (screenshots, diagrams, CTAs, demo videos) that should be referenced
+> 
+
+> 4. **Map content sections** to standard documentation categories
+> 
+
+> 5. **Detect technical content** (code snippets, API references, configuration examples)
+> 
+
+> 
+> 
+
+> **Website URL**: [INSERT_URL]
+> 
+
+> 
+> 
+
+> **Website Content**: [SCRAPED_CONTENT]
+> 
+
+> 
+> 
+
+> **Output Format** (JSON):
+> 
+
+> `json
+> 
+
+> {
+> 
+
+> "site_classification": {
+> 
+
+> "type": "SaaS|e-commerce|blog|documentation|portfolio|other",
+> 
+
+> "primary_purpose": "Brief description",
+> 
+
+> "target_audience": "Who this is for"
+> 
+
+> },
+> 
+
+> "navigation_hierarchy": [
+> 
+
+> {
+> 
+
+> "section": "Section name",
+> 
+
+> "subsections": ["Subsection 1", "Subsection 2"]
+> 
+
+> }
+> 
+
+> ],
+> 
+
+> "visual_elements": [
+> 
+
+> {
+> 
+
+> "type": "screenshot|diagram|video|cta",
+> 
+
+> "location": "Where found",
+> 
+
+> "description": "What it shows",
+> 
+
+> "importance": "high|medium|low"
+> 
+
+> }
+> 
+
+> ],
+> 
+
+> "content_structure": {
+> 
+
+> "overview": "High-level product/service description",
+> 
+
+> "features": [
+> 
+
+> {
+> 
+
+> "name": "Feature name",
+> 
+
+> "description": "What it does",
+> 
+
+> "benefits": ["Benefit 1", "Benefit 2"]
+> 
+
+> }
+> 
+
+> ],
+> 
+
+> "how_it_works": [
+> 
+
+> {
+> 
+
+> "step": 1,
+> 
+
+> "title": "Step title",
+> 
+
+> "description": "Detailed explanation",
+> 
+
+> "visual_reference": "Screenshot/diagram if applicable"
+> 
+
+> }
+> 
+
+> ],
+> 
+
+> "technical_content": [
+> 
+
+> {
+> 
+
+> "type": "code|api|config|integration",
+> 
+
+> "language": "javascript|python|etc",
+> 
+
+> "content": "The actual code/config",
+> 
+
+> "context": "When/why to use this"
+> 
+
+> }
+> 
+
+> ],
+> 
+
+> "use_cases": [
+> 
+
+> {
+> 
+
+> "title": "Use case title",
+> 
+
+> "description": "Scenario description",
+> 
+
+> "solution": "How the product solves it"
+> 
+
+> }
+> 
+
+> ],
+> 
+
+> "troubleshooting": [
+> 
+
+> {
+> 
+
+> "issue": "Common problem",
+> 
+
+> "symptoms": ["Symptom 1", "Symptom 2"],
+> 
+
+> "solution": "Step-by-step fix",
+> 
+
+> "prevention": "How to avoid this"
+> 
+
+> }
+> 
+
+> ],
+> 
+
+> "faq": [
+> 
+
+> {
+> 
+
+> "question": "Frequently asked question",
+> 
+
+> "answer": "Clear, concise answer",
+> 
+
+> "category": "general|technical|billing|account"
+> 
+
+> }
+> 
+
+> ],
+> 
+
+> "prerequisites": [
+> 
+
+> "Requirement 1",
+> 
+
+> "Requirement 2"
+> 
+
+> ],
+> 
+
+> "terminology": [
+> 
+
+> {
+> 
+
+> "term": "Technical term",
+> 
+
+> "definition": "Clear explanation",
+> 
+
+> "example": "Usage example"
+> 
+
+> }
+> 
+
+> ]
+> 
+
+> },
+> 
+
+> "missing_sections": ["List sections that should exist but weren't found"],
+> 
+
+> "confidence_score": 0.85,
+> 
+
+> "extraction_notes": "Any challenges or assumptions made during extraction"
+> 
+
+> }
+> 
+
+> `
+> 
+
+> 
+> 
+
+> **Fallback Rules**:
+> 
+
+> - If a section is missing, return an empty array `[]` with a note in `missing_sections`
+> 
+
+> - If site type is unclear, classify as "other" with best-guess description
+> 
+
+> - Default to extracting at least overview, features, and FAQ from any site
+> 
+
+---
+
+## Prompt 2: Professional Documentation Writing
+
+### Purpose
+
+Transform the extracted structure into polished, user-friendly documentation.
+
+### Template
+
+> **System Context**: You are a professional technical writer with expertise in creating Apple-style documentation—clear, elegant, and accessible to all users.
+> 
+
+> 
+> 
+
+> **Task**: Transform the extracted content structure into professional help center documentation.
+> 
+
+> 
+> 
+
+> **Source Data**: [OUTPUT_FROM_PROMPT_1]
+> 
+
+> 
+> 
+
+> **Writing Guidelines**:
+> 
+
+> 
+> 
+
+> **Tone & Style**:
+> 
+
+> - Write in Apple/Stripe style: clear, concise, elegant, confident
+> 
+
+> - Use active voice and present tense
+> 
+
+> - Avoid jargon unless defined in terminology section
+> 
+
+> - Write for a reading level of Grade 8-10 (accessible to all)
+> 
+
+> - Be conversational but professional
+> 
+
+> 
+> 
+
+> **Structure Requirements**:
+> 
+
+> 1. **Progressive disclosure**: Start with quick-start/overview, then details
+> 
+
+> 2. **Scannable format**: Use headings, bullets, numbered lists, and visual breaks
+> 
+
+> 3. **Cross-references**: Link related topics (e.g., "Learn more about [Feature X]")
+> 
+
+> 4. **Action-oriented**: Lead with what users can do, not what the product has
+> 
+
+> 
+> 
+
+> **Content Sections to Generate**:
+> 
+
+> 
+> 
+
+> ### 1. Getting Started (Quick Start)
+> 
+
+> - 3-5 steps to first success
+> 
+
+> - Assume zero prior knowledge
+> 
+
+> - Include expected outcome
+> 
+
+> 
+> 
+
+> ### 2. Core Features (Detailed Guides)
+> 
+
+> - One section per major feature
+> 
+
+> - Include: What it is, Why use it, How to use it, Tips & best practices
+> 
+
+> - Add "Common mistakes" or "What to avoid" where relevant
+> 
+
+> 
+> 
+
+> ### 3. How It Works (Conceptual)
+> 
+
+> - Explain the underlying process/flow
+> 
+
+> - Use analogies for complex concepts
+> 
+
+> - Reference visual elements from Prompt 1 output
+> 
+
+> 
+> 
+
+> ### 4. Use Cases & Examples
+> 
+
+> - Real-world scenarios
+> 
+
+> - Show before/after or problem/solution
+> 
+
+> - Include industry-specific examples if applicable
+> 
+
+> 
+> 
+
+> ### 5. Technical Reference (if applicable)
+> 
+
+> - API documentation
+> 
+
+> - Configuration options
+> 
+
+> - Code examples with comments
+> 
+
+> - Use proper syntax highlighting markers: `language
+> 
+
+> 
+> 
+
+> ### 6. Troubleshooting
+> 
+
+> - Format as: Problem → Cause → Solution
+> 
+
+> - Include "Still stuck? Contact support" fallback
+> 
+
+> - Add prevention tips
+> 
+
+> 
+> 
+
+> ### 7. FAQ
+> 
+
+> - Group by category (General, Technical, Billing, etc.)
+> 
+
+> - Lead with most common questions
+> 
+
+> - Keep answers under 100 words
+> 
+
+> 
+> 
+
+> ### 8. Glossary (if terminology exists)
+> 
+
+> - Alphabetical list
+> 
+
+> - Plain-language definitions
+> 
+
+> - Link terms when first mentioned in docs
+> 
+
+> 
+> 
+
+> **Formatting Standards**:
+> 
+
+> - Use `## Heading 2` for main sections
+> 
+
+> - Use `### Heading 3` for subsections
+> 
+
+> - Use `#### Heading 4` for detailed breakdowns
+> 
+
+> - Bold **important actions** or **key concepts**
+> 
+
+> - Use `inline code` for technical terms, file names, UI elements
+> 
+
+> - Use blockquotes `>` for tips, warnings, or notes
+> 
+
+> - Number lists for sequential steps, bullet lists for unordered items
+> 
+
+> 
+> 
+
+> **SEO Optimization**:
+> 
+
+> - Include target keywords naturally in first 100 words
+> 
+
+> - Use descriptive headings that match user search intent
+> 
+
+> - Add alt text descriptions for referenced images
+> 
+
+> 
+> 
+
+> **Output Format**: Full Markdown documentation organized by section
+> 
+
+---
+
+## Prompt 3: Metadata Generation & Export Formatting
+
+### Purpose
+
+Package the documentation with professional metadata for deployment.
+
+### Template
+
+> **System Context**: You are a documentation engineer preparing content for production deployment in a professional help center.
+> 
+
+> 
+> 
+
+> **Task**: Generate comprehensive metadata and format the documentation for export.
+> 
+
+> 
+> 
+
+> **Source Data**: [OUTPUT_FROM_PROMPT_2]
+> 
+
+> 
+> 
+
+> **Output Format** (JSON):
+> 
+
+> `json
+> 
+
+> {
+> 
+
+> "metadata": {
+> 
+
+> "title": "Primary document title (SEO-optimized)",
+> 
+
+> "description": "150-160 character meta description for search engines",
+> 
+
+> "keywords": ["keyword1", "keyword2", "keyword3"],
+> 
+
+> "version": "1.0.0",
+> 
+
+> "last_updated": "2025-10-12T03:42:26Z",
+> 
+
+> "author": "Generated by [Your App Name]",
+> 
+
+> "language": "en",
+> 
+
+> "readability_score": {
+> 
+
+> "flesch_reading_ease": 65,
+> 
+
+> "grade_level": "8-9",
+> 
+
+> "interpretation": "Easy to read for general audience"
+> 
+
+> },
+> 
+
+> "estimated_read_time": "8 minutes",
+> 
+
+> "site_source": "https://example.com",
+> 
+
+> "generated_at": "2025-10-12T03:42:26Z"
+> 
+
+> },
+> 
+
+> "searchability": {
+> 
+
+> "primary_tags": ["getting-started", "features", "api"],
+> 
+
+> "synonyms": {
+> 
+
+> "setup": ["install", "configure", "initialize"],
+> 
+
+> "troubleshoot": ["debug", "fix", "resolve", "error"]
+> 
+
+> },
+> 
+
+> "search_keywords": ["All important terms for search indexing"]
+> 
+
+> },
+> 
+
+> "structure": {
+> 
+
+> "sections": [
+> 
+
+> {
+> 
+
+> "id": "getting-started",
+> 
+
+> "title": "Getting Started",
+> 
+
+> "slug": "getting-started",
+> 
+
+> "order": 1,
+> 
+
+> "subsections": [
+> 
+
+> {
+> 
+
+> "id": "quick-start",
+> 
+
+> "title": "Quick Start Guide",
+> 
+
+> "slug": "quick-start",
+> 
+
+> "order": 1
+> 
+
+> }
+> 
+
+> ]
+> 
+
+> },
+> 
+
+> {
+> 
+
+> "id": "features",
+> 
+
+> "title": "Features",
+> 
+
+> "slug": "features",
+> 
+
+> "order": 2,
+> 
+
+> "subsections": []
+> 
+
+> }
+> 
+
+> ],
+> 
+
+> "cross_references": [
+> 
+
+> {
+> 
+
+> "from": "getting-started",
+> 
+
+> "to": "features",
+> 
+
+> "type": "see-also"
+> 
+
+> }
+> 
+
+> ]
+> 
+
+> },
+> 
+
+> "analytics": {
+> 
+
+> "predicted_popular_sections": ["getting-started", "troubleshooting", "faq"],
+> 
+
+> "priority_order": ["Quick start", "Common issues", "Core features"],
+> 
+
+> "content_gaps": ["Missing: Video tutorials", "Missing: Integration examples"]
+> 
+
+> },
+> 
+
+> "export_formats": {
+> 
+
+> "markdown": "Full markdown content",
+> 
+
+> "html": "<div>Formatted HTML with proper semantic tags</div>",
+> 
+
+> "json": "Structured JSON for API consumption",
+> 
+
+> "notion": "Notion-flavored markdown for import"
+> 
+
+> },
+> 
+
+> "changelog": [
+> 
+
+> {
+> 
+
+> "version": "1.0.0",
+> 
+
+> "date": "2025-10-12",
+> 
+
+> "changes": ["Initial documentation generated"],
+> 
+
+> "sections_modified": ["all"]
+> 
+
+> }
+> 
+
+> ],
+> 
+
+> "validation": {
+> 
+
+> "broken_links": [],
+> 
+
+> "missing_prerequisites": [],
+> 
+
+> "unclear_instructions": [],
+> 
+
+> "accessibility_score": 95,
+> 
+
+> "status": "ready_for_deployment"
+> 
+
+> }
+> 
+
+> }
+> 
+
+> `
+> 
+
+> 
+> 
+
+> **Quality Checks**:
+> 
+
+> 1. Verify all cross-references point to existing sections
+> 
+
+> 2. Ensure code blocks have language identifiers
+> 
+
+> 3. Check that technical terms are defined before use
+> 
+
+> 4. Validate readability score is 60+ (Flesch Reading Ease)
+> 
+
+> 5. Confirm all sections have proper heading hierarchy
+> 
+
+> 6. Check for broken or placeholder content
+> 
+
+> 
+> 
+
+> **Export Specifications**:
+> 
+
+> - **Markdown**: Preserve all formatting, include frontmatter with metadata
+> 
+
+> - **HTML**: Use semantic tags (`<article>`, `<section>`, `<code>`), add classes for styling
+> 
+
+> - **JSON**: Flatten for API consumption, include separate content + metadata objects
+> 
+
+> - **Notion**: Convert to Notion-flavored markdown with proper block syntax
+> 
+
+---
+
+## Prompt 4: Validation & Refinement (Optional)
+
+### Purpose
+
+Perform quality checks and refine based on user feedback.
+
+### Template
+
+> **System Context**: You are a quality assurance specialist for technical documentation.
+> 
+
+> 
+> 
+
+> **Task**: Review the generated documentation and apply refinements based on feedback.
+> 
+
+> 
+> 
+
+> **Documentation to Review**: [OUTPUT_FROM_PROMPTS_1-3]
+> 
+
+> 
+> 
+
+> **User Feedback** (if provided): [USER_FEEDBACK]
+> 
+
+> 
+> 
+
+> **Validation Checklist**:
+> 
+
+> 
+> 
+
+> ✓ **Logical Flow**
+> 
+
+> - Does each section flow naturally to the next?
+> 
+
+> - Are prerequisites mentioned before they're needed?
+> 
+
+> - Do steps follow a logical sequence?
+> 
+
+> 
+> 
+
+> ✓ **Clarity**
+> 
+
+> - Can a beginner understand without external help?
+> 
+
+> - Are there undefined jargon terms?
+> 
+
+> - Are instructions specific and actionable?
+> 
+
+> 
+> 
+
+> ✓ **Completeness**
+> 
+
+> - Are all promises/features mentioned actually documented?
+> 
+
+> - Do troubleshooting sections address common issues?
+> 
+
+> - Are edge cases covered?
+> 
+
+> 
+> 
+
+> ✓ **Consistency**
+> 
+
+> - Is terminology used consistently throughout?
+> 
+
+> - Is formatting uniform (headings, code blocks, lists)?
+> 
+
+> - Is tone consistent across sections?
+> 
+
+> 
+> 
+
+> ✓ **Accessibility**
+> 
+
+> - Is there alt text for images?
+> 
+
+> - Are links descriptive (not "click here")?
+> 
+
+> - Is contrast sufficient in code examples?
+> 
+
+> 
+> 
+
+> **Refinement Options** (apply based on feedback):
+> 
+
+> - "Make more formal" → Increase business tone, reduce contractions
+> 
+
+> - "Make more casual" → Add conversational elements, use "you" more
+> 
+
+> - "Add more examples" → Insert 2-3 real-world scenarios per section
+> 
+
+> - "Simplify language" → Lower grade level, define all technical terms
+> 
+
+> - "Add technical depth" → Include architecture diagrams, API specs
+> 
+
+> - "Shorten" → Remove redundancy, combine similar sections
+> 
+
+> - "Expand" → Add detail, more step-by-step breakdowns
+> 
+
+> 
+> 
+
+> **Output**: Updated documentation with changes highlighted + summary of improvements made
+> 
+
+---
+
+## Implementation Tips
+
+### Prompt Chaining Strategy
+
+1. **Run Prompt 1** → Parse JSON output
+2. **Feed to Prompt 2** → Generate markdown docs
+3. **Feed to Prompt 3** → Create final export package
+4. **Optional: Run Prompt 4** → Refine based on user feedback
+
+### API Integration
+
+```jsx
+const response1 = await ai.complete(prompt1, { url: userUrl });
+const structure = JSON.parse(response1);
+
+const response2 = await ai.complete(prompt2, { structure });
+const docs = response2;
+
+const response3 = await ai.complete(prompt3, { docs });
+const finalPackage = JSON.parse(response3);
+```
+
+### Error Handling
+
+- If JSON parsing fails → Retry with "Ensure valid JSON output"
+- If content is thin → Re-scrape with different selectors
+- If validation fails → Apply Prompt 4 automatically
+
+---
+
+**Next Steps**: Test these prompts with diverse websites (SaaS, e-commerce, docs sites) and iterate based on output quality.
+
+---
+
+## Export Formats & Theme System
+
+### Supported Formats
+
+PDF, DOCX, HTML, Markdown, JSON (all with customizable themes applied)
+
+### Theme Architecture
+
+### Theme Configuration Structure
+
+```json
+{
+  "theme": {
+    "name": "Modern Light",
+    "id": "modern-light",
+    "colors": {
+      "primary": "#2563eb",
+      "secondary": "#64748b",
+      "accent": "#0ea5e9",
+      "background": "#ffffff",
+      "surface": "#f8fafc",
+      "text": "#0f172a",
+      "text_secondary": "#475569",
+      "border": "#e2e8f0",
+      "code_bg": "#f1f5f9",
+      "success": "#10b981",
+      "warning": "#f59e0b",
+      "error": "#ef4444"
+    },
+    "typography": {
+      "font_family": "Inter, -apple-system, system-ui, sans-serif",
+      "heading_font": "Inter, -apple-system, system-ui, sans-serif",
+      "code_font": "Fira Code, Monaco, Consolas, monospace",
+      "base_size": "16px",
+      "line_height": "1.6",
+      "heading_weights": {
+        "h1": 700,
+        "h2": 600,
+        "h3": 600
+      }
+    },
+    "spacing": {
+      "section": "3rem",
+      "paragraph": "1.5rem",
+      "list_item": "0.5rem"
+    },
+    "styling": {
+      "border_radius": "8px",
+      "code_border_radius": "6px",
+      "shadow": "0 1px 3px rgba(0,0,0,0.1)"
+    }
+  }
+}
+```
+
+### Implementation by Format
+
+### 1. **Markdown Export**
+
+**Approach**: Extended frontmatter + standard markdown
+
+```jsx
+function exportMarkdown(content, theme) {
+  const frontmatter = `---
+title: ${content.metadata.title}
+theme: ${[theme.id](http://theme.id)}
+colors:
+  primary: ${theme.colors.primary}
+  accent: ${theme.colors.accent}
+generated: ${content.metadata.generated_at}
+---
+
+`;
+  
+  return frontmatter + content.markdown;
+}
+```
+
+**Libraries**:
+
+- `gray-matter` (frontmatter parsing)
+- `remark` (markdown processing)
+
+**Theme Application**: Store theme in frontmatter for later HTML/PDF conversion
+
+---
+
+### 2. **HTML Export**
+
+**Approach**: Semantic HTML with embedded CSS
+
+```jsx
+function exportHTML(content, theme) {
+  const css = generateCSS(theme);
+  
+  return `<!DOCTYPE html>
+<html lang="${content.metadata.language}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${content.metadata.title}</title>
+  <style>${css}</style>
+</head>
+<body>
+  <article class="documentation">
+    ${marked.parse(content.markdown)}
+  </article>
+</body>
+</html>`;
+}
+
+function generateCSS(theme) {
+  return `
+    :root {
+      --color-primary: ${theme.colors.primary};
+      --color-text: ${theme.colors.text};
+      --font-family: ${theme.typography.font_family};
+      /* ... all theme variables */
+    }
+    
+    body {
+      font-family: var(--font-family);
+      color: var(--color-text);
+      line-height: ${theme.typography.line_height};
+      background: ${theme.colors.background};
+    }
+    
+    /* Component styles using CSS variables */
+  `;
+}
+```
+
+**Libraries**:
+
+- `marked` or `markdown-it` (markdown → HTML)
+- `prismjs` or `highlight.js` (code highlighting)
+- `tailwindcss` or custom CSS (styling)
+
+**Theme Application**: CSS variables for easy theme switching
+
+---
+
+### 3. **PDF Export**
+
+**Approach**: HTML → PDF with proper page breaks and styling
+
+```jsx
+import puppeteer from 'puppeteer';
+
+async function exportPDF(content, theme) {
+  const html = exportHTML(content, theme); // Reuse HTML generator
+  
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  
+  await page.setContent(html, { waitUntil: 'networkidle0' });
+  
+  const pdf = await page.pdf({
+    format: 'A4',
+    margin: {
+      top: '2cm',
+      right: '2cm',
+      bottom: '2cm',
+      left: '2cm'
+    },
+    printBackground: true, // Apply theme colors
+    preferCSSPageSize: true
+  });
+  
+  await browser.close();
+  return pdf;
+}
+```
+
+**Alternative Libraries**:
+
+- `puppeteer` or `playwright` (recommended - best CSS support)
+- `pdfkit` (programmatic PDF creation)
+- `html-pdf-node` (simpler but less control)
+- `@react-pdf/renderer` (if using React)
+
+**Theme Application**: Full CSS support via HTML rendering
+
+**PDF-Specific CSS**:
+
+```css
+@media print {
+  h1, h2, h3 { page-break-after: avoid; }
+  pre, code { page-break-inside: avoid; }
+  .page-break { page-break-before: always; }
+}
+```
+
+---
+
+### 4. **DOCX Export**
+
+**Approach**: Convert markdown to DOCX with theme-based styling
+
+```jsx
+import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx';
+
+function exportDOCX(content, theme) {
+  const doc = new Document({
+    styles: {
+      default: {
+        document: {
+          run: {
+            font: theme.typography.font_family.split(',')[0],
+            size: parseInt(theme.typography.base_size) * 2, // Half-points
+            color: theme.colors.text.replace('#', '')
+          }
+        },
+        heading1: {
+          run: {
+            color: theme.colors.primary.replace('#', ''),
+            bold: true,
+            size: 32
+          }
+        }
+        // ... more styles
+      }
+    },
+    sections: [{
+      properties: {},
+      children: parseMarkdownToDOCX(content.markdown, theme)
+    }]
+  });
+  
+  return Packer.toBuffer(doc);
+}
+```
+
+**Libraries**:
+
+- `docx` (create DOCX files)
+- `mammoth` (convert existing DOCX)
+- `pandoc` (universal document converter via CLI)
+
+**Theme Application**: Map theme to DOCX styles (fonts, colors, spacing)
+
+**Limitations**: DOCX has limited styling compared to HTML/PDF
+
+---
+
+### 5. **JSON Export**
+
+**Approach**: Structured data with embedded theme metadata
+
+```jsx
+function exportJSON(content, theme) {
+  return JSON.stringify({
+    version: "1.0",
+    generated_at: new Date().toISOString(),
+    theme: {
+      id: [theme.id](http://theme.id),
+      name: [theme.name](http://theme.name),
+      colors: theme.colors,
+      typography: theme.typography
+    },
+    metadata: content.metadata,
+    content: {
+      raw_markdown: content.markdown,
+      structured: parseMarkdownToAST(content.markdown),
+      sections: content.structure.sections
+    },
+    searchability: content.searchability,
+    analytics: [content.analytics](http://content.analytics)
+  }, null, 2);
+}
+```
+
+**Libraries**:
+
+- `unified` + `remark-parse` (markdown AST)
+- `mdast-util-to-hast` (convert to HTML AST)
+
+**Theme Application**: Include full theme object for client-side rendering
+
+---
+
+### Theme Presets
+
+Create a library of professional themes:
+
+```jsx
+const themes = {
+  "apple-light": {
+    name: "Apple Light",
+    colors: { primary: "#007aff", background: "#ffffff", ... }
+  },
+  "github-dark": {
+    name: "GitHub Dark",
+    colors: { primary: "#58a6ff", background: "#0d1117", ... }
+  },
+  "stripe-modern": {
+    name: "Stripe Modern",
+    colors: { primary: "#635bff", background: "#ffffff", ... }
+  },
+  "notion-default": {
+    name: "Notion Default",
+    colors: { primary: "#2383e2", background: "#ffffff", ... }
+  }
+};
+```
+
+---
+
+### Feature Suggestions
+
+### **1. Live Preview with Theme Switching**
+
+Allow users to preview docs in different themes before exporting:
+
+```jsx
+<ThemeSwitcher themes={themes} onChange={setActiveTheme} />
+<DocumentPreview content={docs} theme={activeTheme} />
+```
+
+### **2. Custom Theme Builder**
+
+Let users create custom themes via UI:
+
+- Color picker for each semantic color
+- Font selector (Google Fonts integration)
+- Spacing/sizing controls
+- Real-time preview
+
+### **3. Theme Import/Export**
+
+Users can save and share custom themes:
+
+```jsx
+// Export theme
+downloadTheme(customTheme, 'my-company-theme.json');
+
+// Import theme
+const imported = await uploadTheme('my-company-theme.json');
+```
+
+### **4. Brand Kit Integration**
+
+Extract brand colors from uploaded logo:
+
+```jsx
+import ColorThief from 'colorthief';
+
+async function generateThemeFromLogo(logoUrl) {
+  const palette = await ColorThief.getPalette(logoUrl, 5);
+  return createThemeFromPalette(palette);
+}
+```
+
+### **5. Accessibility Checker**
+
+Validate theme contrast ratios (WCAG AA/AAA):
+
+```jsx
+import { calculateContrast } from 'wcag-contrast';
+
+function validateTheme(theme) {
+  const ratio = calculateContrast(theme.colors.text, theme.colors.background);
+  return {
+    passes_aa: ratio >= 4.5,
+    passes_aaa: ratio >= 7,
+    ratio
+  };
+}
+```
+
+### **6. Batch Export**
+
+Export all sections in all formats at once:
+
+```jsx
+async function batchExport(content, theme) {
+  return {
+    '[docs.md](http://docs.md)': await exportMarkdown(content, theme),
+    'docs.html': await exportHTML(content, theme),
+    'docs.pdf': await exportPDF(content, theme),
+    'docs.docx': await exportDOCX(content, theme),
+    'docs.json': await exportJSON(content, theme)
+  };
+}
+```
+
+---
+
+### Architecture Recommendation
+
+```
+/src
+  /exporters
+    /markdown
+      - exporter.ts
+      - template.ts
+    /html
+      - exporter.ts
+      - template.ts
+      - styles.ts
+    /pdf
+      - exporter.ts
+      - page-config.ts
+    /docx
+      - exporter.ts
+      - styles.ts
+    /json
+      - exporter.ts
+      - schema.ts
+  /themes
+    - presets.ts
+    - validator.ts
+    - generator.ts
+  /core
+    - theme-engine.ts (applies theme to all formats)
+    - export-manager.ts (orchestrates exports)
+```
+
+---
+
+### Performance Tips
+
+1. **Cache HTML generation**: Reuse for both HTML and PDF exports
+2. **Lazy load exporters**: Only import needed format on demand
+3. **Web Workers**: Generate exports in background thread
+4. **Streaming**: Stream large PDFs instead of loading into memory
+5. **CDN fonts**: Reference fonts via CDN in HTML/PDF to reduce file size
+
+---
+
+### Monetization Ideas
+
+**Free Tier**:
+
+- 3 theme presets
+- Markdown + HTML export
+- Basic customization
+
+**Pro Tier**:
+
+- All theme presets
+- PDF + DOCX export
+- Custom theme builder
+- Batch export
+- Brand kit extraction
+
+**Enterprise**:
+
+- White-label themes
+- API access
+- Custom fonts
+- Priority rendering
+- Bulk operations

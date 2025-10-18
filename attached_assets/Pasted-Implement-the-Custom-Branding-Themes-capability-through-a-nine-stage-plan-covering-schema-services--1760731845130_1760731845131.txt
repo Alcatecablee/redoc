@@ -1,0 +1,20 @@
+Implement the Custom Branding/Themes capability through a nine-stage plan covering schema, services, extraction pipelines, UI, and documentation rendering updates.
+
+Critical Findings / Analysis:
+
+Data Layer (server/db.ts, shared/schema.ts, migrations/*): introduce a themes table keyed by org_id, Drizzle model + relations, add tokens JSON type (colors, typography, spacing, assets), enforce org-level uniqueness, and seed default theme; expose typed helpers in shared/themes.ts for generating CSS variables.
+Backend APIs (server/routes.ts, server/index.ts, server/storage.ts): add Express router /api/themes with auth middleware, CRUD handlers (list, get, create/update, delete), validations via zod, asset upload endpoints to Supabase Storage, and service layer to translate JSON tokens to persisted schema.
+Theme Extraction Worker (new server/services/theme-extractor.ts, queue integration): orchestrate CSS fetch (node-fetch), respect robots.txt via existing crawler utilities, recurse @import (depth≤2), cache responses, parse CSS with postcss+plugins (resolve @imports, css-variables), collect color declarations into weighted signals based on selector heuristics.
+Color Analysis (shared/accessibility.ts enhancements, new shared/color-utils.ts): convert RGB→Lab using color-conversion helpers, cluster with k-means/k-medians (target 5–8 swatches), derive primary/secondary/background/text tokens, enforce WCAG AA via contrast check/auto-adjust routine, log extraction confidence for monitoring.
+Logo Fallback (server/services/logo-extractor.ts): leverage existing colorthief, fetch and cache logo asset (uploaded or from metadata), merge palette results with CSS-derived palette (prefer CSS when confidence high), supply swatch + primary tokens.
+Theme Token Finalization (shared/themes.ts, server/services/theme-service.ts): standardize Theme interface (colors, typography, surface tokens, shadows), serialize to CSS variable map and JSON; include generated metadata (contrast grade, source, lastExtractedAt).
+ThemeBuilder UI (src/components/ThemeBuilder.tsx, new src/components/ThemePreview.tsx): refactor to fetch/save themes via React Query, integrate live preview applying CSS variables via context/provider, drag-drop logo upload, display accessibility scores, and allow auto-generate from URL invoking extractor API.
+Documentation Pipeline Integration (server/generator.ts, server/enhanced-generator.ts, server/storage.ts): inject theme tokens when composing hostable JSON, persist themeId per project/org, ensure pipeline writes themed CSS into hosted docs + export bundles, add queue trigger to re-render exports when theme updates.
+Export + Hosted Rendering (server/storage.ts hosted HTML, export builders in server/utils): update Markdown/HTML/PDF/DOCX pipelines to include theme CSS variables, embed logo/favicon, ensure dark mode fallback, and verify ThemeSwitcher respects custom themes.
+Security: none observed.
+
+Next Actions:
+
+Design and migrate the Drizzle schema for themes, including relationships and seed/default theme logic.
+Implement the theme service + CRUD APIs with validation and storage helpers, integrating Supabase for assets.
+Build the extraction/analysis workflow (CSS + logo) and wire it to the ThemeBuilder UI for auto-generation and live previews.

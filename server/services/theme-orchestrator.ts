@@ -1,0 +1,306 @@
+import { CSSExtractor, type ExtractedColors } from './css-extractor';
+import { ColorAnalyzer, type ColorPalette } from './color-analyzer';
+import type { Theme } from '@shared/themes';
+import { getDefaultTheme } from '@shared/themes';
+
+export interface ThemeExtractionOptions {
+  url: string;
+  logoUrl?: string;
+  timeout?: number;
+}
+
+export interface ThemeExtractionResult {
+  theme: Theme;
+  light: Theme;
+  dark: Theme;
+  confidence: number;
+  source: 'css' | 'logo' | 'hybrid' | 'fallback';
+  swatch: string[];
+}
+
+/**
+ * Production-ready theme orchestrator that combines CSS and logo extraction
+ * with intelligent fallback strategies
+ * 
+ * Current Implementation Status:
+ * - CSS Extraction: FULLY IMPLEMENTED with @import processing, caching, size limits
+ * - Logo Extraction: NOT YET IMPLEMENTED (fallback path exists, returns empty)
+ * - Fallback Cascade: CSS → Default (logo step skipped until implemented)
+ * - Light/Dark Variants: FULLY IMPLEMENTED
+ * - CSS Variable Generation: FULLY IMPLEMENTED
+ * 
+ * Production-Ready Features:
+ * ✅ @import rule processing (depth ≤ 2)
+ * ✅ Response caching with 1-hour TTL
+ * ✅ 5MB CSS size limits
+ * ✅ Gray/neutral color filtering (saturation < 15%)
+ * ✅ WCAG AA contrast validation
+ * ✅ Automatic light/dark theme generation
+ * ⏳ Logo-based color extraction (planned)
+ */
+export class ThemeOrchestrator {
+  private cssExtractor: CSSExtractor;
+  private colorAnalyzer: ColorAnalyzer;
+
+  constructor() {
+    this.cssExtractor = new CSSExtractor();
+    this.colorAnalyzer = new ColorAnalyzer();
+  }
+
+  /**
+   * Extract a complete theme with light and dark variants
+   * Strategy: Try CSS first, fallback to logo, then defaults
+   */
+  async extractTheme(options: ThemeExtractionOptions): Promise<ThemeExtractionResult> {
+    try {
+      // Step 1: Try CSS extraction
+      const cssResult = await this.cssExtractor.extractFromURL(options.url);
+
+      // Step 2: Evaluate CSS confidence
+      if (cssResult.confidence >= 0.6 && cssResult.colors.length >= 3) {
+        // Strong CSS signals - use CSS extraction
+        return this.buildThemeFromColors(cssResult.colors, cssResult.cssVariables, 'css');
+      }
+
+      // Step 3: Try logo extraction if available and CSS is weak
+      if (options.logoUrl && cssResult.confidence < 0.6) {
+        try {
+          const logoColors = await this.extractColorsFromLogo(options.logoUrl);
+          
+          // Merge CSS and logo colors (hybrid approach)
+          const mergedColors = this.mergeColorSources(cssResult.colors, logoColors);
+          
+          if (mergedColors.length >= 3) {
+            return this.buildThemeFromColors(mergedColors, cssResult.cssVariables, 'hybrid');
+          }
+        } catch (error) {
+          console.warn('Logo extraction failed:', error);
+        }
+      }
+
+      // Step 4: Use CSS results even if weak (better than nothing)
+      if (cssResult.colors.length > 0) {
+        return this.buildThemeFromColors(cssResult.colors, cssResult.cssVariables, 'css');
+      }
+
+      // Step 5: Ultimate fallback to default theme
+      return this.buildFallbackTheme();
+
+    } catch (error) {
+      console.error('Theme extraction failed completely:', error);
+      return this.buildFallbackTheme();
+    }
+  }
+
+  /**
+   * Build light and dark theme variants from extracted colors
+   */
+  private buildThemeFromColors(
+    colors: string[],
+    cssVariables: Record<string, string>,
+    source: 'css' | 'logo' | 'hybrid'
+  ): ThemeExtractionResult {
+    // Use color analyzer to build accessible palette
+    const palette = this.colorAnalyzer.buildPalette(colors);
+
+    // Generate both light and dark variants
+    const lightTheme = this.createThemeFromPalette(palette, 'light', cssVariables);
+    const darkTheme = this.createThemeFromPalette(palette, 'dark', cssVariables);
+
+    // Determine which variant to use as primary based on extracted colors
+    const useLightAsPrimary = colors.filter(c => this.isLightColor(c)).length > colors.length / 2;
+    const primaryTheme = useLightAsPrimary ? lightTheme : darkTheme;
+
+    // Calculate confidence score
+    const confidence = Math.min(colors.length / 5, 1.0);
+
+    return {
+      theme: primaryTheme,
+      light: lightTheme,
+      dark: darkTheme,
+      confidence,
+      source,
+      swatch: colors.slice(0, 8), // Return top 8 colors as swatch
+    };
+  }
+
+  /**
+   * Create a theme from a color palette
+   */
+  private createThemeFromPalette(
+    palette: ColorPalette,
+    variant: 'light' | 'dark',
+    cssVariables: Record<string, string>
+  ): Theme {
+    const isLight = variant === 'light';
+
+    return {
+      id: `extracted-${variant}`,
+      name: `Extracted Theme (${variant === 'light' ? 'Light' : 'Dark'})`,
+      colors: {
+        primary: palette.primary,
+        secondary: palette.secondary,
+        accent: palette.accent,
+        background: isLight ? palette.background : '#0f172a',
+        surface: isLight ? palette.surface : '#1e293b',
+        text: isLight ? palette.text : '#f1f5f9',
+        text_secondary: isLight ? palette.textSecondary : '#94a3b8',
+        border: isLight ? palette.border : '#334155',
+        code_bg: isLight ? '#f1f5f9' : '#1e293b',
+        success: '#10b981',
+        warning: '#f59e0b',
+        error: '#ef4444',
+      },
+      typography: {
+        font_family: 'Inter, -apple-system, system-ui, sans-serif',
+        heading_font: 'Inter, -apple-system, system-ui, sans-serif',
+        code_font: "'Fira Code', Monaco, Consolas, monospace",
+        base_size: '16px',
+        line_height: '1.6',
+        heading_weights: { h1: 700, h2: 600, h3: 600 },
+        heading_sizes: { h1: '2.5rem', h2: '2rem', h3: '1.5rem' },
+      },
+      spacing: {
+        section: '3rem',
+        paragraph: '1.5rem',
+        list_item: '0.5rem',
+        density: 'comfortable',
+      },
+      styling: {
+        border_radius: '8px',
+        code_border_radius: '6px',
+        shadow: '0 1px 3px rgba(0,0,0,0.1)',
+      },
+      layout: { orientation: 'multi' },
+    };
+  }
+
+  /**
+   * Extract colors from logo image
+   * TODO: Implement using ColorThief or similar library
+   * 
+   * Current Status: NOT IMPLEMENTED
+   * The logo fallback path exists in the code structure but returns empty.
+   * Until implemented, the fallback cascade is: CSS → Default (skipping logo step)
+   * 
+   * Future Implementation Options:
+   * - Client-side: Use ColorThief library with canvas API
+   * - Server-side: Use Sharp + color quantization algorithms
+   * - Hybrid: Upload to client component for extraction, return colors to server
+   * 
+   * @param logoUrl - URL of the logo image to extract colors from
+   * @returns Promise<string[]> - Array of hex color strings (currently empty)
+   */
+  private async extractColorsFromLogo(logoUrl: string): Promise<string[]> {
+    // Logo extraction not yet implemented
+    // Keeping method signature for future enhancement
+    console.warn('Logo color extraction requested but not implemented. Skipping logo fallback.');
+    return [];
+  }
+
+  /**
+   * Merge colors from multiple sources, prioritizing unique and saturated colors
+   */
+  private mergeColorSources(cssColors: string[], logoColors: string[]): string[] {
+    const merged = [...cssColors, ...logoColors];
+    const unique = Array.from(new Set(merged));
+    return unique.slice(0, 8);
+  }
+
+  /**
+   * Build fallback theme using defaults
+   */
+  private buildFallbackTheme(): ThemeExtractionResult {
+    const defaultTheme = getDefaultTheme();
+
+    return {
+      theme: defaultTheme,
+      light: defaultTheme,
+      dark: this.createDarkVariant(defaultTheme),
+      confidence: 0,
+      source: 'fallback',
+      swatch: [
+        defaultTheme.colors.primary,
+        defaultTheme.colors.secondary,
+        defaultTheme.colors.accent,
+      ],
+    };
+  }
+
+  /**
+   * Create a dark variant from a light theme
+   */
+  private createDarkVariant(lightTheme: Theme): Theme {
+    return {
+      ...lightTheme,
+      id: `${lightTheme.id}-dark`,
+      name: `${lightTheme.name} (Dark)`,
+      colors: {
+        ...lightTheme.colors,
+        background: '#0f172a',
+        surface: '#1e293b',
+        text: '#f1f5f9',
+        text_secondary: '#94a3b8',
+        border: '#334155',
+        code_bg: '#1e293b',
+      },
+    };
+  }
+
+  /**
+   * Check if a color is light or dark
+   */
+  private isLightColor(color: string): boolean {
+    // Simple brightness check based on hex
+    const hex = color.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    return brightness > 128;
+  }
+}
+
+/**
+ * Generate CSS variables from a theme for use in exports
+ */
+export function generateThemeCSSVariables(theme: Theme): string {
+  return `
+:root {
+  /* Colors */
+  --primary: ${theme.colors.primary};
+  --secondary: ${theme.colors.secondary};
+  --accent: ${theme.colors.accent};
+  --background: ${theme.colors.background};
+  --surface: ${theme.colors.surface};
+  --text: ${theme.colors.text};
+  --text-secondary: ${theme.colors.text_secondary};
+  --border: ${theme.colors.border};
+  --code-bg: ${theme.colors.code_bg};
+  --success: ${theme.colors.success};
+  --warning: ${theme.colors.warning};
+  --error: ${theme.colors.error};
+
+  /* Typography */
+  --font-family: ${theme.typography.font_family};
+  --heading-font: ${theme.typography.heading_font};
+  --code-font: ${theme.typography.code_font};
+  --base-size: ${theme.typography.base_size};
+  --line-height: ${theme.typography.line_height};
+
+  /* Spacing */
+  --section-spacing: ${theme.spacing.section};
+  --paragraph-spacing: ${theme.spacing.paragraph};
+  --list-item-spacing: ${theme.spacing.list_item};
+
+  /* Styling */
+  --border-radius: ${theme.styling.border_radius};
+  --code-border-radius: ${theme.styling.code_border_radius};
+  --shadow: ${theme.styling.shadow};
+}
+  `.trim();
+}
+
+// Export singleton instance
+export const themeOrchestrator = new ThemeOrchestrator();
