@@ -143,29 +143,30 @@ export class DevToService {
    * Calculate trust score for a DEV.to article
    */
   private calculateTrustScore(article: DevToArticle): number {
-    let score = 0.5; // Base score
+    let score = 0.85; // Base score - DEV.to quality tutorials trust level (as per recommendations)
 
-    // Reactions factor (0-0.3)
+    // Reactions factor (0-0.1)
     const reactions = article.reactions || 0;
-    if (reactions > 100) score += 0.3;
-    else if (reactions > 50) score += 0.2;
-    else if (reactions > 10) score += 0.1;
+    if (reactions > 100) score += 0.1;
+    else if (reactions > 50) score += 0.05;
+    else if (reactions < 5) score -= 0.05; // Low engagement
 
-    // Comments factor (0-0.2)
+    // Comments factor (0-0.05)
     const comments = article.comments || 0;
-    if (comments > 20) score += 0.2;
-    else if (comments > 5) score += 0.1;
+    if (comments > 20) score += 0.05;
+    else if (comments > 5) score += 0.03;
 
-    // Reading time factor (0-0.1) - longer articles often more comprehensive
-    if (article.readingTime > 10) score += 0.1;
-    else if (article.readingTime > 5) score += 0.05;
+    // Reading time factor (0-0.05) - longer articles often more comprehensive
+    if (article.readingTime > 10) score += 0.05;
+    else if (article.readingTime > 5) score += 0.03;
+    else if (article.readingTime < 3) score -= 0.05; // Too short
 
-    // Tag quality factor (0-0.2)
+    // Tag quality factor (-0.05 to 0)
     const qualityTags = ['javascript', 'react', 'vue', 'angular', 'nodejs', 'python', 'webdev', 'tutorial'];
     const hasQualityTags = article.tags.some(tag => qualityTags.includes(tag.toLowerCase()));
-    if (hasQualityTags) score += 0.2;
+    if (!hasQualityTags) score -= 0.05;
 
-    return Math.min(score, 1.0);
+    return Math.max(0.7, Math.min(score, 1.0)); // Min 0.7, max 1.0
   }
 
   /**

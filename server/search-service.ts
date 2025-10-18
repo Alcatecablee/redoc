@@ -30,6 +30,13 @@ export interface SourceLimits {
   soQuestions: number;
   githubIssues: number;
   searchResults: number;
+  youtubeVideos: number;
+  redditPosts: number;
+  devToArticles: number;
+  codeProjectArticles: number;
+  stackExchangeQuestions: number;
+  quoraAnswers: number;
+  forumPosts: number;
   truncationLimit: number;
 }
 
@@ -63,10 +70,47 @@ export class SearchService {
   // Dynamic source limits based on product complexity
   // Truncation increased from 100 to 1000 chars for all complexity levels
   // Search results scaled: small (10), medium (15-20), large (up to 30)
+  // Community sources: Reddit (5-15), DEV.to (5-10), CodeProject (3-8), Stack Exchange (5-10), Quora (3-6), Forums (5-8)
   private static readonly SOURCE_LIMITS: Record<ProductSize, SourceLimits> = {
-    small: { soQuestions: 5, githubIssues: 5, searchResults: 10, truncationLimit: 1000 },
-    medium: { soQuestions: 10, githubIssues: 10, searchResults: 20, truncationLimit: 1000 },
-    large: { soQuestions: 20, githubIssues: 15, searchResults: 30, truncationLimit: 1000 }
+    small: { 
+      soQuestions: 5, 
+      githubIssues: 5, 
+      searchResults: 10,
+      youtubeVideos: 5,
+      redditPosts: 5,
+      devToArticles: 5,
+      codeProjectArticles: 3,
+      stackExchangeQuestions: 5,
+      quoraAnswers: 3,
+      forumPosts: 5,
+      truncationLimit: 1000 
+    },
+    medium: { 
+      soQuestions: 10, 
+      githubIssues: 10, 
+      searchResults: 20,
+      youtubeVideos: 8,
+      redditPosts: 10,
+      devToArticles: 8,
+      codeProjectArticles: 5,
+      stackExchangeQuestions: 8,
+      quoraAnswers: 5,
+      forumPosts: 6,
+      truncationLimit: 1000 
+    },
+    large: { 
+      soQuestions: 20, 
+      githubIssues: 15, 
+      searchResults: 30,
+      youtubeVideos: 10,
+      redditPosts: 15,
+      devToArticles: 10,
+      codeProjectArticles: 8,
+      stackExchangeQuestions: 10,
+      quoraAnswers: 6,
+      forumPosts: 8,
+      truncationLimit: 1000 
+    }
   };
 
   constructor(serpApiKey?: string, braveApiKey?: string) {
@@ -860,8 +904,8 @@ export class SearchService {
     if (youtubeApiAccess && youtubeService.isAvailable()) {
       try {
         console.log(`🎥 Searching YouTube via API for "${productName}"...`);
-        const youtubeResults = await youtubeService.searchVideos(`${productName} tutorial`, limits.searchResults);
-        youtubeVideos = youtubeResults.videos.slice(0, limits.searchResults);
+        const youtubeResults = await youtubeService.searchVideos(`${productName} tutorial`, limits.youtubeVideos);
+        youtubeVideos = youtubeResults.videos.slice(0, limits.youtubeVideos);
         
         // Get transcripts if enabled
         if (youtubeTranscripts) {
@@ -893,7 +937,7 @@ export class SearchService {
         
         // Fallback to SerpAPI YouTube search
         try {
-          const fallbackResults = await this.search(`"${productName}" tutorial site:youtube.com`, limits.searchResults);
+          const fallbackResults = await this.search(`"${productName}" tutorial site:youtube.com`, limits.youtubeVideos);
           const youtubeSearchResults = fallbackResults.filter(r => r.domain?.includes('youtube.com'));
           
           // Convert SearchResults to YouTubeVideo format (basic conversion)
@@ -906,7 +950,7 @@ export class SearchService {
     } else if (!youtubeApiAccess) {
       // Free tier: Use YouTube search results from SerpAPI
       const youtubeSearchResults = uniqueResults.filter(r => r.domain?.includes('youtube.com'));
-      youtubeVideos = await this.convertSearchResultsToYouTubeVideos(youtubeSearchResults.slice(0, limits.searchResults));
+      youtubeVideos = await this.convertSearchResultsToYouTubeVideos(youtubeSearchResults.slice(0, limits.youtubeVideos));
       console.log(`📺 Found ${youtubeVideos.length} YouTube videos via search (Free tier)`);
     }
 
@@ -915,8 +959,8 @@ export class SearchService {
     if (enableReddit) {
       try {
         console.log(`🔍 Searching Reddit for "${productName}"...`);
-        const redditResults = await redditService.searchPosts(`${productName}`, Math.min(limits.searchResults, 10));
-        redditPosts = redditResults.posts.slice(0, Math.min(limits.searchResults, 10));
+        const redditResults = await redditService.searchPosts(`${productName}`, limits.redditPosts);
+        redditPosts = redditResults.posts.slice(0, limits.redditPosts);
         console.log(`✅ Found ${redditPosts.length} Reddit posts`);
       } catch (error) {
         console.error('Reddit search failed:', error.message);
@@ -928,8 +972,8 @@ export class SearchService {
     if (enableDevTo) {
       try {
         console.log(`📝 Searching DEV.to for "${productName}"...`);
-        const devToResults = await devToService.searchArticles(productName, Math.min(limits.searchResults, 8));
-        devToArticles = devToResults.articles.slice(0, Math.min(limits.searchResults, 8));
+        const devToResults = await devToService.searchArticles(productName, limits.devToArticles);
+        devToArticles = devToResults.articles.slice(0, limits.devToArticles);
         console.log(`✅ Found ${devToArticles.length} DEV.to articles`);
       } catch (error) {
         console.error('DEV.to search failed:', error.message);
@@ -941,8 +985,8 @@ export class SearchService {
     if (enableCodeProject) {
       try {
         console.log(`💻 Searching CodeProject for "${productName}"...`);
-        const codeProjectResults = await codeProjectService.searchArticles(productName, Math.min(limits.searchResults, 6));
-        codeProjectArticles = codeProjectResults.articles.slice(0, Math.min(limits.searchResults, 6));
+        const codeProjectResults = await codeProjectService.searchArticles(productName, limits.codeProjectArticles);
+        codeProjectArticles = codeProjectResults.articles.slice(0, limits.codeProjectArticles);
         console.log(`✅ Found ${codeProjectArticles.length} CodeProject articles`);
       } catch (error) {
         console.error('CodeProject search failed:', error.message);
@@ -954,8 +998,8 @@ export class SearchService {
     if (enableStackExchange) {
       try {
         console.log(`❓ Searching Stack Exchange for "${productName}"...`);
-        const stackExchangeResults = await stackExchangeService.searchQuestions(productName, Math.min(limits.searchResults, 8));
-        stackExchangeQuestions = stackExchangeResults.questions.slice(0, Math.min(limits.searchResults, 8));
+        const stackExchangeResults = await stackExchangeService.searchQuestions(productName, limits.stackExchangeQuestions);
+        stackExchangeQuestions = stackExchangeResults.questions.slice(0, limits.stackExchangeQuestions);
         console.log(`✅ Found ${stackExchangeQuestions.length} Stack Exchange questions`);
       } catch (error) {
         console.error('Stack Exchange search failed:', error.message);
@@ -967,8 +1011,8 @@ export class SearchService {
     if (enableQuora) {
       try {
         console.log(`🤔 Searching Quora for "${productName}"...`);
-        const quoraResults = await quoraService.searchAnswers(productName, Math.min(limits.searchResults, 6));
-        quoraAnswers = quoraResults.answers.slice(0, Math.min(limits.searchResults, 6));
+        const quoraResults = await quoraService.searchAnswers(productName, limits.quoraAnswers);
+        quoraAnswers = quoraResults.answers.slice(0, limits.quoraAnswers);
         console.log(`✅ Found ${quoraAnswers.length} Quora answers`);
       } catch (error) {
         console.error('Quora search failed:', error.message);
@@ -980,8 +1024,8 @@ export class SearchService {
     if (enableForums) {
       try {
         console.log(`🏢 Searching official forums for "${productName}"...`);
-        const forumResults = await forumsService.searchForums(productName, Math.min(limits.searchResults, 8));
-        forumPosts = forumResults.posts.slice(0, Math.min(limits.searchResults, 8));
+        const forumResults = await forumsService.searchForums(productName, limits.forumPosts);
+        forumPosts = forumResults.posts.slice(0, limits.forumPosts);
         console.log(`✅ Found ${forumPosts.length} forum posts`);
       } catch (error) {
         console.error('Forum search failed:', error.message);
@@ -1050,17 +1094,49 @@ export class SearchService {
   }
 
   /**
-   * Calculate quality score for search results
+   * Convert any source type to a SearchResult-compatible format for quality scoring
    */
-  calculateQualityScore(results: SearchResult[]): number {
-    if (results.length === 0) return 0;
+  private convertToSearchResult(source: any): SearchResult {
+    // Already a SearchResult
+    if (source.snippet && source.source) {
+      return source as SearchResult;
+    }
+    
+    // Handle different source types
+    let url = source.url || '';
+    let title = source.title || source.question || '';
+    let snippet = source.snippet || source.answer || source.content || source.description || source.summary || '';
+    
+    return {
+      title,
+      url,
+      snippet,
+      source: 'cache' as const,
+      domain: this.extractDomain(url)
+    };
+  }
+
+  /**
+   * Calculate quality score for any type of sources
+   */
+  calculateQualityScore(sources: any[]): number {
+    if (sources.length === 0) return 0;
+
+    // Convert all sources to SearchResult format for uniform processing
+    const results = sources.map(source => this.convertToSearchResult(source));
 
     let score = 0;
     const weights = {
       stackoverflow: 2,
+      stackexchange: 2, // Stack Exchange sites have similar authority
       github: 2,
       documentation: 3,
-      youtube: 1.5, // YouTube videos provide good tutorial content
+      youtube: 1.5,
+      reddit: 1.2, // Community insights
+      devto: 1.3, // Quality tutorials
+      codeproject: 1.3, // Code examples
+      quora: 1.0, // Expert answers
+      forums: 1.4, // Official community support
       blog: 1,
       other: 0.5
     };
@@ -1070,13 +1146,25 @@ export class SearchService {
       
       if (domain.includes('stackoverflow.com')) {
         score += weights.stackoverflow;
+      } else if (domain.includes('stackexchange.com')) {
+        score += weights.stackexchange;
       } else if (domain.includes('github.com')) {
         score += weights.github;
       } else if (domain.includes('docs') || domain.includes('documentation')) {
         score += weights.documentation;
       } else if (domain.includes('youtube.com')) {
         score += weights.youtube;
-      } else if (domain.includes('blog') || domain.includes('medium.com') || domain.includes('dev.to')) {
+      } else if (domain.includes('reddit.com')) {
+        score += weights.reddit;
+      } else if (domain.includes('dev.to')) {
+        score += weights.devto;
+      } else if (domain.includes('codeproject.com')) {
+        score += weights.codeproject;
+      } else if (domain.includes('quora.com')) {
+        score += weights.quora;
+      } else if (domain.includes('community.') || domain.includes('forum')) {
+        score += weights.forums;
+      } else if (domain.includes('blog') || domain.includes('medium.com')) {
         score += weights.blog;
       } else {
         score += weights.other;
