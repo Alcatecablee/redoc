@@ -123,29 +123,30 @@ export class RedditService {
    * Calculate trust score for a Reddit post
    */
   private calculateTrustScore(post: any): number {
-    let score = 0.5; // Base score
+    let score = 0.8; // Base score - Reddit community insights trust level (as per recommendations)
 
-    // Upvotes factor (0-0.3)
+    // Upvotes factor (0-0.15)
     const upvotes = post.ups || 0;
-    if (upvotes > 100) score += 0.3;
-    else if (upvotes > 50) score += 0.2;
-    else if (upvotes > 10) score += 0.1;
+    if (upvotes > 100) score += 0.15;
+    else if (upvotes > 50) score += 0.1;
+    else if (upvotes > 10) score += 0.05;
+    else if (upvotes < 0) score -= 0.1; // Downvoted content
 
-    // Comments factor (0-0.2)
+    // Comments factor (0-0.1)
     const comments = post.num_comments || 0;
-    if (comments > 20) score += 0.2;
-    else if (comments > 5) score += 0.1;
+    if (comments > 20) score += 0.1;
+    else if (comments > 5) score += 0.05;
 
-    // Subreddit quality factor (0-0.2)
+    // Subreddit quality factor (-0.1 to 0)
     const qualitySubreddits = ['webdev', 'learnprogramming', 'programming', 'javascript', 'reactjs'];
-    if (qualitySubreddits.includes(post.subreddit)) {
-      score += 0.2;
+    if (!qualitySubreddits.includes(post.subreddit)) {
+      score -= 0.1; // Reduce score for non-tech subreddits
     }
 
-    // Gilded factor (0-0.1)
-    if (post.gilded > 0) score += 0.1;
+    // Gilded factor (0-0.05)
+    if (post.gilded > 0) score += 0.05;
 
-    return Math.min(score, 1.0);
+    return Math.max(0.5, Math.min(score, 1.0)); // Min 0.5, max 1.0
   }
 
   /**

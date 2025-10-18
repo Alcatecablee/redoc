@@ -160,29 +160,29 @@ export class StackExchangeService {
    * Calculate trust score for a Stack Exchange question
    */
   private calculateTrustScore(question: any): number {
-    let score = 0.5; // Base score
+    let score = 0.90; // Base score - Stack Exchange specialist Q&A trust level (as per recommendations)
 
-    // Score factor (0-0.3)
+    // Score factor (-0.05 to 0.05)
     const questionScore = question.score || 0;
-    if (questionScore > 10) score += 0.3;
-    else if (questionScore > 5) score += 0.2;
-    else if (questionScore > 0) score += 0.1;
+    if (questionScore > 10) score += 0.05;
+    else if (questionScore > 5) score += 0.03;
+    else if (questionScore < 0) score -= 0.05; // Downvoted
 
-    // Answers factor (0-0.3)
+    // Answers factor (0-0.05)
     const answers = question.answer_count || 0;
-    if (answers > 5) score += 0.3;
-    else if (answers > 2) score += 0.2;
-    else if (answers > 0) score += 0.1;
+    if (answers > 5) score += 0.05;
+    else if (answers > 2) score += 0.03;
+    else if (answers === 0) score -= 0.05; // No answers
 
-    // Views factor (0-0.2)
+    // Views factor (0-0.03)
     const views = question.view_count || 0;
-    if (views > 1000) score += 0.2;
-    else if (views > 500) score += 0.1;
+    if (views > 1000) score += 0.03;
+    else if (views > 500) score += 0.02;
 
-    // Accepted answer factor (0-0.2)
-    if (question.accepted_answer_id) score += 0.2;
+    // Accepted answer factor (0-0.02)
+    if (question.accepted_answer_id) score += 0.02;
 
-    return Math.min(score, 1.0);
+    return Math.max(0.8, Math.min(score, 1.0)); // Min 0.8, max 1.0
   }
 
   /**
