@@ -270,13 +270,13 @@ const Index = () => {
                 
                 {/* Headline - Primary Focus */}
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] text-white tracking-tight">
-                  The most comprehensive AI documentation platform.
-                  <span className="block mt-2 text-white/80">10+ sources, YouTube integration, enterprise SEO.</span>
+                  Your documentation is already written.
+                  <span className="block mt-2 text-white/80">It's just scattered across the internet.</span>
                 </h1>
                 
                 {/* Description - Secondary */}
                 <p className="text-lg lg:text-xl text-white/70 leading-relaxed max-w-xl">
-                  We research your product across Stack Overflow, GitHub, YouTube, Reddit, DEV.to, CodeProject, Stack Exchange, Quora, and official forums—then generate enterprise-grade documentation with AI-powered SEO optimization.
+                  We research how developers actually use your product across Stack Overflow, GitHub, and the web—then generate beautiful, Apple-quality docs that match your brand.
                 </p>
                 
                 {/* CTA Form - Tertiary but Important */}
