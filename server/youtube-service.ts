@@ -1,6 +1,8 @@
 import fetch from 'node-fetch';
+import { YoutubeTranscript } from 'youtube-transcript';
 import { videoContentAnalyzer, VideoAnalysis } from './video-content-analyzer';
 import { errorRecovery } from './error-recovery';
+import type { SearchResult } from './search-service';
 
 export interface YouTubeVideo {
   id: string;
@@ -14,7 +16,7 @@ export interface YouTubeVideo {
   channelTitle: string;
   channelId: string;
   publishedAt: string;
-  transcript?: string;
+  transcript?: string | undefined;
   timestamps?: Array<{time: string, title: string, seconds: number}>;
   trustScore: number;
   summary?: string;
@@ -31,23 +33,99 @@ export interface YouTubeSearchResult {
 export class YouTubeService {
   private apiKey: string | undefined;
   private baseUrl = 'https://www.googleapis.com/youtube/v3';
+  private quotaUsed = 0;
+  private quotaLimit = 10000;
+  private quotaResetTime = new Date();
+  private transcriptCache = new Map<string, { transcript: string; timestamp: number }>();
+  private static readonly TRANSCRIPT_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
   constructor(apiKey?: string) {
     this.apiKey = apiKey || process.env.YOUTUBE_API_KEY;
     if (!this.apiKey) {
       console.warn('YouTube API key not provided. YouTube API features will be disabled.');
     }
+    
+    // Reset quota daily
+    const now = new Date();
+    this.quotaResetTime.setHours(24, 0, 0, 0);
+    if (this.quotaResetTime <= now) {
+      this.quotaResetTime.setDate(this.quotaResetTime.getDate() + 1);
+    }
   }
 
   /**
-   * Search for videos related to a product/service
+   * Track API quota usage
    */
-  async searchVideos(query: string, maxResults: number = 10): Promise<YouTubeSearchResult> {
+  private trackQuota(units: number, operation: string) {
+    this.quotaUsed += units;
+    const percentUsed = (this.quotaUsed / this.quotaLimit) * 100;
+    
+    if (percentUsed >= 90) {
+      console.warn(`⚠️ YouTube API quota at ${this.quotaUsed}/${this.quotaLimit} (${percentUsed.toFixed(1)}%) - ${operation}`);
+    } else if (percentUsed >= 50) {
+      console.log(`📊 YouTube API quota: ${this.quotaUsed}/${this.quotaLimit} (${percentUsed.toFixed(1)}%) - ${operation}`);
+    }
+
+    // Check if we need to reset quota
+    const now = new Date();
+    if (now >= this.quotaResetTime) {
+      this.quotaUsed = 0;
+      this.quotaResetTime.setDate(this.quotaResetTime.getDate() + 1);
+      console.log(`🔄 YouTube API quota reset`);
+    }
+  }
+
+  /**
+   * Get current quota usage
+   */
+  getQuotaStatus(): { used: number; limit: number; remaining: number; percentUsed: number } {
+    return {
+      used: this.quotaUsed,
+      limit: this.quotaLimit,
+      remaining: this.quotaLimit - this.quotaUsed,
+      percentUsed: (this.quotaUsed / this.quotaLimit) * 100
+    };
+  }
+
+  /**
+   * Validate YouTube API key
+   */
+  async validateApiKey(): Promise<boolean> {
     if (!this.apiKey) {
-      return { videos: [], totalResults: 0, qualityScore: 0 };
+      return false;
     }
 
     try {
+      const testUrl = `${this.baseUrl}/search?part=snippet&q=test&maxResults=1&key=${this.apiKey}`;
+      const response = await fetch(testUrl);
+      
+      if (response.ok) {
+        console.log('✅ YouTube API key validated successfully');
+        return true;
+      } else {
+        console.error(`❌ YouTube API key validation failed: ${response.status}`);
+        return false;
+      }
+    } catch (error) {
+      console.error('❌ YouTube API key validation error:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Search for videos related to a product/service with fallback to SerpAPI
+   */
+  async searchVideos(query: string, maxResults: number = 10): Promise<YouTubeSearchResult> {
+    // If no API key, immediately fallback to SerpAPI search
+    if (!this.apiKey) {
+      console.log('⚠️ YouTube API key not configured, using SerpAPI fallback');
+      return this.searchVideosViaSerpApiFallback(query, maxResults);
+    }
+
+    try {
+      // Track quota for search operation (100 units)
+      this.trackQuota(100, 'search');
+
       // Search for videos with timeout protection
       const searchUrl = `${this.baseUrl}/search?part=snippet&q=${encodeURIComponent(query)}&maxResults=${maxResults}&type=video&key=${this.apiKey}`;
       
@@ -61,24 +139,34 @@ export class YouTubeService {
       clearTimeout(timeoutId);
       
       if (!searchResponse.ok) {
+        // Check for quota errors
+        if (searchResponse.status === 403) {
+          console.error('❌ YouTube API quota exceeded, falling back to SerpAPI');
+          return this.searchVideosViaSerpApiFallback(query, maxResults);
+        }
         throw new Error(`YouTube API search failed: ${searchResponse.status}`);
       }
 
       const searchData = await searchResponse.json();
       
       if (!searchData.items || searchData.items.length === 0) {
-        return { videos: [], totalResults: 0, qualityScore: 0 };
+        console.log('⚠️ YouTube API returned no results, trying SerpAPI fallback');
+        return this.searchVideosViaSerpApiFallback(query, maxResults);
       }
 
       // Get video IDs for detailed information
       const videoIds = searchData.items.map((item: any) => item.id.videoId).join(',');
+      
+      // Track quota for video details operation (1 unit per video)
+      this.trackQuota(searchData.items.length, 'video details');
       
       // Get detailed video information
       const detailsUrl = `${this.baseUrl}/videos?part=snippet,statistics,contentDetails&id=${videoIds}&key=${this.apiKey}`;
       const detailsResponse = await fetch(detailsUrl);
       
       if (!detailsResponse.ok) {
-        throw new Error(`YouTube API details failed: ${detailsResponse.status}`);
+        console.error('❌ YouTube API details failed, falling back to SerpAPI');
+        return this.searchVideosViaSerpApiFallback(query, maxResults);
       }
 
       const detailsData = await detailsResponse.json();
@@ -116,69 +204,207 @@ export class YouTubeService {
         qualityScore
       };
 
-    } catch (error) {
-      console.error('YouTube API search error:', error);
+    } catch (error: any) {
+      console.error('YouTube API search error:', error.message);
+      console.log('📡 Falling back to SerpAPI search...');
+      return this.searchVideosViaSerpApiFallback(query, maxResults);
+    }
+  }
+
+  /**
+   * Fallback search using SerpAPI when YouTube API is unavailable
+   * This method uses dynamic import to avoid circular dependency
+   */
+  private async searchVideosViaSerpApiFallback(query: string, maxResults: number): Promise<YouTubeSearchResult> {
+    try {
+      // Dynamic import to avoid circular dependency
+      const { searchService } = await import('./search-service');
+      
+      // Search YouTube via SerpAPI
+      const searchQuery = `${query} site:youtube.com`;
+      const searchResults = await searchService.search(searchQuery, maxResults);
+      
+      // Filter for YouTube results
+      const youtubeResults = searchResults.filter(r => r.domain?.includes('youtube.com'));
+      
+      // Convert search results to YouTube video format
+      const videos = this.convertSearchResultsToYouTubeVideos(youtubeResults);
+      
+      console.log(`✅ SerpAPI fallback found ${videos.length} YouTube videos`);
+      
+      return {
+        videos,
+        totalResults: videos.length,
+        qualityScore: videos.length > 0 ? 0.6 : 0 // Lower quality score for fallback results
+      };
+    } catch (error: any) {
+      console.error('SerpAPI fallback also failed:', error.message);
       return { videos: [], totalResults: 0, qualityScore: 0 };
     }
   }
 
   /**
-   * Get video transcript if available
+   * Convert search results to YouTube video format
+   * Handles various YouTube URL formats including shorts, live streams, and embeds
    */
-  async getVideoTranscript(videoId: string): Promise<string | null> {
-    if (!this.apiKey) {
-      return null;
+  private convertSearchResultsToYouTubeVideos(searchResults: SearchResult[]): YouTubeVideo[] {
+    return searchResults.map(result => {
+      // Extract video ID from various YouTube URL formats
+      const videoId = this.extractYouTubeVideoId(result.url);
+
+      // Skip if we couldn't extract a video ID
+      if (!videoId) {
+        console.log(`⚠️ Could not extract video ID from: ${result.url}`);
+        return null;
+      }
+
+      // Extract view count from snippet if available
+      const viewMatch = result.snippet?.match(/(\d+(?:,\d+)*(?:\.\d+)?[KMB]?)\s*views?/i);
+      const views = viewMatch ? this.parseViewCount(viewMatch[1]) : 0;
+
+      // Extract channel name from snippet or title
+      const channelMatch = result.snippet?.match(/(?:by|from)\s+([^·•\n]+)/i);
+      const channelTitle = channelMatch ? channelMatch[1].trim() : 'Unknown';
+
+      return {
+        id: videoId,
+        title: result.title,
+        description: result.snippet || '',
+        url: `https://www.youtube.com/watch?v=${videoId}`, // Normalize URL
+        thumbnail: '', // Not available from search results
+        duration: 'Unknown',
+        views: views,
+        likes: 0,
+        channelTitle: channelTitle,
+        channelId: '',
+        publishedAt: '',
+        trustScore: result.trustScore || 0.6
+      };
+    }).filter(video => video !== null) as YouTubeVideo[];
+  }
+
+  /**
+   * Extract YouTube video ID from various URL formats
+   * Supports:
+   * - youtube.com/watch?v=ID
+   * - youtu.be/ID
+   * - youtube.com/embed/ID
+   * - youtube.com/v/ID
+   * - youtube.com/shorts/ID
+   * - youtube.com/live/ID
+   */
+  private extractYouTubeVideoId(url: string): string | null {
+    // Pattern for various YouTube URL formats
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/,  // Standard watch or short URL
+      /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,                      // Embed URL
+      /youtube\.com\/v\/([a-zA-Z0-9_-]{11})/,                          // Old format
+      /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,                     // YouTube Shorts
+      /youtube\.com\/live\/([a-zA-Z0-9_-]{11})/,                       // Live streams
+      /[?&]v=([a-zA-Z0-9_-]{11})/                                      // Query parameter
+    ];
+
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match && match[1]) {
+        return match[1];
+      }
     }
 
+    // If no match found, log for debugging
+    console.log(`⚠️ No video ID pattern matched for URL: ${url}`);
+    return null;
+  }
+
+  /**
+   * Parse view count string to number
+   * Handles formats like: "1.2M", "123K", "1,234"
+   */
+  private parseViewCount(viewStr: string): number {
+    viewStr = viewStr.toUpperCase().replace(/,/g, '');
+    
+    const multipliers: { [key: string]: number } = {
+      'K': 1000,
+      'M': 1000000,
+      'B': 1000000000
+    };
+
+    const match = viewStr.match(/^(\d+(?:\.\d+)?)(K|M|B)?$/);
+    if (!match) return 0;
+
+    const number = parseFloat(match[1]);
+    const multiplier = match[2] ? multipliers[match[2]] : 1;
+
+    return number * multiplier;
+  }
+
+  /**
+   * Get video transcript using youtube-transcript library
+   * Includes caching to reduce API calls
+   */
+  async getVideoTranscript(videoId: string): Promise<string | undefined> {
     try {
-      // Get available captions
-      const captionsUrl = `${this.baseUrl}/captions?part=snippet&videoId=${videoId}&key=${this.apiKey}`;
-      const captionsResponse = await fetch(captionsUrl);
+      // Check cache first
+      const cached = this.transcriptCache.get(videoId);
+      if (cached && Date.now() - cached.timestamp < YouTubeService.TRANSCRIPT_CACHE_TTL_MS) {
+        console.log(`📦 Using cached transcript for ${videoId}`);
+        return cached.transcript;
+      }
+
+      console.log(`🎬 Fetching transcript for video: ${videoId}`);
       
-      if (!captionsResponse.ok) {
-        return null;
-      }
-
-      const captionsData = await captionsResponse.json();
+      // Fetch transcript using youtube-transcript library
+      const transcriptData = await YoutubeTranscript.fetchTranscript(videoId);
       
-      if (!captionsData.items || captionsData.items.length === 0) {
-        return null;
+      if (!transcriptData || transcriptData.length === 0) {
+        console.log(`⚠️ No transcript available for ${videoId}`);
+        return undefined;
       }
 
-      // Find auto-generated or manual captions
-      const caption = captionsData.items.find((item: any) => 
-        item.snippet.trackKind === 'asr' || item.snippet.trackKind === 'standard'
-      );
+      // Convert transcript segments to full text
+      const fullTranscript = transcriptData.map((segment: any) => segment.text).join(' ');
+      
+      // Cache the transcript
+      this.transcriptCache.set(videoId, {
+        transcript: fullTranscript,
+        timestamp: Date.now()
+      });
 
-      if (!caption) {
-        return null;
+      console.log(`✅ Transcript fetched (${fullTranscript.length} chars) for ${videoId}`);
+      return fullTranscript;
+
+    } catch (error: any) {
+      console.error(`YouTube transcript error for ${videoId}:`, error);
+      // Transcript not available is a common case, not an error
+      if (error.message?.includes('Transcript is disabled') || 
+          error.message?.includes('No transcripts available')) {
+        console.log(`ℹ️ Transcripts not available for ${videoId}`);
       }
-
-      // For now, we'll use a placeholder that indicates transcript availability
-      // In a production environment, you'd need to use the YouTube Transcript API
-      // or a service like youtube-transcript-api to get the actual transcript content
-      return `[Transcript available for ${videoId} - ${caption.snippet.name}]`;
-
-    } catch (error) {
-      console.error('YouTube transcript error:', error);
-      return null;
+      return undefined;
     }
   }
 
   /**
    * Extract video timestamps from transcript or description
+   * Improved regex to handle various timestamp formats
    */
   async extractVideoTimestamps(videoId: string, description?: string): Promise<Array<{time: string, title: string, seconds: number}>> {
     const timestamps: Array<{time: string, title: string, seconds: number}> = [];
     
     // Try to extract timestamps from description
     if (description) {
-      const timestampRegex = /(\d{1,2}:\d{2}(?::\d{2})?)\s+(.+)/g;
+      // Enhanced regex to match various formats:
+      // 0:00 Title, (0:00) Title, [0:00] Title, 0:00 - Title, 0:00: Title
+      const timestampRegex = /[([]*(\d{1,2}:\d{2}(?::\d{2})?)[)\]]*[\s\-–—:]+(.+?)(?=\n|[([]*\d{1,2}:\d{2}|$)/g;
       let match;
       
       while ((match = timestampRegex.exec(description)) !== null) {
         const timeStr = match[1];
         const title = match[2].trim();
+        
+        // Skip if title is too short (likely not a real timestamp)
+        if (title.length < 3) continue;
+        
         const seconds = this.timeStringToSeconds(timeStr);
         
         timestamps.push({
@@ -305,12 +531,26 @@ export class YouTubeService {
   }
 
   /**
-   * Batch analyze multiple videos
+   * Batch analyze multiple videos with tier-aware concurrency
    */
-  async analyzeVideoBatch(videos: YouTubeVideo[], enableTranscripts: boolean = false): Promise<YouTubeVideo[]> {
+  async analyzeVideoBatch(videos: YouTubeVideo[], enableTranscripts: boolean = false, tierLevel: 'free' | 'pro' | 'enterprise' = 'pro'): Promise<YouTubeVideo[]> {
     const analyzedVideos: YouTubeVideo[] = [];
-    const maxConcurrent = 3; // Limit concurrent requests
-    const delayBetweenBatches = 2000; // 2 seconds between batches
+    
+    // Tier-aware concurrent limits
+    const concurrencyLimits = {
+      free: 1,
+      pro: 3,
+      enterprise: 5
+    };
+    const maxConcurrent = concurrencyLimits[tierLevel];
+    
+    // Tier-aware delays
+    const delayLimits = {
+      free: 3000,  // 3 seconds for free tier
+      pro: 2000,   // 2 seconds for pro tier
+      enterprise: 1000  // 1 second for enterprise tier
+    };
+    const delayBetweenBatches = delayLimits[tierLevel];
     
     for (let i = 0; i < videos.length; i += maxConcurrent) {
       const batch = videos.slice(i, i + maxConcurrent);

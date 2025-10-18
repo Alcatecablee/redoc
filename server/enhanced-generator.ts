@@ -6,6 +6,7 @@ import { youtubeService, YouTubeVideo } from './youtube-service';
 import { pipelineMonitor } from './utils/pipeline-monitor';
 import { progressTracker } from './progress-tracker';
 import { createAIProvider } from './ai-provider';
+import { calculateSmartScaling, enforceTierLimits } from './tier-config';
 import {
   shouldSkipImage,
   fetchImageMetadata,

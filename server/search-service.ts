@@ -133,11 +133,9 @@ export class SearchService {
     else if (domain.includes('github.com')) {
       trustScore = 0.75; // Default for open issues
     }
-    // YouTube - trust based on video quality indicators
+    // YouTube - enhanced trust scoring based on view count from snippet
     else if (domain.includes('youtube.com')) {
-      // Basic quality scoring for YouTube videos
-      // Could be enhanced with view count, channel authority, etc.
-      trustScore = 0.7; // Default for YouTube videos
+      trustScore = this.calculateYouTubeTrustScore(result);
     }
     // High-authority blog sites
     else if (domain.includes('dev.to') || domain.includes('medium.com') || 
@@ -151,6 +149,133 @@ export class SearchService {
     }
 
     return trustScore;
+  }
+
+  /**
+   * Enhanced YouTube trust scoring from search snippets
+   * Extracts view counts and other indicators from SerpAPI results
+   */
+  private calculateYouTubeTrustScore(result: SearchResult): number {
+    let trustScore = 0.6; // Base score for YouTube
+
+    // Try to extract view count from snippet
+    const snippet = result.snippet?.toLowerCase() || '';
+    const title = result.title?.toLowerCase() || '';
+    
+    // Extract view count patterns: "1.2M views", "123K views", "1,234 views"
+    const viewMatch = snippet.match(/(\d+(?:,\d+)*(?:\.\d+)?[KMB]?)\s*views?/i);
+    if (viewMatch) {
+      const viewCount = this.parseViewCount(viewMatch[1]);
+      
+      if (viewCount > 1000000) trustScore = 0.85; // 1M+ views
+      else if (viewCount > 100000) trustScore = 0.8; // 100K+ views
+      else if (viewCount > 10000) trustScore = 0.75; // 10K+ views
+      else if (viewCount > 1000) trustScore = 0.7; // 1K+ views
+      else trustScore = 0.6; // < 1K views
+    }
+
+    // Boost score for official channels or tutorial keywords
+    if (title.includes('official') || title.includes('tutorial') || 
+        title.includes('guide') || title.includes('walkthrough')) {
+      trustScore += 0.05;
+    }
+
+    return Math.min(trustScore, 1.0);
+  }
+
+  /**
+   * Parse view count string to number
+   * Handles formats like: "1.2M", "123K", "1,234"
+   */
+  private parseViewCount(viewStr: string): number {
+    viewStr = viewStr.toUpperCase().replace(/,/g, '');
+    
+    const multipliers: { [key: string]: number } = {
+      'K': 1000,
+      'M': 1000000,
+      'B': 1000000000
+    };
+
+    const match = viewStr.match(/^(\d+(?:\.\d+)?)(K|M|B)?$/);
+    if (!match) return 0;
+
+    const number = parseFloat(match[1]);
+    const multiplier = match[2] ? multipliers[match[2]] : 1;
+
+    return number * multiplier;
+  }
+
+  /**
+   * Convert search results to YouTube video format
+   * Handles various YouTube URL formats including shorts, live streams, and embeds
+   */
+  private async convertSearchResultsToYouTubeVideos(searchResults: SearchResult[]): Promise<YouTubeVideo[]> {
+    return searchResults.map(result => {
+      // Extract video ID from various YouTube URL formats
+      const videoId = this.extractYouTubeVideoId(result.url);
+
+      // Skip if we couldn't extract a video ID
+      if (!videoId) {
+        console.log(`⚠️ Could not extract video ID from: ${result.url}`);
+        return null;
+      }
+
+      // Extract view count from snippet if available
+      const viewMatch = result.snippet?.match(/(\d+(?:,\d+)*(?:\.\d+)?[KMB]?)\s*views?/i);
+      const views = viewMatch ? this.parseViewCount(viewMatch[1]) : 0;
+
+      // Extract channel name from snippet or title
+      const channelMatch = result.snippet?.match(/(?:by|from)\s+([^·•\n]+)/i);
+      const channelTitle = channelMatch ? channelMatch[1].trim() : 'Unknown';
+
+      return {
+        id: videoId,
+        title: result.title,
+        description: result.snippet || '',
+        url: `https://www.youtube.com/watch?v=${videoId}`, // Normalize URL
+        thumbnail: '', // Not available from search results
+        duration: 'Unknown',
+        views: views,
+        likes: 0,
+        channelTitle: channelTitle,
+        channelId: '',
+        publishedAt: '',
+        trustScore: result.trustScore || 0.6
+      };
+    }).filter(video => video !== null) as YouTubeVideo[];
+  }
+
+  /**
+   * Extract YouTube video ID from various URL formats
+   * Supports:
+   * - youtube.com/watch?v=ID
+   * - youtu.be/ID
+   * - youtube.com/embed/ID
+   * - youtube.com/v/ID
+   * - youtube.com/shorts/ID
+   * - youtube.com/live/ID
+   */
+  private extractYouTubeVideoId(url: string): string | null {
+    // Pattern for various YouTube URL formats
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/,  // Standard watch or short URL
+      /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,                      // Embed URL
+      /youtube\.com\/v\/([a-zA-Z0-9_-]{11})/,                          // Old format
+      /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,                     // YouTube Shorts
+      /youtube\.com\/live\/([a-zA-Z0-9_-]{11})/,                       // Live streams
+      /[?&]v=([a-zA-Z0-9_-]{11})/                                      // Query parameter
+    ];
+
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match && match[1]) {
+        return match[1];
+      }
+    }
+
+    // If no match found, log for debugging
+    console.log(`⚠️ No video ID pattern matched for URL: ${url}`);
+    return null;
   }
 
   /**
@@ -635,11 +760,6 @@ export class SearchService {
       `"${productName}" tutorial getting started -site:${baseDomain}`,
       `"${productName}" guide how to use`,
       
-      // YouTube tutorials and demos
-      `"${productName}" tutorial site:youtube.com`,
-      `"${productName}" demo site:youtube.com`,
-      `"${productName}" walkthrough site:youtube.com`,
-      
       // Troubleshooting and issues
       `"${productName}" error troubleshooting site:stackoverflow.com`,
       `"${productName}" common issues problems`,
@@ -656,6 +776,16 @@ export class SearchService {
       `"${productName}" integration guide`,
       `"${productName}" API examples code`,
     ];
+
+    // Only add YouTube search queries if NOT using YouTube API
+    // This avoids wasting search slots when API provides better results
+    if (!youtubeApiAccess) {
+      queries.push(
+        `"${productName}" tutorial site:youtube.com`,
+        `"${productName}" demo site:youtube.com`,
+        `"${productName}" walkthrough site:youtube.com`
+      );
+    }
 
     // Perform all searches in batches
     const allSearchResults: SearchResult[] = [];
@@ -711,11 +841,12 @@ export class SearchService {
       }
     }
 
-    // Extract YouTube videos (if API access is enabled)
+    // Extract YouTube videos with fallback mechanism
     let youtubeVideos: YouTubeVideo[] = [];
+    
     if (youtubeApiAccess && youtubeService.isAvailable()) {
       try {
-        console.log(`🎥 Searching YouTube for "${productName}"...`);
+        console.log(`🎥 Searching YouTube via API for "${productName}"...`);
         const youtubeResults = await youtubeService.searchVideos(`${productName} tutorial`, limits.searchResults);
         youtubeVideos = youtubeResults.videos.slice(0, limits.searchResults);
         
@@ -744,8 +875,26 @@ export class SearchService {
         
         console.log(`✅ Found ${youtubeVideos.length} YouTube videos`);
       } catch (error) {
-        console.error('YouTube search failed:', error.message);
+        console.error('YouTube API failed:', error.message);
+        console.log('📡 Falling back to SerpAPI YouTube search...');
+        
+        // Fallback to SerpAPI YouTube search
+        try {
+          const fallbackResults = await this.search(`"${productName}" tutorial site:youtube.com`, limits.searchResults);
+          const youtubeSearchResults = fallbackResults.filter(r => r.domain?.includes('youtube.com'));
+          
+          // Convert SearchResults to YouTubeVideo format (basic conversion)
+          youtubeVideos = await this.convertSearchResultsToYouTubeVideos(youtubeSearchResults);
+          console.log(`✅ Fallback successful: ${youtubeVideos.length} videos found via SerpAPI`);
+        } catch (fallbackError) {
+          console.error('YouTube fallback search also failed:', fallbackError.message);
+        }
       }
+    } else if (!youtubeApiAccess) {
+      // Free tier: Use YouTube search results from SerpAPI
+      const youtubeSearchResults = uniqueResults.filter(r => r.domain?.includes('youtube.com'));
+      youtubeVideos = await this.convertSearchResultsToYouTubeVideos(youtubeSearchResults.slice(0, limits.searchResults));
+      console.log(`📺 Found ${youtubeVideos.length} YouTube videos via search (Free tier)`);
     }
 
     // Extract Reddit posts (community insights)
