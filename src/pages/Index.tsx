@@ -18,7 +18,14 @@ import {
   PlayCircleIcon,
   ClipboardDocumentListIcon,
   RocketLaunchIcon,
-  ArrowPathIcon
+  ArrowPathIcon,
+  VideoCameraIcon,
+  ChatBubbleLeftRightIcon,
+  CodeBracketIcon,
+  AcademicCapIcon,
+  QuestionMarkCircleIcon,
+  BuildingOfficeIcon,
+  SearchIcon
 } from "@heroicons/react/24/outline";
 import { useToast } from "@/hooks/use-toast";
 import { DollarSign } from "lucide-react";
@@ -264,13 +271,13 @@ const Index = () => {
                 
                 {/* Headline - Primary Focus */}
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] text-white tracking-tight">
-                  Your documentation is already written.
-                  <span className="block mt-2 text-white/80">It's just scattered across the internet.</span>
+                  The most comprehensive AI documentation platform.
+                  <span className="block mt-2 text-white/80">10+ sources, YouTube integration, enterprise SEO.</span>
                 </h1>
                 
                 {/* Description - Secondary */}
                 <p className="text-lg lg:text-xl text-white/70 leading-relaxed max-w-xl">
-                  We research how developers actually use your product across Stack Overflow, GitHub, and the web—then generate beautiful, Apple-quality docs that match your brand.
+                  We research your product across Stack Overflow, GitHub, YouTube, Reddit, DEV.to, CodeProject, Stack Exchange, Quora, and official forums—then generate enterprise-grade documentation with AI-powered SEO optimization.
                 </p>
                 
                 {/* CTA Form - Tertiary but Important */}
@@ -717,12 +724,18 @@ const Index = () => {
                   </div>
                   <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">Multi-Source Research Engine</h3>
                   <p className="text-gray-700 text-lg leading-relaxed mb-6">
-                    We crawl your website, then search Google, Stack Overflow, and GitHub to find real developer questions, solutions, and best practices. Every insight is quality-scored and source-attributed.
+                    We analyze your website, then research across 10+ high-quality sources including Stack Overflow, GitHub, YouTube, Reddit, DEV.to, CodeProject, Stack Exchange, Quora, and official forums. Every insight is quality-scored and source-attributed.
                   </p>
                   <div className="flex flex-wrap gap-3">
                     <div className="px-4 py-2 rounded-full bg-gray-900/10 border border-gray-900/20 text-sm text-gray-900/90">Stack Overflow</div>
                     <div className="px-4 py-2 rounded-full bg-gray-900/10 border border-gray-900/20 text-sm text-gray-900/90">GitHub Issues</div>
-                    <div className="px-4 py-2 rounded-full bg-gray-900/10 border border-gray-900/20 text-sm text-gray-900/90">Google Search</div>
+                    <div className="px-4 py-2 rounded-full bg-gray-900/10 border border-gray-900/20 text-sm text-gray-900/90">YouTube Videos</div>
+                    <div className="px-4 py-2 rounded-full bg-gray-900/10 border border-gray-900/20 text-sm text-gray-900/90">Reddit Posts</div>
+                    <div className="px-4 py-2 rounded-full bg-gray-900/10 border border-gray-900/20 text-sm text-gray-900/90">DEV.to Articles</div>
+                    <div className="px-4 py-2 rounded-full bg-gray-900/10 border border-gray-900/20 text-sm text-gray-900/90">CodeProject</div>
+                    <div className="px-4 py-2 rounded-full bg-gray-900/10 border border-gray-900/20 text-sm text-gray-900/90">Stack Exchange</div>
+                    <div className="px-4 py-2 rounded-full bg-gray-900/10 border border-gray-900/20 text-sm text-gray-900/90">Quora Answers</div>
+                    <div className="px-4 py-2 rounded-full bg-gray-900/10 border border-gray-900/20 text-sm text-gray-900/90">Official Forums</div>
                     <div className="px-4 py-2 rounded-full bg-gray-900/10 border border-gray-900/20 text-sm text-gray-900/90">Quality Scoring</div>
                   </div>
                 </div>
@@ -732,18 +745,18 @@ const Index = () => {
               <div className="lg:col-span-4 space-y-6">
                 <div className="group relative overflow-hidden bg-white/40 backdrop-blur-sm border border-gray-900/10 rounded-3xl p-8 hover:shadow-xl transition-all duration-300">
                   <div className="w-14 h-14 rounded-xl bg-gray-900/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                    <GlobeAltIcon className="h-7 w-7 text-gray-900" strokeWidth={1.5} />
+                    <VideoCameraIcon className="h-7 w-7 text-gray-900" strokeWidth={1.5} />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">Deep Discovery</h3>
-                  <p className="text-gray-700 text-sm leading-relaxed">Subdomain probing, sitemap parsing, multi-domain crawling</p>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">YouTube Integration</h3>
+                  <p className="text-gray-700 text-sm leading-relaxed">Video tutorials, demos, transcripts, and AI-powered content analysis</p>
                 </div>
                 
                 <div className="group relative overflow-hidden bg-white/40 backdrop-blur-sm border border-gray-900/10 rounded-3xl p-8 hover:shadow-xl transition-all duration-300">
                   <div className="w-14 h-14 rounded-xl bg-gray-900/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                    <ShieldCheckIcon className="h-7 w-7 text-gray-900" strokeWidth={1.5} />
+                    <SearchIcon className="h-7 w-7 text-gray-900" strokeWidth={1.5} />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">Enterprise Grade</h3>
-                  <p className="text-gray-700 text-sm leading-relaxed">Pipeline monitoring, fallbacks, and quality validation</p>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">SEO Optimization</h3>
+                  <p className="text-gray-700 text-sm leading-relaxed">Meta tags, schema markup, sitemaps, and keyword optimization</p>
                 </div>
               </div>
               
@@ -869,7 +882,7 @@ const Index = () => {
                 Enterprise-Grade Custom Documentation
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Need bespoke documentation for your SaaS, API, or complex platform? Get instant pricing for custom documentation projects with flexible delivery options and professional quality.
+                Need bespoke documentation for your SaaS, API, or complex platform? Get instant pricing for custom documentation projects with 10+ source research, YouTube integration, enterprise SEO optimization, flexible delivery options and professional quality.
               </p>
             </div>
 
