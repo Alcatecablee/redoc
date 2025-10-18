@@ -73,7 +73,7 @@ export class StackExchangeService {
    */
   private async searchSite(site: string, query: string, limit: number): Promise<StackExchangeSearchResult> {
     try {
-      const searchUrl = `${this.baseUrl}/search/advanced?site=${site}&q=${encodeURIComponent(query)}&sort=relevance&pagesize=${limit}&filter=withbody`;
+      let searchUrl = `${this.baseUrl}/search/advanced?site=${site}&q=${encodeURIComponent(query)}&sort=relevance&pagesize=${limit}&filter=withbody`;
       
       if (this.key) {
         searchUrl += `&key=${this.key}`;

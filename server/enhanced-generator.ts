@@ -10,6 +10,7 @@ import { seoService } from './seo-service';
 import { schemaService } from './schema-service';
 import { sitemapService } from './sitemap-service';
 import { contentRefreshService } from './content-refresh-service';
+import { calculateSmartScaling, enforceTierLimits } from './tier-config';
 import {
   shouldSkipImage,
   fetchImageMetadata,

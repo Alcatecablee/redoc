@@ -111,10 +111,10 @@ export default function SubscriptionPricing() {
 
     try {
       // Get auth token
-      const { data } = await supabase.auth.getSession();
-      const token = data?.session?.access_token;
+      const { data: sessionData } = await supabase.auth.getSession();
+      const authToken = sessionData?.session?.access_token;
 
-      if (!token) {
+      if (!authToken) {
         throw new Error('Not authenticated');
       }
 
@@ -123,7 +123,7 @@ export default function SubscriptionPricing() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${authToken}`
         },
         body: JSON.stringify({
           plan: tier.planId,
