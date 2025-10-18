@@ -50,15 +50,27 @@ Discover all relevant pages, perform external research, and create a comprehensi
 > **Phase 3: External Research Analysis**
 > 
 > **Instructions**:
-> Analyze external research results for:
+> Analyze external research results from multiple community sources:
+> 
+> **Traditional Sources**:
+> - Stack Overflow: Common issues, troubleshooting solutions, Q&A
+> - GitHub: Issues, bug reports, feature requests, code examples
+> - YouTube: Video tutorials, demonstrations, timestamps
+> 
+> **Community Sources**:
+> - Reddit: Community discussions, real-world experiences, tips
+> - DEV.to: Developer tutorials, best practices, guides
+> - CodeProject: Code examples, implementation patterns
+> - Stack Exchange: Specialized Q&A, technical discussions
+> - Quora: Expert insights, comparisons, general knowledge
+> - Official Forums: Product-specific guidance, support threads
+> 
+> **Key Analysis Points**:
 > - Common issues and troubleshooting solutions
 > - Best practices and optimization tips
-> - Integration guides and examples
-> - Community discussions and Q&A
-> - Third-party tutorials and resources
+> - Integration guides and real-world examples
 > - Known bugs and workarounds
-> - YouTube tutorials and video demonstrations
-> - Video timestamps for specific topics
+> - Community sentiment and adoption patterns
 > 
 > **Phase 4: Comprehensive Analysis**
 > 
