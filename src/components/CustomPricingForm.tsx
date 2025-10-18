@@ -43,6 +43,14 @@ interface PricingBreakdown {
   currency: string;
 }
 
+const formatOptions = [
+  { id: 'pdf', label: 'PDF', description: 'Portable Document Format' },
+  { id: 'markdown', label: 'Markdown', description: 'Plain text format' },
+  { id: 'html', label: 'HTML', description: 'Web format' },
+  { id: 'docx', label: 'DOCX', description: 'Microsoft Word format' },
+  { id: 'json', label: 'JSON', description: 'Structured data format' },
+];
+
 const youtubeOptions = [
   { id: 'youtubeSearch', label: 'YouTube Search', description: 'Include YouTube tutorials and demos', price: 50 },
   { id: 'youtubeApi', label: 'YouTube API Access', description: 'Rich metadata, views, comments', price: 100 },
