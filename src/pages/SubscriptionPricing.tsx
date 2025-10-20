@@ -6,6 +6,7 @@ import { Check, Zap, Crown, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabaseClient';
 import { useNavigate } from 'react-router-dom';
+import Header from '@/components/Header';
 
 interface PricingTier {
   name: string;
@@ -157,17 +158,19 @@ export default function SubscriptionPricing() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-16 px-4">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Choose Your Plan
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Start free and scale as you grow. All plans include our AI-powered documentation generator.
-          </p>
-        </div>
+    <div className="min-h-screen bg-white">
+      <Header />
+      <div className="pt-24 pb-16 px-4">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-16">
+            <h1 className="text-5xl font-bold mb-4 text-[rgb(36,77,91)]">
+              Choose Your Plan
+            </h1>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Start free and scale as you grow. All plans include our AI-powered documentation generator.
+            </p>
+          </div>
 
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-3 gap-8 mb-16">
@@ -176,18 +179,18 @@ export default function SubscriptionPricing() {
               key={tier.name}
               className={`relative p-8 ${
                 tier.popular
-                  ? 'border-2 border-blue-500 shadow-xl scale-105'
+                  ? 'border-2 border-[rgb(36,77,91)] shadow-xl scale-105'
                   : 'border border-gray-200'
               }`}
             >
               {tier.popular && (
-                <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500">
+                <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-[rgb(36,77,91)]">
                   Most Popular
                 </Badge>
               )}
 
               <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 text-white mb-4">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[rgb(142,209,198)] text-[rgb(36,77,91)] mb-4">
                   {tier.icon}
                 </div>
                 <h3 className="text-2xl font-bold mb-2">{tier.name}</h3>
@@ -200,7 +203,7 @@ export default function SubscriptionPricing() {
               <ul className="space-y-4 mb-8">
                 {tier.features.map((feature, index) => (
                   <li key={index} className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <Check className="w-5 h-5 text-[rgb(142,209,198)] flex-shrink-0 mt-0.5" />
                     <span className="text-gray-700">{feature}</span>
                   </li>
                 ))}
@@ -219,7 +222,7 @@ export default function SubscriptionPricing() {
         </div>
 
         {/* Custom Consulting CTA */}
-        <Card className="p-8 bg-gradient-to-r from-purple-600 to-blue-600 text-white">
+        <Card className="p-8 bg-gradient-to-r from-[rgb(36,77,91)] to-[rgb(40,85,100)] text-white">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-4">Need Something Custom?</h2>
             <p className="text-lg mb-6 opacity-90">
@@ -230,6 +233,7 @@ export default function SubscriptionPricing() {
               <Button
                 size="lg"
                 variant="secondary"
+                className="bg-white text-[rgb(36,77,91)] hover:bg-white/90"
                 onClick={() => (window.location.href = '/custom-pricing')}
               >
                 Custom Consulting ($500-$1,500)
