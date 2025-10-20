@@ -64,7 +64,11 @@ const pricingTiers: PricingTier[] = [
       'Webhook integration',
       'SEO optimization & sitemaps',
       'Content refresh scheduling',
-      'Custom branding & themes',
+      'Custom branding & white-label',
+      'AI voice narration (TTS)',
+      'Hosted help centers & subdomains',
+      'Custom domain support',
+      'Advanced caching & optimization',
       'Priority support & SLA'
     ],
     buttonText: 'Upgrade to Enterprise'

@@ -68,20 +68,105 @@ export class SitemapService {
 
   /**
    * Submit sitemap to Google Search Console
+   * Uses Google Search Console API with OAuth2 or ping fallback
    */
   async submitToGoogleSearchConsole(sitemapUrl: string, siteUrl: string): Promise<boolean> {
     try {
       console.log(`📤 Submitting sitemap to Google Search Console: ${sitemapUrl}`);
 
-      // This would typically use Google Search Console API
-      // For now, we'll simulate the submission
-      console.log(`✅ Sitemap submitted to Google Search Console for ${siteUrl}`);
+      const accessToken = process.env.GOOGLE_SEARCH_CONSOLE_TOKEN;
       
+      if (!accessToken) {
+        console.warn('⚠️ GOOGLE_SEARCH_CONSOLE_TOKEN not set - using ping method');
+        return await this.pingGoogle(sitemapUrl);
+      }
+
+      // Submit via Google Search Console API
+      const response = await fetch(
+        `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/sitemaps/${encodeURIComponent(sitemapUrl)}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.text();
+        console.error(`GSC API error: ${response.status} - ${error}`);
+        
+        // Fallback to ping method
+        return await this.pingGoogle(sitemapUrl);
+      }
+
+      console.log(`✅ Sitemap submitted to Google Search Console for ${siteUrl}`);
       return true;
 
     } catch (error) {
       console.error('Google Search Console submission error:', error);
+      // Fallback to ping method
+      return await this.pingGoogle(sitemapUrl);
+    }
+  }
+
+  /**
+   * Ping Google to index sitemap (fallback method)
+   */
+  private async pingGoogle(sitemapUrl: string): Promise<boolean> {
+    try {
+      const pingUrl = `https://www.google.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`;
+      const response = await fetch(pingUrl);
+      
+      if (response.ok) {
+        console.log(`✅ Pinged Google with sitemap: ${sitemapUrl}`);
+        return true;
+      }
+      
       return false;
+    } catch (error) {
+      console.error('Google ping error:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Get sitemap submission status from Google Search Console
+   */
+  async getSitemapStatus(siteUrl: string, sitemapUrl: string): Promise<any> {
+    try {
+      const accessToken = process.env.GOOGLE_SEARCH_CONSOLE_TOKEN;
+      
+      if (!accessToken) {
+        return { status: 'unknown', message: 'API token not configured' };
+      }
+
+      const response = await fetch(
+        `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/sitemaps/${encodeURIComponent(sitemapUrl)}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        return { status: 'error', message: `HTTP ${response.status}` };
+      }
+
+      const data = await response.json();
+      return {
+        status: 'success',
+        lastSubmitted: data.lastSubmitted,
+        isPending: data.isPending,
+        errors: data.errors || [],
+        warnings: data.warnings || [],
+      };
+
+    } catch (error: any) {
+      console.error('GSC status check error:', error);
+      return { status: 'error', message: error.message };
     }
   }
 
