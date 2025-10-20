@@ -868,9 +868,9 @@ const Index = () => {
         </section>
       )}
 
-      {/* Custom Pricing Section */}
+      {/* Custom Consulting Section */}
       {!generatedDoc && (
-        <section id="custom-pricing" className="relative overflow-hidden bg-gradient-to-br from-[rgb(245,245,250)] to-white py-24 lg:py-32">
+        <section id="custom-consulting" className="relative overflow-hidden bg-gradient-to-br from-[rgb(245,245,250)] to-white py-24 lg:py-32">
           <div className="container mx-auto px-6 max-w-7xl">
             <div className="text-center mb-12">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[rgb(142,209,198)]/10 border border-[rgb(142,209,198)]/20 backdrop-blur-sm mb-6">
@@ -881,7 +881,7 @@ const Index = () => {
                 Enterprise-Grade Custom Documentation
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Need bespoke documentation for your SaaS, API, or complex platform? Get instant pricing for custom documentation projects with 10+ source research, YouTube integration, enterprise SEO optimization, flexible delivery options and professional quality.
+                Need bespoke documentation for your SaaS, API, or complex platform? Get custom documentation projects with 10+ source research, YouTube integration, enterprise SEO optimization, flexible delivery options and professional quality.
               </p>
             </div>
 
@@ -909,7 +909,16 @@ const Index = () => {
               </div>
             </div>
 
-            <CustomPricingForm />
+            {/* CTA to Pricing Page */}
+            <div className="text-center">
+              <Button 
+                size="lg" 
+                className="bg-[rgb(36,77,91)] hover:bg-[rgb(40,85,100)] text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                onClick={() => window.location.href = '/pricing'}
+              >
+                Get Custom Pricing
+              </Button>
+            </div>
           </div>
         </section>
       )}

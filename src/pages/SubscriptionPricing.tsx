@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
+import CustomPricingForm from '@/components/CustomPricingForm';
 
 interface PricingTier {
   name: string;
@@ -221,29 +222,18 @@ export default function SubscriptionPricing() {
           ))}
         </div>
 
-        {/* Custom Consulting CTA */}
-        <Card className="p-8 bg-gradient-to-r from-[rgb(36,77,91)] to-[rgb(40,85,100)] text-white">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-4">Need Something Custom?</h2>
-            <p className="text-lg mb-6 opacity-90">
+        {/* Custom Consulting Section */}
+        <div className="mt-16">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold mb-4 text-[rgb(36,77,91)]">Need Something Custom?</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Get bespoke documentation with rush delivery, custom requirements, and manual polish.
               Perfect for enterprise products and complex integrations.
             </p>
-            <div className="flex items-center justify-center gap-4">
-              <Button
-                size="lg"
-                variant="secondary"
-                className="bg-white text-[rgb(36,77,91)] hover:bg-white/90"
-                onClick={() => (window.location.href = '/custom-pricing')}
-              >
-                Custom Consulting ($500-$1,500)
-              </Button>
-            </div>
-            <p className="text-sm mt-4 opacity-75">
-              Includes: Same-day delivery • Custom sections • Deep research • Manual review
-            </p>
           </div>
-        </Card>
+          
+          <CustomPricingForm />
+        </div>
 
         {/* FAQ or Additional Info */}
         <div className="mt-16 text-center text-gray-600">
