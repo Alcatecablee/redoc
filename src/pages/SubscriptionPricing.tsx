@@ -59,12 +59,13 @@ const pricingTiers: PricingTier[] = [
     planId: 'enterprise',
     features: [
       'Everything in Pro',
-      'API access',
-      'Custom AI voices',
-      'Hosted help centers',
-      'Priority support',
-      'Custom branding',
-      'White-label options'
+      'YouTube transcripts & AI analysis',
+      'API access ($0.10/1K tokens)',
+      'Webhook integration',
+      'Automated sitemap generation',
+      'Content refresh scheduling',
+      'Custom branding & themes',
+      'Priority support & SLA'
     ],
     buttonText: 'Upgrade to Enterprise'
   }
