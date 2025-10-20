@@ -58,6 +58,15 @@ Design preferences: Clean cyan-blue color scheme like Replit (no purple), solid 
 - **Free**: 1 documentation per month, all export formats
 - **Pro ($19/month)**: Unlimited documentation generation, priority support
 - **Enterprise ($99/month)**: Unlimited generation, API access, dedicated support
+
+**Custom Documentation Pricing**: Enterprise-focused tiered packages for one-time custom documentation projects:
+- **Standard ($500)**: 8-12 sections, standard research, PDF & Markdown, 72-hour delivery
+- **Professional ($1,200)**: 13-20 sections, deep research, all formats, YouTube integration, SEO optimization, 24-hour delivery
+- **Enterprise ($2,500)**: 20+ sections, maximum research depth, all features, same-day delivery, dedicated account manager, 3 revision rounds, API priority, compliance documentation
+- **Custom Configuration**: Build-your-own package with granular pricing for specific needs
+- **Enterprise Add-ons**: Dedicated account manager (+$500), revision rounds (+$200), API documentation priority (+$300), compliance/security documentation (+$500)
+- Pricing positioned as value compared to technical writers ($1,500-$6,000 for similar work)
+- All packages include multi-source research (Stack Overflow, GitHub, web search, optional YouTube)
 **Authentication**: Supabase Auth integration for secure user sessions and subscription management.
 **Security Features**: 
 - Fail-closed webhook verification (requires PAYPAL_WEBHOOK_ID)
