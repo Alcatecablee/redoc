@@ -117,7 +117,7 @@ The pricing page (`src/pages/SubscriptionPricing.tsx`) currently lists:
 // Full CSS variable generation for exports
 ```
 
-**Note:** Logo color extraction method exists but not yet implemented (returns empty array)
+**Note:** Logo color extraction method exists but not yet implemented (returns empty array). This is tracked for future enhancement - once complete, white-label options can be confidently marketed as a premium feature.
 
 ### 5. Sitemap Generation ✓
 **Status:** Production-Ready
@@ -209,15 +209,18 @@ The pricing page (`src/pages/SubscriptionPricing.tsx`) currently lists:
 **Recommendation:** Remove from pricing page until implemented
 
 ### 3. Google Search Console Integration ⚠️
-**Status:** Method Exists, Simulated Only
+**Status:** Method Exists, Manual Submission Required
 **Location:** `server/sitemap-service.ts` (submitToGoogleSearchConsole)
 
-**Issue:**
-- Method exists but only logs simulation
-- No actual Google Search Console API integration
-- No OAuth/API key handling for Google
+**Current Implementation:**
+- Sitemap XML generation is fully functional
+- submitToGoogleSearchConsole() method exists for future API integration
+- Currently requires manual sitemap submission to Google Search Console
+- No OAuth/API key handling for Google (yet)
 
-**Recommendation:** Either implement fully or document as "manual submission"
+**Note:** Sitemaps are automatically generated and can be manually submitted to GSC by users. Full API automation is planned for future release.
+
+**Recommendation:** Document as "automated sitemap generation with manual GSC submission" until API integration is complete
 
 ---
 

@@ -62,7 +62,7 @@ const pricingTiers: PricingTier[] = [
       'YouTube transcripts & AI analysis',
       'API access ($0.10/1K tokens)',
       'Webhook integration',
-      'Automated sitemap generation',
+      'SEO optimization & sitemaps',
       'Content refresh scheduling',
       'Custom branding & themes',
       'Priority support & SLA'
