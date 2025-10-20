@@ -68,11 +68,19 @@ Design preferences: Clean cyan-blue color scheme like Replit (no purple), solid 
 - Pricing positioned as value compared to technical writers ($1,500-$6,000 for similar work)
 - All packages include multi-source research (Stack Overflow, GitHub, web search, optional YouTube)
 **Authentication**: Supabase Auth integration for secure user sessions and subscription management.
+**Enterprise API Access**: 
+- Dedicated Enterprise API endpoint (`/api/v1/generate`) for programmatic documentation generation
+- API key authentication via X-API-Key header (separate from Supabase JWT auth)
+- API keys auto-generated for Enterprise users and displayed in Profile page
+- Secure copy-to-clipboard functionality with security warnings
+- API usage tracking for Enterprise accounts
 **Security Features**: 
 - Fail-closed webhook verification (requires PAYPAL_WEBHOOK_ID)
 - Subscriber email validation prevents subscription hijacking
 - Complete audit trail in subscriptionEvents and paymentHistory tables
-- API keys only accessible to authenticated Enterprise subscribers
+- API keys only accessible to authenticated Enterprise subscribers with active subscriptions
+- API key middleware validates plan tier and subscription status before granting access
+- Dual authentication system: Supabase JWT for web UI, API keys for programmatic access
 
 ## External Dependencies
 
