@@ -10,14 +10,12 @@ const Header = () => {
   const [user, setUser] = useState<any>(null);
   const [showSignIn, setShowSignIn] = useState(false);
 
-  // Landing anchors tailored to the product capabilities
+  // Navigation links based on actual site sections and pages
   const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "Pipeline", href: "#pipeline" },
-    { name: "Quality", href: "#quality" },
-    { name: "Exports", href: "#exports" },
-    { name: "Security", href: "#security" },
+    { name: "How It Works", href: "#pipeline" },
     { name: "Features", href: "#features" },
+    { name: "Quality", href: "#quality-exports" },
+    { name: "Pricing", href: "/pricing" },
   ];
 
   useEffect(() => {
