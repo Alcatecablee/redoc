@@ -10,9 +10,11 @@ import { Download, FileText, ExternalLink, Trash2, Globe } from 'lucide-react';
 
 export default function Profile() {
   const [user, setUser] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<any>(null);
   const [docs, setDocs] = useState<any[]>([]);
   const [selectedDoc, setSelectedDoc] = useState<any | null>(null);
   const [viewerTheme, setViewerTheme] = useState<any | undefined>(undefined);
+  const [apiKeyCopied, setApiKeyCopied] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -27,10 +29,14 @@ export default function Profile() {
       setUser(data.user);
 
       try {
-        const json = await apiRequest('/api/documentations');
-        setDocs(json || []);
+        const [docsData, profileData] = await Promise.all([
+          apiRequest('/api/documentations'),
+          apiRequest('/api/user/profile')
+        ]);
+        setDocs(docsData || []);
+        setUserProfile(profileData);
       } catch (e: any) {
-        toast({ title: 'Failed to load docs', description: e.message || String(e), variant: 'destructive' });
+        toast({ title: 'Failed to load data', description: e.message || String(e), variant: 'destructive' });
       }
     })();
   }, []);
@@ -116,19 +122,102 @@ export default function Profile() {
     }
   };
 
+  const copyApiKey = async () => {
+    if (userProfile?.api_key) {
+      try {
+        await navigator.clipboard.writeText(userProfile.api_key);
+        setApiKeyCopied(true);
+        toast({ 
+          title: 'API Key Copied', 
+          description: 'Your API key has been copied to clipboard',
+          duration: 3000
+        });
+        setTimeout(() => setApiKeyCopied(false), 3000);
+      } catch (err) {
+        toast({ 
+          title: 'Failed to copy', 
+          description: 'Could not copy API key to clipboard', 
+          variant: 'destructive' 
+        });
+      }
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-20">
       <h1 className="text-3xl font-bold mb-6">Profile</h1>
       {user && (
-        <div className="mb-6 flex items-center gap-4">
-          <img src="https://cdn.builder.io/api/v1/image/assets%2Fa5240755456c40cdba09a9a8d717364c%2F538d34938c2641918290a7fc5923f99d?format=webp&width=800" alt="avatar" className="h-12 w-12 rounded-full object-cover" />
-          <div>
-            <p className="text-sm text-muted-foreground">Signed in as</p>
-            <p className="font-medium">{user.email}</p>
-            <div className="mt-2">
-              <Button onClick={signOut} size="sm">Sign Out</Button>
+        <div className="mb-6 space-y-6">
+          <div className="flex items-center gap-4">
+            <img src="https://cdn.builder.io/api/v1/image/assets%2Fa5240755456c40cdba09a9a8d717364c%2F538d34938c2641918290a7fc5923f99d?format=webp&width=800" alt="avatar" className="h-12 w-12 rounded-full object-cover" />
+            <div>
+              <p className="text-sm text-muted-foreground">Signed in as</p>
+              <p className="font-medium">{user.email}</p>
+              <div className="mt-2">
+                <Button onClick={signOut} size="sm">Sign Out</Button>
+              </div>
             </div>
           </div>
+
+          {userProfile && (
+            <div className="bg-[#0b0f17]/60 border border-white/10 rounded-lg p-6 space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Subscription</h3>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl font-bold capitalize">{userProfile.plan}</span>
+                  {userProfile.plan === 'enterprise' && (
+                    <span className="px-2 py-1 bg-purple-600/20 border border-purple-500/30 rounded text-purple-300 text-xs font-medium">
+                      Premium
+                    </span>
+                  )}
+                  {userProfile.plan === 'pro' && (
+                    <span className="px-2 py-1 bg-blue-600/20 border border-blue-500/30 rounded text-blue-300 text-xs font-medium">
+                      Active
+                    </span>
+                  )}
+                </div>
+                {userProfile.subscription_status && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Status: <span className="capitalize">{userProfile.subscription_status}</span>
+                  </p>
+                )}
+              </div>
+
+              {userProfile.plan === 'enterprise' && userProfile.api_key && (
+                <div className="border-t border-white/10 pt-4">
+                  <h4 className="font-semibold mb-2">API Access</h4>
+                  <div className="bg-[#1a1f2e] border border-white/10 rounded-lg p-4 space-y-3">
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-2">Your API Key</p>
+                      <div className="flex items-center gap-2">
+                        <code className="flex-1 bg-black/40 px-3 py-2 rounded text-sm font-mono text-cyan-400 truncate">
+                          {userProfile.api_key}
+                        </code>
+                        <Button 
+                          onClick={copyApiKey} 
+                          size="sm" 
+                          variant="outline"
+                          className="min-w-[80px]"
+                        >
+                          {apiKeyCopied ? 'Copied!' : 'Copy'}
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="bg-amber-500/10 border border-amber-500/20 rounded p-3">
+                      <p className="text-xs text-amber-200/90">
+                        <strong className="font-semibold">Security Warning:</strong> Keep your API key secure and never share it publicly. Store it in environment variables when using it in your applications.
+                      </p>
+                    </div>
+                    {userProfile.api_usage > 0 && (
+                      <p className="text-sm text-muted-foreground">
+                        API Usage: {userProfile.api_usage?.toLocaleString()} tokens
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 

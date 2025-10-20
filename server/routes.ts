@@ -64,6 +64,63 @@ async function verifySupabaseAuth(req: any, res: any, next: any) {
   }
 }
 
+// API Key Authentication for Enterprise API Access
+async function verifyApiKey(req: any, res: any, next: any) {
+  try {
+    const apiKey = req.headers['x-api-key'] || req.headers['X-API-Key'];
+    
+    if (!apiKey || typeof apiKey !== 'string') {
+      return res.status(401).json({ 
+        error: 'Unauthorized: missing API key',
+        message: 'Please provide your API key in the X-API-Key header'
+      });
+    }
+
+    const database = ensureDb();
+    const userResults = await database.select().from(users).where(eq(users.api_key, apiKey));
+    
+    if (userResults.length === 0) {
+      return res.status(401).json({ 
+        error: 'Unauthorized: invalid API key',
+        message: 'The provided API key is not valid'
+      });
+    }
+
+    const user = userResults[0];
+    
+    // Check if user is on Enterprise plan
+    if (user.plan !== 'enterprise') {
+      return res.status(403).json({ 
+        error: 'Forbidden: API access requires Enterprise plan',
+        message: 'Please upgrade to Enterprise to use the API',
+        upgradeUrl: '/pricing'
+      });
+    }
+
+    // Check subscription status
+    if (user.subscription_status !== 'active') {
+      return res.status(403).json({ 
+        error: 'Forbidden: inactive subscription',
+        message: `Your subscription is ${user.subscription_status}. Please reactivate to use the API.`
+      });
+    }
+
+    // Attach user info to request
+    req.apiUser = {
+      id: user.id,
+      email: user.email,
+      plan: user.plan,
+      api_usage: user.api_usage,
+      balance: user.balance
+    };
+
+    return next();
+  } catch (err: any) {
+    console.error('Error verifying API key', err);
+    return res.status(500).json({ error: 'API key verification failed' });
+  }
+}
+
 // Helper function to parse JSON with retry logic
 async function parseJSONWithRetry(apiKey: string, content: string, retryPrompt: string, maxRetries = 2): Promise<any> {
   let lastError: Error | null = null;
@@ -930,6 +987,145 @@ router.delete("/api/documentations/:id", verifySupabaseAuth, async (req, res) =>
   } catch (error) {
     console.error('Error deleting documentation:', error);
     res.status(500).json({ error: 'Failed to delete documentation' });
+  }
+});
+
+// Get user profile with subscription details
+router.get("/api/user/profile", verifySupabaseAuth, async (req, res) => {
+  try {
+    const userEmail = req.user?.email;
+    if (!userEmail) {
+      return res.status(400).json({ error: 'Email not found in token' });
+    }
+
+    const database = ensureDb();
+    const existingUsers = await database.select().from(users).where(eq(users.email, userEmail));
+    
+    if (existingUsers.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const user = existingUsers[0];
+    
+    // Return user profile with subscription details
+    res.json({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      plan: user.plan,
+      subscription_id: user.subscription_id,
+      subscription_status: user.subscription_status,
+      generation_count: user.generation_count,
+      api_key: user.plan === 'enterprise' ? user.api_key : null,
+      api_usage: user.api_usage,
+      balance: user.balance,
+      last_reset_at: user.last_reset_at,
+      created_at: user.created_at,
+      updated_at: user.updated_at
+    });
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({
+      error: error instanceof Error ? error.message : 'Failed to fetch user profile'
+    });
+  }
+});
+
+// Enterprise API: Generate documentation with API key authentication
+router.post("/api/v1/generate", verifyApiKey, async (req, res) => {
+  try {
+    console.log('/api/v1/generate called with API key auth');
+
+    const { url, subdomain } = req.body;
+
+    if (!url) {
+      return res.status(400).json({ 
+        error: "URL is required",
+        message: "Please provide a 'url' field in the request body"
+      });
+    }
+
+    // Validate URL format
+    try {
+      new URL(url);
+    } catch (err) {
+      return res.status(400).json({ 
+        error: "Invalid URL format", 
+        message: "Please provide a valid HTTP/HTTPS URL" 
+      });
+    }
+
+    const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+    const GROQ_API_KEY = process.env.GROQ_API_KEY;
+    const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
+    if (!OPENAI_API_KEY && !GROQ_API_KEY && !DEEPSEEK_API_KEY) {
+      console.error('Enterprise API: No AI provider API key configured');
+      return res.status(500).json({ 
+        error: "AI provider not configured",
+        message: "Please contact support - AI service configuration issue"
+      });
+    }
+
+    const sessionId = uuidv4();
+    progressTracker.createSession(sessionId);
+
+    try {
+      const apiUser = req.apiUser;
+      const userId = apiUser.id.toString();
+      const userEmail = apiUser.email;
+
+      // Enterprise users always get unlimited generations
+      const userPlan = 'enterprise';
+
+      // Generate documentation using enterprise tier
+      const result = await generateDocumentationPipeline(url, userId, sessionId, userPlan);
+      const parsed = JSON.parse(result.documentation.content);
+
+      // Track API usage (simplified - you can add token counting here)
+      const database = ensureDb();
+      await database.update(users)
+        .set({ 
+          api_usage: apiUser.api_usage + 1000, // Increment by estimated tokens
+          updated_at: new Date()
+        })
+        .where(eq(users.id, apiUser.id));
+
+      progressTracker.endSession(sessionId, 'completed');
+
+      // Return enterprise-friendly API response
+      res.json({
+        success: true,
+        documentation: {
+          id: result.documentation.id,
+          title: parsed.title,
+          description: parsed.description,
+          url: url,
+          sections: parsed.sections,
+          generated_at: result.documentation.generatedAt,
+          format: 'json'
+        },
+        meta: {
+          session_id: sessionId,
+          api_usage: apiUser.api_usage + 1000,
+          plan: 'enterprise'
+        }
+      });
+    } catch (error: any) {
+      console.error('Enterprise API generation error:', error);
+      progressTracker.endSession(sessionId, 'error');
+
+      res.status(500).json({
+        error: 'Documentation generation failed',
+        message: error?.message || 'An unexpected error occurred',
+        session_id: sessionId
+      });
+    }
+  } catch (error: any) {
+    console.error('Enterprise API error:', error);
+    res.status(500).json({
+      error: 'Internal server error',
+      message: error?.message || 'An unexpected error occurred'
+    });
   }
 });
 
