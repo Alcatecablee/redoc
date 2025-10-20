@@ -246,5 +246,6 @@ export default function SubscriptionPricing() {
         </div>
       </div>
     </div>
+    </div>
   );
 }
