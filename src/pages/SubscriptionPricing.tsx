@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Check, Zap, Crown, Sparkles } from 'lucide-react';
+import { Check, Zap, Crown, Sparkles, DollarSign, ClipboardList, Bolt, Palette } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabaseClient';
 import { useNavigate } from 'react-router-dom';
@@ -222,14 +222,43 @@ export default function SubscriptionPricing() {
           ))}
         </div>
 
-        {/* Custom Consulting Section */}
-        <div className="mt-16">
+        {/* Enterprise-Grade Custom Documentation Section */}
+        <div className="mt-24 bg-gradient-to-br from-[rgb(245,245,250)] to-white py-16 -mx-4 px-4 rounded-3xl">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4 text-[rgb(36,77,91)]">Need Something Custom?</h2>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[rgb(142,209,198)]/10 border border-[rgb(142,209,198)]/20 backdrop-blur-sm mb-6">
+              <DollarSign className="h-4 w-4 text-[rgb(36,77,91)]" />
+              <span className="text-sm font-medium text-[rgb(36,77,91)]">Custom Documentation Services</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-[rgb(36,77,91)]">
+              Enterprise-Grade Custom Documentation
+            </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Get bespoke documentation with rush delivery, custom requirements, and manual polish.
-              Perfect for enterprise products and complex integrations.
+              Need bespoke documentation for your SaaS, API, or complex platform? Get custom documentation projects with 10+ source research, YouTube integration, enterprise SEO optimization, flexible delivery options and professional quality.
             </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 mb-12 max-w-5xl mx-auto">
+            <div className="bg-white border border-gray-200 rounded-xl p-6 text-center">
+              <div className="w-12 h-12 rounded-full bg-[rgb(142,209,198)]/20 flex items-center justify-center mx-auto mb-4">
+                <ClipboardList className="h-6 w-6 text-[rgb(36,77,91)]" />
+              </div>
+              <h4 className="font-bold text-gray-900 mb-2">Flexible Pricing</h4>
+              <p className="text-sm text-gray-600">From $500 based on your specific needs</p>
+            </div>
+            <div className="bg-white border border-gray-200 rounded-xl p-6 text-center">
+              <div className="w-12 h-12 rounded-full bg-[rgb(142,209,198)]/20 flex items-center justify-center mx-auto mb-4">
+                <Bolt className="h-6 w-6 text-[rgb(36,77,91)]" />
+              </div>
+              <h4 className="font-bold text-gray-900 mb-2">Fast Delivery</h4>
+              <p className="text-sm text-gray-600">Standard (3 days), Rush (1 day), or Same-Day</p>
+            </div>
+            <div className="bg-white border border-gray-200 rounded-xl p-6 text-center">
+              <div className="w-12 h-12 rounded-full bg-[rgb(142,209,198)]/20 flex items-center justify-center mx-auto mb-4">
+                <Palette className="h-6 w-6 text-[rgb(36,77,91)]" />
+              </div>
+              <h4 className="font-bold text-gray-900 mb-2">Custom Branding</h4>
+              <p className="text-sm text-gray-600">Match your brand with custom logos and tone</p>
+            </div>
           </div>
           
           <CustomPricingForm />
