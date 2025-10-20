@@ -1,19 +1,37 @@
 import { db } from '../db';
 import { apiKeys, activityLogs } from '../../shared/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, gte } from 'drizzle-orm';
 import crypto from 'crypto';
 
 export class ApiKeyService {
-  generateApiKey(): string {
-    return `sk_${crypto.randomBytes(32).toString('hex')}`;
+  private ensureDb() {
+    if (!db) {
+      throw new Error('Database not configured');
+    }
+    return db;
+  }
+
+  generateApiKey(): { key: string; hash: string; prefix: string } {
+    const randomPart = crypto.randomBytes(24).toString('hex');
+    const fullKey = `dk_live_${randomPart}`;
+    const hash = crypto.createHash('sha256').update(fullKey).digest('hex');
+    const prefix = `dk_...${randomPart.slice(-8)}`;
+    
+    return { key: fullKey, hash, prefix };
+  }
+  
+  hashApiKey(key: string): string {
+    return crypto.createHash('sha256').update(key).digest('hex');
   }
 
   async createApiKey(userId: number, name: string, description?: string, scopes: string[] = ['read', 'write']) {
-    const key = this.generateApiKey();
+    const database = this.ensureDb();
+    const { key, hash, prefix } = this.generateApiKey();
     
-    const [newKey] = await db.insert(apiKeys).values({
+    const [newKey] = await database.insert(apiKeys).values({
       user_id: userId,
-      key,
+      key_hash: hash,
+      key_prefix: prefix,
       name,
       description: description || null,
       scopes: JSON.stringify(scopes),
@@ -26,7 +44,7 @@ export class ApiKeyService {
       last_used_at: null,
     }).returning();
 
-    await db.insert(activityLogs).values({
+    await database.insert(activityLogs).values({
       user_id: userId,
       action: 'created',
       resource_type: 'api_key',
@@ -38,18 +56,20 @@ export class ApiKeyService {
       user_agent: null,
     });
 
-    return newKey;
+    return { ...newKey, key };
   }
 
   async listApiKeys(userId: number) {
-    return await db.query.apiKeys.findMany({
+    const database = this.ensureDb();
+    return await database.query.apiKeys.findMany({
       where: eq(apiKeys.user_id, userId),
       orderBy: (keys, { desc }) => [desc(keys.created_at)],
     });
   }
 
   async getApiKey(keyId: number, userId: number) {
-    return await db.query.apiKeys.findFirst({
+    const database = this.ensureDb();
+    return await database.query.apiKeys.findFirst({
       where: and(
         eq(apiKeys.id, keyId),
         eq(apiKeys.user_id, userId)
@@ -58,9 +78,11 @@ export class ApiKeyService {
   }
 
   async verifyApiKey(key: string) {
-    const apiKey = await db.query.apiKeys.findFirst({
+    const database = this.ensureDb();
+    const keyHash = this.hashApiKey(key);
+    const apiKey = await database.query.apiKeys.findFirst({
       where: and(
-        eq(apiKeys.key, key),
+        eq(apiKeys.key_hash, keyHash),
         eq(apiKeys.is_active, true)
       ),
     });
@@ -73,7 +95,7 @@ export class ApiKeyService {
       return null;
     }
 
-    await db.update(apiKeys)
+    await database.update(apiKeys)
       .set({ 
         usage_count: apiKey.usage_count + 1,
         last_used_at: new Date()
@@ -84,14 +106,15 @@ export class ApiKeyService {
   }
 
   async revokeApiKey(keyId: number, userId: number) {
-    await db.update(apiKeys)
+    const database = this.ensureDb();
+    await database.update(apiKeys)
       .set({ is_active: false })
       .where(and(
         eq(apiKeys.id, keyId),
         eq(apiKeys.user_id, userId)
       ));
 
-    await db.insert(activityLogs).values({
+    await database.insert(activityLogs).values({
       user_id: userId,
       action: 'revoked',
       resource_type: 'api_key',
@@ -105,13 +128,14 @@ export class ApiKeyService {
   }
 
   async deleteApiKey(keyId: number, userId: number) {
-    await db.delete(apiKeys)
+    const database = this.ensureDb();
+    await database.delete(apiKeys)
       .where(and(
         eq(apiKeys.id, keyId),
         eq(apiKeys.user_id, userId)
       ));
 
-    await db.insert(activityLogs).values({
+    await database.insert(activityLogs).values({
       user_id: userId,
       action: 'deleted',
       resource_type: 'api_key',
@@ -124,20 +148,48 @@ export class ApiKeyService {
     });
   }
 
+  async logApiRequest(apiKey: any, metadata?: any) {
+    const database = this.ensureDb();
+    await database.insert(activityLogs).values({
+      user_id: apiKey.user_id,
+      action: 'api_request',
+      resource_type: 'api_request',
+      resource_id: String(apiKey.id),
+      metadata: metadata ? JSON.stringify(metadata) : null,
+      created_at: new Date(),
+      organization_id: null,
+      ip_address: null,
+      user_agent: null,
+    });
+  }
+
   async checkRateLimit(apiKey: any): Promise<boolean> {
+    const database = this.ensureDb();
     const now = new Date();
     const oneMinuteAgo = new Date(now.getTime() - 60 * 1000);
     const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-    const minuteUsage = await db.query.activityLogs.findMany({
+    const minuteUsage = await database.query.activityLogs.findMany({
       where: and(
         eq(activityLogs.resource_type, 'api_request'),
         eq(activityLogs.resource_id, String(apiKey.id)),
-        // created_at > oneMinuteAgo
+        gte(activityLogs.created_at, oneMinuteAgo)
       ),
     });
 
     if (minuteUsage.length >= apiKey.rate_limit_per_minute) {
+      return false;
+    }
+
+    const dayUsage = await database.query.activityLogs.findMany({
+      where: and(
+        eq(activityLogs.resource_type, 'api_request'),
+        eq(activityLogs.resource_id, String(apiKey.id)),
+        gte(activityLogs.created_at, oneDayAgo)
+      ),
+    });
+
+    if (dayUsage.length >= apiKey.rate_limit_per_day) {
       return false;
     }
 

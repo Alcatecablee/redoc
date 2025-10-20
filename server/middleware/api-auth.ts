@@ -37,6 +37,13 @@ export async function verifyApiKey(req: ApiAuthRequest, res: Response, next: Nex
       });
     }
 
+    await apiKeyService.logApiRequest(apiKey, {
+      method: req.method,
+      path: req.path,
+      ip: req.ip,
+      userAgent: req.get('user-agent'),
+    });
+
     req.apiKey = apiKey;
     req.apiUser = { id: apiKey.user_id };
 

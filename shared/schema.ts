@@ -103,7 +103,8 @@ export const themesRelations = relations(themes, ({ many }) => ({
 export const apiKeys = pgTable("api_keys", {
   id: serial("id").primaryKey(),
   user_id: integer("user_id").notNull(),
-  key: text("key").notNull().unique(), // The actual API key
+  key_hash: text("key_hash").notNull().unique(), // Hashed API key for security
+  key_prefix: text("key_prefix").notNull(), // Display prefix (e.g., "dk_...abc123")
   name: text("name").notNull(), // User-friendly name for the key
   description: text("description"),
   scopes: jsonb("scopes").notNull().default('["read", "write"]'), // Permissions: read, write, admin

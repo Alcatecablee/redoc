@@ -11,14 +11,22 @@ export interface WebhookEvent {
 }
 
 export class WebhookService {
+  private ensureDb() {
+    if (!db) {
+      throw new Error('Database not configured');
+    }
+    return db;
+  }
+
   generateSecret(): string {
     return crypto.randomBytes(32).toString('hex');
   }
 
   async createWebhook(userId: number, url: string, events: string[], organizationId?: number) {
+    const database = this.ensureDb();
     const secret = this.generateSecret();
 
-    const [webhook] = await db.insert(webhooks).values({
+    const [webhook] = await database.insert(webhooks).values({
       user_id: userId,
       organization_id: organizationId || null,
       url,
@@ -34,19 +42,21 @@ export class WebhookService {
   }
 
   async listWebhooks(userId: number, organizationId?: number) {
+    const database = this.ensureDb();
     if (organizationId) {
-      return await db.query.webhooks.findMany({
+      return await database.query.webhooks.findMany({
         where: eq(webhooks.organization_id, organizationId),
       });
     }
 
-    return await db.query.webhooks.findMany({
+    return await database.query.webhooks.findMany({
       where: eq(webhooks.user_id, userId),
     });
   }
 
   async deleteWebhook(webhookId: number, userId: number) {
-    await db.delete(webhooks)
+    const database = this.ensureDb();
+    await database.delete(webhooks)
       .where(and(
         eq(webhooks.id, webhookId),
         eq(webhooks.user_id, userId)
@@ -54,7 +64,8 @@ export class WebhookService {
   }
 
   async triggerWebhook(event: WebhookEvent) {
-    const userWebhooks = await db.query.webhooks.findMany({
+    const database = this.ensureDb();
+    const userWebhooks = await database.query.webhooks.findMany({
       where: and(
         eq(webhooks.user_id, event.userId),
         eq(webhooks.is_active, true)
@@ -75,6 +86,7 @@ export class WebhookService {
   }
 
   private async deliverWebhook(webhook: any, event: WebhookEvent) {
+    const database = this.ensureDb();
     const payload = {
       event: event.type,
       data: event.data,
@@ -94,7 +106,7 @@ export class WebhookService {
         body: JSON.stringify(payload),
       });
 
-      await db.insert(webhookDeliveries).values({
+      await database.insert(webhookDeliveries).values({
         webhook_id: webhook.id,
         event_type: event.type,
         payload: JSON.stringify(payload),
@@ -105,17 +117,17 @@ export class WebhookService {
       });
 
       if (!response.ok) {
-        await db.update(webhooks)
+        await database.update(webhooks)
           .set({ failure_count: webhook.failure_count + 1 })
           .where(eq(webhooks.id, webhook.id));
 
         if (webhook.failure_count + 1 >= 10) {
-          await db.update(webhooks)
+          await database.update(webhooks)
             .set({ is_active: false })
             .where(eq(webhooks.id, webhook.id));
         }
       } else {
-        await db.update(webhooks)
+        await database.update(webhooks)
           .set({ 
             last_triggered_at: new Date(),
             failure_count: 0
@@ -125,7 +137,7 @@ export class WebhookService {
     } catch (error) {
       console.error('Webhook delivery error:', error);
 
-      await db.insert(webhookDeliveries).values({
+      await database.insert(webhookDeliveries).values({
         webhook_id: webhook.id,
         event_type: event.type,
         payload: JSON.stringify(payload),
@@ -135,7 +147,7 @@ export class WebhookService {
         created_at: new Date(),
       });
 
-      await db.update(webhooks)
+      await database.update(webhooks)
         .set({ failure_count: webhook.failure_count + 1 })
         .where(eq(webhooks.id, webhook.id));
     }

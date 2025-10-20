@@ -3,7 +3,15 @@ import { supportTickets, supportTicketMessages } from '../../shared/schema';
 import { eq, and, or } from 'drizzle-orm';
 
 export class SupportService {
+  private ensureDb() {
+    if (!db) {
+      throw new Error('Database not configured');
+    }
+    return db;
+  }
+
   async createTicket(userId: number, subject: string, description: string, priority: string = 'normal') {
+    const database = this.ensureDb();
     const slaHours: Record<string, number> = {
       low: 72,
       normal: 48,
@@ -14,7 +22,7 @@ export class SupportService {
     const slaDeadline = new Date();
     slaDeadline.setHours(slaDeadline.getHours() + (slaHours[priority] || 48));
 
-    const [ticket] = await db.insert(supportTickets).values({
+    const [ticket] = await database.insert(supportTickets).values({
       user_id: userId,
       subject,
       description,
@@ -31,14 +39,16 @@ export class SupportService {
   }
 
   async listTickets(userId: number) {
-    return await db.query.supportTickets.findMany({
+    const database = this.ensureDb();
+    return await database.query.supportTickets.findMany({
       where: eq(supportTickets.user_id, userId),
       orderBy: (tickets, { desc }) => [desc(tickets.created_at)],
     });
   }
 
   async getTicket(ticketId: number, userId: number) {
-    const ticket = await db.query.supportTickets.findFirst({
+    const database = this.ensureDb();
+    const ticket = await database.query.supportTickets.findFirst({
       where: and(
         eq(supportTickets.id, ticketId),
         eq(supportTickets.user_id, userId)
@@ -49,7 +59,7 @@ export class SupportService {
       return null;
     }
 
-    const messages = await db.query.supportTicketMessages.findMany({
+    const messages = await database.query.supportTicketMessages.findMany({
       where: eq(supportTicketMessages.ticket_id, ticketId),
       orderBy: (msgs, { asc }) => [asc(msgs.created_at)],
     });
@@ -58,7 +68,8 @@ export class SupportService {
   }
 
   async addMessage(ticketId: number, userId: number, message: string, isInternal: boolean = false) {
-    const [newMessage] = await db.insert(supportTicketMessages).values({
+    const database = this.ensureDb();
+    const [newMessage] = await database.insert(supportTicketMessages).values({
       ticket_id: ticketId,
       user_id: userId,
       message,
@@ -66,7 +77,7 @@ export class SupportService {
       created_at: new Date(),
     }).returning();
 
-    await db.update(supportTickets)
+    await database.update(supportTickets)
       .set({ updated_at: new Date() })
       .where(eq(supportTickets.id, ticketId));
 
@@ -74,9 +85,10 @@ export class SupportService {
   }
 
   async updateTicketStatus(ticketId: number, status: string) {
+    const database = this.ensureDb();
     const resolvedAt = status === 'resolved' || status === 'closed' ? new Date() : null;
 
-    await db.update(supportTickets)
+    await database.update(supportTickets)
       .set({ 
         status, 
         updated_at: new Date(),
@@ -86,7 +98,8 @@ export class SupportService {
   }
 
   async assignTicket(ticketId: number, assignedTo: number) {
-    await db.update(supportTickets)
+    const database = this.ensureDb();
+    await database.update(supportTickets)
       .set({ 
         assigned_to: assignedTo,
         status: 'in_progress',
