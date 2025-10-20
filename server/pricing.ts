@@ -1,4 +1,7 @@
+export type PricingTier = 'custom' | 'standard' | 'professional' | 'enterprise';
+
 export interface PricingConfig {
+  tier?: PricingTier;
   sections: '8-12' | '13-20' | '20+';
   sourceDepth: 'basic' | 'standard' | 'deep';
   delivery: 'standard' | 'rush' | 'same-day';
@@ -7,6 +10,7 @@ export interface PricingConfig {
   customRequirements: string;
   youtubeOptions: string[];
   seoOptions: string[];
+  enterpriseFeatures: string[];
 }
 
 export interface PricingBreakdown {
@@ -19,13 +23,146 @@ export interface PricingBreakdown {
   complexityAddon: number;
   youtubeAddon: number;
   seoAddon: number;
+  enterpriseFeaturesAddon: number;
   total: number;
   currency: 'USD' | 'ZAR';
+  tierName?: string;
 }
 
+export interface TierPackage {
+  id: PricingTier;
+  name: string;
+  price: number;
+  description: string;
+  features: string[];
+  popular?: boolean;
+  config: Partial<PricingConfig>;
+}
+
+export const tierPackages: TierPackage[] = [
+  {
+    id: 'standard',
+    name: 'Standard',
+    price: 500,
+    description: 'Perfect for basic documentation needs',
+    features: [
+      '8-12 documentation sections',
+      'Standard research depth',
+      'PDF & Markdown formats',
+      'Basic branding',
+      '72-hour delivery',
+      'Stack Overflow & GitHub research',
+      'Web search integration',
+    ],
+    config: {
+      sections: '8-12',
+      sourceDepth: 'standard',
+      delivery: 'standard',
+      formats: ['pdf', 'markdown'],
+      branding: 'basic',
+      youtubeOptions: [],
+      seoOptions: [],
+      enterpriseFeatures: [],
+    }
+  },
+  {
+    id: 'professional',
+    name: 'Professional',
+    price: 1200,
+    description: 'Comprehensive documentation with multimedia',
+    popular: true,
+    features: [
+      '13-20 documentation sections',
+      'Deep research across all sources',
+      'All export formats (PDF, HTML, DOCX, MD, JSON)',
+      'Advanced branding & theming',
+      '24-hour rush delivery',
+      'YouTube integration & transcripts',
+      'Complete SEO optimization',
+      'Schema markup & metadata',
+    ],
+    config: {
+      sections: '13-20',
+      sourceDepth: 'deep',
+      delivery: 'rush',
+      formats: ['pdf', 'markdown', 'html', 'docx', 'json'],
+      branding: 'advanced',
+      youtubeOptions: ['youtubeSearch', 'youtubeApi', 'youtubeTranscripts'],
+      seoOptions: ['seoMetadata', 'schemaMarkup', 'keywordTargeting', 'sitemapIndexing'],
+      enterpriseFeatures: [],
+    }
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise',
+    price: 2500,
+    description: 'Premium service with dedicated support',
+    features: [
+      '20+ comprehensive sections',
+      'Maximum research depth',
+      'All formats & customization',
+      'Premium branded themes',
+      'Same-day delivery (12 hours)',
+      'Full YouTube & video analysis',
+      'Advanced SEO & content refresh',
+      'Dedicated account manager',
+      '3 revision rounds included',
+      'Priority API documentation',
+      'Compliance & security docs',
+    ],
+    config: {
+      sections: '20+',
+      sourceDepth: 'deep',
+      delivery: 'same-day',
+      formats: ['pdf', 'markdown', 'html', 'docx', 'json'],
+      branding: 'advanced',
+      youtubeOptions: ['youtubeSearch', 'youtubeApi', 'youtubeTranscripts'],
+      seoOptions: ['seoMetadata', 'schemaMarkup', 'keywordTargeting', 'sitemapIndexing', 'contentRefresh'],
+      enterpriseFeatures: ['accountManager', 'revisions', 'apiPriority', 'compliance'],
+    }
+  }
+];
+
+export const enterpriseFeaturesPricing = {
+  accountManager: { name: 'Dedicated Account Manager', price: 500 },
+  revisions: { name: 'Multiple Revision Rounds', price: 200 },
+  apiPriority: { name: 'API Documentation Priority', price: 300 },
+  compliance: { name: 'Compliance/Security Documentation', price: 500 },
+};
+
 export const calculatePrice = (config: PricingConfig, currency: 'USD' | 'ZAR' = 'USD'): PricingBreakdown => {
-  const basePrice = 500;
+  let basePrice = 500;
+  let tierName: string | undefined;
   
+  // If a tier is selected, use that as the base price
+  if (config.tier && config.tier !== 'custom') {
+    const tier = tierPackages.find(t => t.id === config.tier);
+    if (tier) {
+      basePrice = tier.price;
+      tierName = tier.name;
+      
+      // For pre-packaged tiers, return the tier price with minimal add-ons
+      const total = currency === 'ZAR' ? Math.round(basePrice * 18) : basePrice;
+      
+      return {
+        basePrice: currency === 'ZAR' ? basePrice * 18 : basePrice,
+        sectionsAddon: 0,
+        depthAddon: 0,
+        deliveryAddon: 0,
+        formatsAddon: 0,
+        brandingAddon: 0,
+        complexityAddon: 0,
+        youtubeAddon: 0,
+        seoAddon: 0,
+        enterpriseFeaturesAddon: 0,
+        total,
+        currency,
+        tierName
+      };
+    }
+  }
+  
+  // Custom pricing calculation (existing logic)
   let sectionsAddon = 0;
   if (config.sections === '13-20') sectionsAddon = 200;
   if (config.sections === '20+') sectionsAddon = 400;
@@ -63,21 +200,32 @@ export const calculatePrice = (config: PricingConfig, currency: 'USD' | 'ZAR' = 
     youtubeAddon += youtubePricing[option as keyof typeof youtubePricing] || 0;
   });
   
-    // Calculate SEO addon
-    let seoAddon = 0;
-    const seoPricing = {
-      seoMetadata: 100,
-      schemaMarkup: 50,
-      keywordTargeting: 75,
-      sitemapIndexing: 50,
-      contentRefresh: 100,
-    };
-    
-    config.seoOptions.forEach(option => {
-      seoAddon += seoPricing[option as keyof typeof seoPricing] || 0;
+  // Calculate SEO addon
+  let seoAddon = 0;
+  const seoPricing = {
+    seoMetadata: 100,
+    schemaMarkup: 50,
+    keywordTargeting: 75,
+    sitemapIndexing: 50,
+    contentRefresh: 100,
+  };
+  
+  config.seoOptions.forEach(option => {
+    seoAddon += seoPricing[option as keyof typeof seoPricing] || 0;
+  });
+  
+  // Calculate enterprise features addon
+  let enterpriseFeaturesAddon = 0;
+  if (config.enterpriseFeatures && config.enterpriseFeatures.length > 0) {
+    config.enterpriseFeatures.forEach(feature => {
+      const featurePrice = enterpriseFeaturesPricing[feature as keyof typeof enterpriseFeaturesPricing];
+      if (featurePrice) {
+        enterpriseFeaturesAddon += featurePrice.price;
+      }
     });
-    
-    const totalUSD = basePrice + sectionsAddon + depthAddon + deliveryAddon + formatsAddon + brandingAddon + complexityAddon + youtubeAddon + seoAddon;
+  }
+  
+  const totalUSD = basePrice + sectionsAddon + depthAddon + deliveryAddon + formatsAddon + brandingAddon + complexityAddon + youtubeAddon + seoAddon + enterpriseFeaturesAddon;
   
   const total = currency === 'ZAR' ? Math.round(totalUSD * 18) : totalUSD;
   
@@ -91,8 +239,10 @@ export const calculatePrice = (config: PricingConfig, currency: 'USD' | 'ZAR' = 
     complexityAddon: currency === 'ZAR' ? complexityAddon * 18 : complexityAddon,
     youtubeAddon: currency === 'ZAR' ? youtubeAddon * 18 : youtubeAddon,
     seoAddon: currency === 'ZAR' ? seoAddon * 18 : seoAddon,
+    enterpriseFeaturesAddon: currency === 'ZAR' ? enterpriseFeaturesAddon * 18 : enterpriseFeaturesAddon,
     total,
-    currency
+    currency,
+    tierName
   };
 };
 
