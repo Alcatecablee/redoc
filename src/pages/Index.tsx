@@ -851,8 +851,37 @@ const Index = () => {
           </div>
         </section>
       )}
+
+      {/* Final CTA Section - Try it Free */}
+      {!generatedDoc && (
+        <section className="relative overflow-hidden bg-[rgb(34,38,46)] py-20 lg:py-28">
+          <div className="relative container mx-auto px-6 max-w-5xl text-center">
+            <div className="space-y-12">
+              {/* Heading */}
+              <h2 className="text-6xl md:text-7xl lg:text-8xl font-black leading-tight text-white tracking-tight">
+                Try it for <span className="text-[rgb(102,255,228)] font-semibold">free<span className="text-[rgb(102,255,228)] font-black">.</span></span>
+              </h2>
+
+              {/* Description */}
+              <p className="text-2xl md:text-3xl text-[rgb(228,232,236)] leading-relaxed max-w-3xl mx-auto">
+                We provide <strong className="font-bold">for free</strong> as long as we can, and then <strong className="font-bold">the lowest price</strong> among competitors.
+              </p>
+
+              {/* CTA Button */}
+              <div>
+                <a
+                  href="https://quarkly.io/dashboard"
+                  className="inline-block px-10 py-4 bg-[rgb(14,19,23)] border-4 border-[rgb(102,255,228)] text-white hover:bg-[rgb(102,255,228)] hover:text-[rgb(14,19,23)] font-bold text-base rounded-full uppercase tracking-wider transition-all duration-200 shadow-xl hover:shadow-2xl hover:scale-105"
+                >
+                  Create Project
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
       </main>
-      
+
       <Footer />
     </div>
   );
