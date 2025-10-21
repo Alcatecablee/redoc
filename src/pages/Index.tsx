@@ -659,9 +659,13 @@ const Index = () => {
                   {[
                     { image: "/attached_assets/images/Stack-Overflow-Logo-emblem-of-the-programming-community-transparent-png-image.png", name: "Stack Overflow" },
                     { image: "/attached_assets/images/toppng.com-github-logo-524x512.png", name: "GitHub Issues" },
-                    { image: "/attached_assets/images/toppng.com-youtube-icon-1024x1024.png", name: "YouTube" },
-                    { image: "/attached_assets/images/toppng.com-reddit-logo-reddit-icon-698x698.png", name: "Reddit" },
-                    { image: "/attached_assets/images/dev-rainbow.png", name: "Dev.to" }
+                    { image: "/attached_assets/images/toppng.com-youtube-icon-1024x1024.png", name: "YouTube Videos" },
+                    { image: "/attached_assets/images/toppng.com-reddit-logo-reddit-icon-698x698.png", name: "Reddit Posts" },
+                    { image: "/attached_assets/images/dev-rainbow.png", name: "DEV.to Articles" },
+                    { image: "/attached_assets/images/toppng.com-custom-software-development-web-application-development-451x333.png", name: "CodeProject" },
+                    { icon: DocumentTextIcon, name: "Stack Exchange" },
+                    { icon: ChatBubbleLeftRightIcon, name: "Quora Answers" },
+                    { icon: GlobeAltIcon, name: "Official Forums" }
                   ].map((item) => (
                     <div key={item.name} className="group bg-[rgba(37,41,51,0.13)] rounded-2xl p-6 hover:bg-[rgb(40,45,55)] transition-all duration-300 border border-white/10 hover:border-[rgb(102,255,228)]/30">
                       <div className="flex flex-col items-center text-center gap-3">
