@@ -630,24 +630,24 @@ const Index = () => {
 
       {/* Features Section - Capability Showcase */}
       {!generatedDoc && (
-        <section id="features" className="relative overflow-hidden bg-gradient-to-br from-[rgb(36,77,91)] via-[rgb(40,85,100)] to-[rgb(36,77,91)] py-24 lg:py-32">
+        <section id="features" className="relative overflow-hidden bg-gradient-to-br from-[rgb(36,77,91)] via-[rgb(40,85,100)] to-[rgb(36,77,91)] py-32 lg:py-40">
           <div className="absolute inset-0 bg-grid-white/[0.02] opacity-30" />
 
           <div className="relative container mx-auto px-6 max-w-7xl">
             {/* Header */}
-            <div className="text-center mb-24">
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+            <div className="text-center mb-28">
+              <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-8 leading-tight tracking-tight">
                 Built on Real User Knowledge
               </h2>
-              <p className="text-xl text-white/70 max-w-3xl mx-auto mb-8">
-                We don't guess what developers need — we research how they actually use your product across the web
+              <p className="text-lg md:text-xl text-white/70 max-w-3xl mx-auto mb-12 font-light">
+                No guessing. We research how developers actually use your product across 10+ sources.
               </p>
 
               {/* Multi-Source Research Engine */}
-              <div className="bg-white/10 border border-white/20 rounded-2xl p-8 max-w-3xl mx-auto">
-                <h3 className="text-2xl font-bold text-white mb-4">Multi-Source Research Engine</h3>
-                <p className="text-white/80 leading-relaxed">
-                  We analyze your website, then research across 10+ high-quality sources including Stack Overflow, GitHub, YouTube, Reddit, DEV.to, CodeProject, Stack Exchange, Quora, and official forums. Every insight is quality-scored and source-attributed.
+              <div className="bg-gradient-to-br from-white/15 to-white/5 border border-[rgb(102,255,228)]/30 rounded-3xl p-10 md:p-12 max-w-3xl mx-auto backdrop-blur-sm shadow-2xl hover:shadow-[0_20px_50px_rgba(102,255,228,0.15)] transition-all duration-500 hover:border-[rgb(102,255,228)]/50">
+                <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">Multi-Source Research Engine</h3>
+                <p className="text-white/80 text-lg leading-relaxed">
+                  We analyze your website, then research across Stack Overflow, GitHub, YouTube, Reddit, DEV.to, CodeProject, Stack Exchange, Quora, and official forums. Every insight is quality-scored and source-attributed.
                 </p>
               </div>
             </div>
