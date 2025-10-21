@@ -252,33 +252,33 @@ const Index = () => {
 
       {/* Hero Section */}
       <main id="main-content">
-      <section id="hero" className="relative overflow-hidden bg-gradient-to-b from-[rgb(14,19,23)] to-[rgb(34,38,46)]">
+      <section id="hero" className="relative overflow-hidden bg-gradient-to-b from-[rgb(14,19,23)] via-[rgb(24,29,37)] to-[rgb(34,38,46)]">
         {/* Background Elements */}
         <div className="absolute inset-0 bg-grid-white/[0.02] opacity-30" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-96 bg-gradient-radial from-[rgb(102,255,228)]/10 via-transparent to-transparent blur-3xl" />
 
-        <div className="relative pt-20 pb-20 lg:pt-24 lg:pb-24">
+        <div className="relative pt-28 pb-28 lg:pt-36 lg:pb-36">
           <div className="container mx-auto px-6 max-w-5xl text-center">
-            <div className="space-y-8">
+            <div className="space-y-10">
               {/* Headline - Primary Focus */}
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-white tracking-tight space-y-2">
-                <span className="text-[rgb(102,255,228)] block font-black text-center">Your Documentation is Already Written</span>
-                <span className="block font-thin text-center">It's Just Scattered Across</span>
-                <span className="block"><div className="text-center">the Internet</div><span className="text-white">.</span></span>
+              <h1 className="text-6xl md:text-7xl lg:text-8xl font-black leading-tight text-white tracking-tight space-y-3">
+                <span className="text-[rgb(102,255,228)] block">Your Documentation is Already Written</span>
+                <span className="block font-light text-white/90">It's Just Scattered Across the Internet</span>
               </h1>
 
               {/* Description - Secondary */}
-              <p className="text-xl lg:text-2xl text-white leading-relaxed max-w-3xl mx-auto font-thin text-center">
+              <p className="text-lg lg:text-xl text-white/80 leading-relaxed max-w-3xl mx-auto font-light text-center">
                 We research how developers actually use your product across 10+ high-quality sources including <strong>Stack Overflow</strong>, <strong>GitHub</strong>, <strong>YouTube</strong>, <strong>Reddit</strong>, <strong>DEV.to</strong>, <strong>CodeProject</strong>, <strong>Stack Exchange</strong>, <strong>Quora</strong>, and official forums then generate beautiful, <strong>Apple-quality docs</strong> that match your brand.
               </p>
 
               {/* CTA Button */}
-              <div className="pt-4">
+              <div className="pt-6">
                 <Button
                   size="lg"
                   asChild
-                  className="h-14 px-8 bg-transparent border-4 border-[rgb(102,255,228)] text-white hover:bg-[rgb(102,255,228)] hover:text-[rgb(14,19,23)] font-bold text-lg rounded-full transition-all shadow-xl hover:shadow-2xl hover:scale-105"
+                  className="h-14 px-8 bg-[rgb(102,255,228)] text-[rgb(14,19,23)] hover:bg-white font-semibold text-lg rounded-lg transition-all shadow-2xl hover:shadow-xl hover:scale-105 duration-200"
                 >
-                  <a href="https://quarkly.io/dashboard">Create Project</a>
+                  <a href="https://quarkly.io/dashboard">Get Started</a>
                 </Button>
               </div>
             </div>
