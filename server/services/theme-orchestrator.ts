@@ -1,7 +1,7 @@
 import { CSSExtractor, type ExtractedColors } from './css-extractor';
 import { ColorAnalyzer, type ColorPalette } from './color-analyzer';
-import type { Theme } from '@shared/themes';
-import { getDefaultTheme } from '@shared/themes';
+import type { Theme } from '../../shared/themes';
+import { getDefaultTheme } from '../../shared/themes';
 import sharp from 'sharp';
 import fetch from 'node-fetch';
 
@@ -26,8 +26,8 @@ export interface ThemeExtractionResult {
  * 
  * Current Implementation Status:
  * - CSS Extraction: FULLY IMPLEMENTED with @import processing, caching, size limits
- * - Logo Extraction: NOT YET IMPLEMENTED (fallback path exists, returns empty)
- * - Fallback Cascade: CSS → Default (logo step skipped until implemented)
+ * - Logo Extraction: FULLY IMPLEMENTED with Sharp-based color quantization
+ * - Fallback Cascade: CSS → Logo → Default
  * - Light/Dark Variants: FULLY IMPLEMENTED
  * - CSS Variable Generation: FULLY IMPLEMENTED
  * 
@@ -38,7 +38,7 @@ export interface ThemeExtractionResult {
  * ✅ Gray/neutral color filtering (saturation < 15%)
  * ✅ WCAG AA contrast validation
  * ✅ Automatic light/dark theme generation
- * ⏳ Logo-based color extraction (planned)
+ * ✅ Logo-based color extraction (K-means clustering with Sharp)
  */
 export class ThemeOrchestrator {
   private cssExtractor: CSSExtractor;

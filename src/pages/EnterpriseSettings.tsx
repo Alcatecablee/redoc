@@ -10,6 +10,8 @@ import Header from '@/components/Header';
 import APIKeysManagement from '@/components/dashboard/APIKeysManagement';
 import WebhooksManagement from '@/components/dashboard/WebhooksManagement';
 import SupportTickets from '@/components/dashboard/SupportTickets';
+import WhiteLabelSettings from '@/components/enterprise/WhiteLabelSettings';
+import BrandingSettings from '@/components/enterprise/BrandingSettings';
 
 export default function EnterpriseSettings() {
   const [user, setUser] = useState<any>(null);
@@ -107,17 +109,7 @@ export default function EnterpriseSettings() {
           </TabsContent>
 
           <TabsContent value="branding">
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-2">Custom Branding</h2>
-              <p className="text-muted-foreground mb-4">
-                Customize the look and feel of your documentation with your brand colors, logo, and custom domain.
-              </p>
-              <div className="text-center py-12 text-muted-foreground">
-                <Palette className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                <p>Custom branding features coming soon!</p>
-                <p className="text-sm mt-2">Upload your logo, set brand colors, and configure custom domains.</p>
-              </div>
-            </Card>
+            <BrandingSettings />
           </TabsContent>
 
           <TabsContent value="settings">
@@ -143,12 +135,8 @@ export default function EnterpriseSettings() {
                   <Button variant="outline" disabled>Select AI Voice (Coming Soon)</Button>
                 </div>
                 
-                <div className="p-4 border rounded-lg">
-                  <h3 className="font-semibold mb-1">White-Label Options</h3>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Remove DocSnap branding and customize email templates
-                  </p>
-                  <Button variant="outline" disabled>Configure White-Label (Coming Soon)</Button>
+                <div className="col-span-full">
+                  <WhiteLabelSettings />
                 </div>
                 
                 <div className="p-4 border rounded-lg">

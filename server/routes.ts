@@ -15,6 +15,7 @@ import supportRouter from './routes/support';
 import organizationsRouter from './routes/organizations';
 import billingRouter from './routes/billing';
 import activityRouter from './routes/activity';
+import enterpriseRouter from './routes/enterprise';
 import { fetchImagesForExport, limitImagesForExport } from './image-utils';
 import { db } from './db';
 import { users } from '../shared/schema';
@@ -2160,6 +2161,9 @@ router.use(apiKeysRouter);
 
   // Activity and metrics
   router.use(activityRouter);
+
+  // Enterprise white-label and branding
+  router.use(enterpriseRouter);
 
 // Pricing calculation endpoint
 router.post('/api/pricing/calculate', async (req, res) => {
