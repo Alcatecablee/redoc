@@ -315,10 +315,6 @@ const Index = () => {
                       )}
                     </Button>
                   </div>
-                  <p className="mt-3 text-sm text-white/60 flex items-center gap-2">
-                    <ShieldCheckIcon className="h-4 w-4" />
-                    Multi-stage pipeline with external research. Free to try.
-                  </p>
                 </div>
 
               </div>
