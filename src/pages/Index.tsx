@@ -276,9 +276,9 @@ const Index = () => {
                 <Button
                   size="lg"
                   asChild
-                  className="h-14 px-8 bg-[rgb(102,255,228)] text-[rgb(14,19,23)] hover:bg-white font-semibold text-lg rounded-lg transition-all shadow-2xl hover:shadow-xl hover:scale-105 duration-200"
+                  className="h-14 px-10 bg-[rgb(14,19,23)] border-4 border-[rgb(102,255,228)] text-white hover:bg-[rgb(102,255,228)] hover:text-[rgb(14,19,23)] font-bold text-base rounded-full uppercase tracking-wider transition-all duration-200 shadow-xl hover:shadow-2xl hover:scale-105"
                 >
-                  <a href="https://quarkly.io/dashboard">Get Started</a>
+                  <a href="https://quarkly.io/dashboard">Create Project</a>
                 </Button>
               </div>
             </div>
