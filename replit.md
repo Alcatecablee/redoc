@@ -1,5 +1,18 @@
 # DocSnap - AI-Powered Documentation Generator
 
+## Recent Changes
+
+**October 21, 2025**
+- ✅ **White-Label Customization System**: Implemented complete enterprise white-label features:
+  - WhiteLabelSettings component: Remove DocSnap branding, custom product naming, support email, email template customization
+  - BrandingSettings component: Logo upload, automatic color extraction from logos, manual brand color configuration
+  - Backend API with 5 endpoints: GET/POST `/api/enterprise/white-label`, GET/POST `/api/enterprise/branding`, POST `/api/enterprise/extract-logo-colors`
+  - Proper Supabase authentication with per-user persistence using in-memory Maps (session-based storage)
+  - Sharp library integration with graceful fallback for logo color extraction when native dependencies unavailable
+  - Fixed import paths in theme-orchestrator.ts (corrected from `@shared/themes` to `../../shared/themes`)
+  - All endpoints authenticated and scoped to userId from Supabase token
+  - UI components auto-load existing configurations on mount
+
 ## Overview
 
 DocSnap is an AI-powered web application that generates professional, Apple-style documentation from any website. Users provide a URL, and the system employs a 3-stage AI pipeline to analyze the site, extract content, and produce enterprise-quality documentation in various formats (PDF, DOCX, web). The project aims to deliver clear, professional help center documentation, addressing business vision, market potential, and project ambitions.
