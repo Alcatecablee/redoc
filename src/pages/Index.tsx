@@ -286,7 +286,7 @@ const Index = () => {
                 
                 {/* Description - Secondary */}
                 <p className="text-lg lg:text-xl text-white/70 leading-relaxed max-w-xl">
-                  We research how developers actually use your product across Stack Overflow, GitHub, and the web—then generate beautiful, Apple-quality docs that match your brand.
+                  We pull real developer insights from Stack Overflow, GitHub and the web, then create polished, brand‑matched docs.
                 </p>
                 
                 {/* CTA Form - Tertiary but Important */}
