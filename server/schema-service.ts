@@ -1,4 +1,5 @@
 import { createAIProvider } from './ai-provider';
+import { validateFAQSchema } from './utils/ai-validation';
 
 export interface SchemaMarkup {
   '@context': string;
@@ -157,12 +158,7 @@ Output as JSON:
 
       const response = await this.aiProvider.generateContent(prompt);
       
-      try {
-        return JSON.parse(response);
-      } catch (parseError) {
-        console.error('FAQ schema parsing error:', parseError);
-        return this.getDefaultFAQSchema(targetUrl);
-      }
+      return validateFAQSchema(response);
 
     } catch (error) {
       console.error('FAQ schema generation error:', error);

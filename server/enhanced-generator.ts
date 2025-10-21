@@ -33,6 +33,12 @@ import {
 } from './image-composition';
 import { enhanceImagesWithCaptions } from './image-caption-generator';
 import { processConcurrently } from './utils/concurrent-fetch';
+import { 
+  validateExtractedStructure, 
+  validateSuggestedSections, 
+  validateWrittenDocs,
+  validateMetadata
+} from './utils/ai-validation';
 
 // Utility: attempt HEAD then GET to verify URL exists
 async function headOrGet(url: string): Promise<Response | null> {
@@ -614,12 +620,8 @@ IMPORTANT: Add source attribution for all solutions - format as "Source: [Stack 
     { jsonMode: true, maxRetries: 2, timeoutMs: 90000 } // Increased timeout for more complex inputs
   );
 
-  console.log(`✅ Stage 4b: AI response received (${stage1Response.provider}), parsing data...`);
-  const extractedStructure = await parseJSONWithRetry(
-    aiProvider, 
-    stage1Response.content, 
-    'Ensure the output is valid JSON matching the comprehensive structure extraction format'
-  );
+  console.log(`✅ Stage 4b: AI response received (${stage1Response.provider}), validating data...`);
+  const extractedStructure = validateExtractedStructure(stage1Response.content);
   
   console.log('✅ Stage 4c: Structure extracted successfully');
   pipelineMonitor.updateStage(pmId, 5, { status: 'in_progress', progress: 75 });
@@ -644,7 +646,7 @@ Return JSON array of sections: [{id: string, title: string, priority: "high"|"me
     { role: 'user', content: sectionsPrompt }
   ], { jsonMode: true, timeoutMs: 30000 });
 
-  const suggestedSections = await parseJSONWithRetry(aiProvider, sectionsResponse.content, 'Return valid JSON array of sections');
+  const suggestedSections = validateSuggestedSections(sectionsResponse.content);
   console.log(`✅ Suggested ${suggestedSections.sections?.length || 8} dynamic sections based on product analysis`);
 
   // Stage 5: SEO optimization (if not free tier)
@@ -764,12 +766,8 @@ Return valid JSON with source attribution embedded in content.`
     { jsonMode: true, timeoutMs: 90000 }
   );
 
-  console.log(`✅ Stage 2 response received (${stage2Response.provider})`);
-  const writtenDocs = await parseJSONWithRetry(
-    aiProvider, 
-    stage2Response.content, 
-    'Ensure the output is valid JSON with proper comprehensive documentation structure'
-  );
+  console.log(`✅ Stage 2 response received (${stage2Response.provider}), validating documentation...`);
+  const writtenDocs = validateWrittenDocs(stage2Response.content);
 
   // Integrate images into sections
   console.log('📸 Composing images into documentation...');
@@ -848,12 +846,8 @@ Return JSON: {metadata: {title, description, keywords}, searchability: {primary_
     { jsonMode: true }
   );
 
-  console.log(`✅ Stage 3 response received (${stage3Response.provider})`);
-  const finalMetadata = await parseJSONWithRetry(
-    aiProvider, 
-    stage3Response.content, 
-    'Ensure the output is valid JSON with metadata and searchability fields'
-  );
+  console.log(`✅ Stage 3 response received (${stage3Response.provider}), validating metadata...`);
+  const finalMetadata = validateMetadata(stage3Response.content);
 
   // Extract theme from the original site
   const theme = extractThemeFromContent(comprehensiveData.site_content.pages);

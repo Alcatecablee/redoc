@@ -1,4 +1,5 @@
 import { createAIProvider } from './ai-provider';
+import { validateSEOMetadata as validateSEOResponse } from './utils/ai-validation';
 
 export interface SEOMetadata {
   metaTitle: string;
@@ -91,13 +92,8 @@ Constraints:
 
       const response = await this.aiProvider.generateContent(prompt);
       
-      try {
-        const metadata = JSON.parse(response);
-        return this.validateSEOMetadata(metadata, productName, targetUrl);
-      } catch (parseError) {
-        console.error('SEO metadata parsing error:', parseError);
-        return this.getDefaultSEOMetadata(productName, targetUrl);
-      }
+      const metadata = validateSEOResponse(response);
+      return this.validateSEOMetadata(metadata, productName, targetUrl);
 
     } catch (error) {
       console.error('SEO metadata generation error:', error);

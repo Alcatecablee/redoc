@@ -1,4 +1,5 @@
 import { createAIProvider } from './ai-provider';
+import { validateVideoAnalysis } from './utils/ai-validation';
 import { YouTubeVideo } from './youtube-service';
 
 export interface VideoAnalysis {
@@ -220,16 +221,11 @@ Focus on technical content and educational value.`;
       const outputTokens = this.estimateTokens(result.content);
       this.tokensUsed += outputTokens;
 
-      const analysis = JSON.parse(result.content);
+      const analysis = validateVideoAnalysis(result.content);
       
       return {
-        summary: analysis.summary || `Video tutorial: ${video.title}`,
-        keyTopics: analysis.keyTopics || [],
-        difficulty: analysis.difficulty || 'intermediate',
-        category: analysis.category || 'tutorial',
-        timestamps: [],
-        actionableInsights: analysis.actionableInsights || [],
-        relatedConcepts: analysis.relatedConcepts || []
+        ...analysis,
+        timestamps: []
       };
     } catch (error) {
       console.error('AI analysis parsing error:', error);
