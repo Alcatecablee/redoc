@@ -711,12 +711,14 @@ const Index = () => {
                     { icon: Square3Stack3DIcon, name: "Examples" },
                     { icon: ShieldCheckIcon, name: "Security" }
                   ].map((item) => (
-                    <div key={item.name} className="group bg-[rgba(34,38,46,0)] rounded-2xl p-6 hover:bg-[rgb(40,45,55)] transition-all duration-300 border border-white/10 hover:border-[rgb(102,255,228)]/30 text-white/60">
-                      <div className="flex flex-col items-center text-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-[rgb(102,255,228)]/20 transition-colors">
-                          <item.icon className="h-6 w-6 text-white/80 group-hover:text-[rgb(102,255,228)]" strokeWidth={1.5} />
+                    <div key={item.name} className="group">
+                      <div className="relative bg-gradient-to-br from-white/10 to-white/5 hover:from-white/15 hover:to-white/10 border border-white/20 hover:border-[rgb(102,255,228)]/40 rounded-2xl p-7 transition-all duration-400 h-full backdrop-blur-sm hover:shadow-[0_10px_30px_rgba(102,255,228,0.1)]">
+                        <div className="flex flex-col items-center text-center gap-4 h-full">
+                          <div className="w-14 h-14 rounded-xl bg-white/15 group-hover:bg-[rgb(102,255,228)]/20 flex items-center justify-center transition-all duration-300 group-hover:scale-110">
+                            <item.icon className="h-6 w-6 text-white/80 group-hover:text-[rgb(102,255,228)] transition-colors" strokeWidth={1.5} />
+                          </div>
+                          <p className="text-sm font-semibold text-white/90 leading-snug">{item.name}</p>
                         </div>
-                        <p className="text-sm font-medium text-white/80 leading-tight">{item.name}</p>
                       </div>
                     </div>
                   ))}
