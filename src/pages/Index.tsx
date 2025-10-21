@@ -774,30 +774,20 @@ const Index = () => {
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 hover:bg-white/15 hover:shadow-xl transition-all duration-300">
-                <div className="w-14 h-14 rounded-xl bg-white/20 flex items-center justify-center mb-6">
-                  <ClipboardDocumentListIcon className="h-7 w-7 text-white" strokeWidth={1.5} />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-20">
+              {[
+                { icon: ClipboardDocumentListIcon, title: "Pipeline Monitoring", desc: "Stage-by-stage progress tracking with recommendations and partial success handling" },
+                { icon: ShieldCheckIcon, title: "Fallbacks & Retries", desc: "Provider rotation, exponential backoff, timeouts, and intelligent caching" },
+                { icon: CheckBadgeIcon, title: "Quality Scoring", desc: "Research weighted by authority, freshness, and consensus across sources" }
+              ].map((item, idx) => (
+                <div key={idx} className="group bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 hover:bg-white/15 hover:border-white/40 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1 focus-within:ring-2 focus-within:ring-[rgb(102,255,228)]/50">
+                  <div className="w-14 h-14 rounded-xl bg-white/20 group-hover:bg-white/30 flex items-center justify-center mb-6 transition-all duration-300 transform group-hover:scale-110">
+                    <item.icon className="h-7 w-7 text-white" strokeWidth={1.5} aria-hidden="true" />
+                  </div>
+                  <h4 className="text-xl font-bold text-white mb-3">{item.title}</h4>
+                  <p className="text-white/70 leading-relaxed text-sm md:text-base">{item.desc}</p>
                 </div>
-                <h4 className="text-xl font-bold text-white mb-3">Pipeline Monitoring</h4>
-                <p className="text-white/70 leading-relaxed">Stage-by-stage progress tracking with recommendations and partial success handling</p>
-              </div>
-              
-              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 hover:bg-white/15 hover:shadow-xl transition-all duration-300">
-                <div className="w-14 h-14 rounded-xl bg-white/20 flex items-center justify-center mb-6">
-                  <ShieldCheckIcon className="h-7 w-7 text-white" strokeWidth={1.5} />
-                </div>
-                <h4 className="text-xl font-bold text-white mb-3">Fallbacks & Retries</h4>
-                <p className="text-white/70 leading-relaxed">Provider rotation, exponential backoff, timeouts, and intelligent caching</p>
-              </div>
-              
-              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 hover:bg-white/15 hover:shadow-xl transition-all duration-300">
-                <div className="w-14 h-14 rounded-xl bg-white/20 flex items-center justify-center mb-6">
-                  <CheckBadgeIcon className="h-7 w-7 text-white" strokeWidth={1.5} />
-                </div>
-                <h4 className="text-xl font-bold text-white mb-3">Quality Scoring</h4>
-                <p className="text-white/70 leading-relaxed">Research weighted by authority, freshness, and consensus across sources</p>
-              </div>
+              ))}
             </div>
 
             {/* Export Formats */}
