@@ -649,16 +649,20 @@ const Index = () => {
                 <h3 className="text-2xl font-bold text-white mb-6 tracking-tight">Research Sources</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
                   {[
-                    { icon: MagnifyingGlassIcon, name: "Stack Overflow" },
-                    { icon: CodeBracketIcon, name: "GitHub Issues" },
-                    { icon: VideoCameraIcon, name: "YouTube" },
-                    { icon: ChatBubbleLeftRightIcon, name: "Reddit" },
-                    { icon: DocumentTextIcon, name: "Dev.to" }
+                    { image: "/attached_assets/images/Stack-Overflow-Logo-emblem-of-the-programming-community-transparent-png-image.png", name: "Stack Overflow" },
+                    { image: "/attached_assets/images/toppng.com-github-logo-524x512.png", name: "GitHub Issues" },
+                    { image: "/attached_assets/images/toppng.com-youtube-icon-1024x1024.png", name: "YouTube" },
+                    { image: "/attached_assets/images/toppng.com-reddit-logo-reddit-icon-698x698.png", name: "Reddit" },
+                    { image: "/attached_assets/images/dev-rainbow.png", name: "Dev.to" }
                   ].map((item) => (
                     <div key={item.name} className="group bg-[rgb(34,38,46)] rounded-2xl p-6 hover:bg-[rgb(40,45,55)] transition-all duration-300 border border-white/10 hover:border-[rgb(102,255,228)]/30">
                       <div className="flex flex-col items-center text-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-[rgb(102,255,228)]/20 transition-colors">
-                          <item.icon className="h-6 w-6 text-white/80 group-hover:text-[rgb(102,255,228)]" strokeWidth={1.5} />
+                        <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-[rgb(102,255,228)]/20 transition-colors overflow-hidden">
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="h-8 w-8 object-contain group-hover:brightness-150 transition-all"
+                          />
                         </div>
                         <p className="text-sm font-medium text-white/80 leading-tight">{item.name}</p>
                       </div>
