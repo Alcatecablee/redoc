@@ -100,7 +100,7 @@ export const TypewriterText = ({
       {/* Visible typing layer placed absolute to overlay reserved space */}
       <span className="absolute inset-0 left-0 top-0 whitespace-pre-wrap block">
         {visibleParts.map((part, idx) => (
-          <span key={idx} className={idx === 0 ? undefined : lineClassName}>
+          <span key={idx} className={idx === 0 ? 'text-center font-bold' : lineClassName}>
             {part}
           </span>
         ))}
