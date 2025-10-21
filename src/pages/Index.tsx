@@ -667,7 +667,7 @@ const Index = () => {
                     { icon: ChatBubbleLeftRightIcon, name: "Quora Answers" },
                     { icon: GlobeAltIcon, name: "Official Forums" }
                   ].map((item) => (
-                    <div key={item.name} className="group bg-[rgba(37,41,51,0.13)] rounded-2xl p-6 hover:bg-[rgb(40,45,55)] transition-all duration-300 border border-white/10 hover:border-[rgb(102,255,228)]/30">
+                    <div key={item.name} className="group bg-[rgba(37,41,51,0)] rounded-2xl p-6 hover:bg-[rgb(40,45,55)] transition-all duration-300 border border-white/10 hover:border-[rgb(102,255,228)]/30">
                       <div className="flex flex-col items-center text-center gap-3">
                         <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-[rgb(102,255,228)]/20 transition-colors overflow-hidden">
                           {item.image ? (
