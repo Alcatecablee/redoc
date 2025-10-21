@@ -678,21 +678,31 @@ const Index = () => {
                   <h3 className="text-2xl md:text-3xl font-bold text-white tracking-tight">Research Sources</h3>
                 </div>
                 <div className="relative">
-                  {/* SVG Animated connecting lines */}
-                  <svg className="absolute top-0 left-0 w-full h-full pointer-events-none" style={{height: '100%'}} preserveAspectRatio="none">
+                  {/* SVG Animated connecting lines - inspired by Next.js CPU animation */}
+                  <svg className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1200 400" style={{opacity: 0.3}}>
                     <defs>
-                      <linearGradient id="flowGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <linearGradient id="cyanPulse" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" stopColor="rgb(102,255,228)" stopOpacity="0" />
-                        <stop offset="50%" stopColor="rgb(102,255,228)" stopOpacity="0.6" />
+                        <stop offset="50%" stopColor="rgb(102,255,228)" stopOpacity="0.8" />
                         <stop offset="100%" stopColor="rgb(102,255,228)" stopOpacity="0" />
                       </linearGradient>
-                      <linearGradient id="flowGradient2" x1="100%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="rgb(102,255,228)" stopOpacity="0" />
-                        <stop offset="50%" stopColor="rgb(102,255,228)" stopOpacity="0.6" />
-                        <stop offset="100%" stopColor="rgb(102,255,228)" stopOpacity="0" />
+                      <linearGradient id="purplePulse" x1="0%" y1="100%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="rgb(147,112,219)" stopOpacity="0" />
+                        <stop offset="50%" stopColor="rgb(147,112,219)" stopOpacity="0.8" />
+                        <stop offset="100%" stopColor="rgb(147,112,219)" stopOpacity="0" />
+                      </linearGradient>
+                      <linearGradient id="orangePulse" x1="100%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="rgb(255,140,60)" stopOpacity="0" />
+                        <stop offset="50%" stopColor="rgb(255,140,60)" stopOpacity="0.8" />
+                        <stop offset="100%" stopColor="rgb(255,140,60)" stopOpacity="0" />
                       </linearGradient>
                     </defs>
-                    <polyline points="0,50 20,50" stroke="url(#flowGradient1)" strokeWidth="2" fill="none" style={{animation: 'flowLine 3s ease-in-out infinite'}} />
+                    {/* Animated flowing lines connecting across the sources */}
+                    <g strokeLinecap="round" strokeWidth="2" fill="none">
+                      <path d="M50 200 Q300 100, 550 200" stroke="url(#cyanPulse)" strokeDasharray="100" strokeDashoffset="0" style={{animation: 'flowCyan 4s linear infinite'}} />
+                      <path d="M550 200 Q800 300, 1050 200" stroke="url(#purplePulse)" strokeDasharray="100" strokeDashoffset="0" style={{animation: 'flowPurple 4s linear infinite 1s'}} />
+                      <path d="M300 300 Q600 400, 900 300" stroke="url(#orangePulse)" strokeDasharray="100" strokeDashoffset="0" style={{animation: 'flowOrange 4s linear infinite 2s'}} />
+                    </g>
                   </svg>
 
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5 relative z-10">
