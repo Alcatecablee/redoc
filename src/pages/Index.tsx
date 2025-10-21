@@ -267,23 +267,22 @@ const Index = () => {
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] text-white tracking-tight">
                   <TypewriterText
                     texts={[
-                      'Your documentation is already written.',
-                      "It's just scattered across the internet."
+                      'YOUR DOCUMENTATION IS ALREADY WRITTEN ACROSS STACK OVERFLOW, GITHUB, YOUTUBE & REDDIT.',
+                      'WE ASSEMBLE IT.'
                     ]}
-                    typingSpeed={40}
-                    pauseBeforeNext={950}
+                    typingSpeed={36}
+                    pauseBeforeNext={900}
                     separator={'\n'}
                     className=""
                     lineClassName="block mt-2 text-white/80 text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight"
-                    cursorClassName="ml-3 text-white/90"
                   />
                 </h1>
-                
+
                 {/* Description - Secondary */}
                 <p className="text-lg lg:text-xl text-white/70 leading-relaxed max-w-xl">
-                  We transform any website into professional documentation by researching beyond just the site content to include community knowledge, troubleshooting solutions, and best practices from across the web.
+                  We transform any website into professional docs from 10+ sources in 5 minutes—community solutions, troubleshooting fixes, and best practices included.
                 </p>
-                
+
                 {/* CTA Form - Tertiary but Important */}
                 <div className="pt-4">
                   <div className="flex flex-col sm:flex-row gap-3 p-2 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-md shadow-2xl">
@@ -296,11 +295,11 @@ const Index = () => {
                       className="flex-1 h-14 bg-white/10 border-0 text-white placeholder:text-white/50 text-base focus-visible:ring-2 focus-visible:ring-white/30"
                       disabled={generateMutation.isPending}
                     />
-                    <Button 
-                      size="lg" 
+                    <Button
+                      size="lg"
                       onClick={handleGenerate}
                       disabled={generateMutation.isPending || !url}
-                      className="h-14 px-8 bg-white text-[rgb(36,77,91)] hover:bg-white/90 font-semibold shadow-xl hover:shadow-2xl transition-all whitespace-nowrap"
+                      className="h-14 px-6 bg-white text-[rgb(36,77,91)] hover:bg-white/90 font-semibold shadow-xl hover:shadow-2xl transition-all whitespace-nowrap"
                     >
                       {generateMutation.isPending ? (
                         <>
@@ -310,10 +309,32 @@ const Index = () => {
                       ) : (
                         <>
                           <DocumentTextIcon className="mr-2 h-5 w-5" />
-                          Generate Docs
+                          Generate Free Docs
                         </>
                       )}
                     </Button>
+                  </div>
+
+                  {/* Pricing / Secondary CTAs */}
+                  <div className="mt-3 flex items-center gap-6 text-sm text-white/70 flex-wrap">
+                    <div className="flex items-center gap-3">
+                      <span className="font-medium">Pro:</span>
+                      <span className="font-semibold">$19/mo</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="font-medium">Custom:</span>
+                      <span className="font-semibold">$500+</span>
+                    </div>
+                    <button
+                      onClick={() => { /* scroll to demo area */ document.querySelector('#hero .PlayCircleIcon')?.scrollIntoView({ behavior: 'smooth' }); }}
+                      className="ml-2 underline text-white/90"
+                    >
+                      Watch Demo
+                    </button>
+                    <div className="ml-auto hidden sm:flex items-center gap-2 text-sm text-white/60">
+                      <span className="font-semibold">1,000+</span>
+                      <span>sections generated</span>
+                    </div>
                   </div>
                 </div>
 
