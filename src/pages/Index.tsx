@@ -628,7 +628,7 @@ const Index = () => {
 
       {/* Features Section - Capability Showcase */}
       {!generatedDoc && (
-        <section id="features" className="relative overflow-hidden bg-[rgb(14,19,23)] py-24 lg:py-32">
+        <section id="features" className="relative overflow-hidden bg-gradient-to-br from-[rgb(36,77,91)] via-[rgb(40,85,100)] to-[rgb(36,77,91)] py-24 lg:py-32">
           <div className="absolute inset-0 bg-grid-white/[0.02] opacity-30" />
 
           <div className="relative container mx-auto px-6 max-w-7xl">
