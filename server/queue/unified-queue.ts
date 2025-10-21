@@ -8,10 +8,8 @@
  * Production: USE_BULLMQ=true (BullMQ + Redis for persistence)
  */
 
-import { initInMemoryQueue, getQueue as getInMemoryQueue } from '../queue';
-import { initBullMQQueue, getBullMQQueue, type JobPayload, type JobRecord } from './bullmq-queue';
-
-type QueueProcessor = (job: JobRecord) => Promise<void> | void;
+import { initInMemoryQueue } from '../queue';
+import type { JobPayload, JobRecord, QueueProcessor } from './types';
 
 interface UnifiedQueueInterface {
   enqueue(name: string, payload: JobPayload): Promise<JobRecord>;
@@ -24,10 +22,16 @@ interface UnifiedQueueInterface {
 class UnifiedQueue implements UnifiedQueueInterface {
   private queue: any;
   private useBullMQ: boolean;
+  private initPromise: Promise<void>;
 
   constructor(processor: QueueProcessor, options?: { concurrency?: number }) {
     this.useBullMQ = process.env.USE_BULLMQ === 'true';
+    
+    // Initialize queue asynchronously
+    this.initPromise = this.initializeQueue(processor, options);
+  }
 
+  private async initializeQueue(processor: QueueProcessor, options?: { concurrency?: number }) {
     if (this.useBullMQ) {
       console.log('🚀 Initializing BullMQ Queue (production mode)...');
       
@@ -39,14 +43,23 @@ class UnifiedQueue implements UnifiedQueueInterface {
     }
 
     if (this.useBullMQ) {
-      this.queue = initBullMQQueue(processor, options);
-      // Start the worker
-      this.queue.startWorker().catch((err: Error) => {
-        console.error('❌ Failed to start BullMQ worker:', err);
+      try {
+        // Dynamic import - only loads BullMQ when needed
+        const { initBullMQQueue } = await import('./bullmq-queue');
+        this.queue = initBullMQQueue(processor, options);
+        
+        // Start the worker
+        await this.queue.startWorker().catch((err: Error) => {
+          console.error('❌ Failed to start BullMQ worker:', err);
+          console.log('   Falling back to in-memory queue...');
+          throw err;
+        });
+      } catch (err) {
+        console.error('❌ Failed to initialize BullMQ:', err);
         console.log('   Falling back to in-memory queue...');
         this.useBullMQ = false;
         this.queue = initInMemoryQueue(processor);
-      });
+      }
     } else {
       console.log('📦 Initializing In-Memory Queue (development mode)...');
       this.queue = initInMemoryQueue(processor);
@@ -54,14 +67,17 @@ class UnifiedQueue implements UnifiedQueueInterface {
   }
 
   async enqueue(name: string, payload: JobPayload): Promise<JobRecord> {
+    await this.initPromise;
     return await this.queue.enqueue(name, payload);
   }
 
   async getJob(id: string): Promise<JobRecord | null> {
+    await this.initPromise;
     return this.queue.getJob(id);
   }
 
   async getStats() {
+    await this.initPromise;
     if (this.useBullMQ && this.queue.getStats) {
       return await this.queue.getStats();
     }
@@ -69,12 +85,14 @@ class UnifiedQueue implements UnifiedQueueInterface {
   }
 
   async cleanup() {
+    await this.initPromise;
     if (this.useBullMQ && this.queue.cleanup) {
       await this.queue.cleanup();
     }
   }
 
   async close() {
+    await this.initPromise;
     if (this.useBullMQ && this.queue.close) {
       await this.queue.close();
     }
@@ -103,3 +121,5 @@ export function getUnifiedQueue(): UnifiedQueue {
   }
   return unifiedQueueInstance;
 }
+
+export type { JobPayload, JobRecord, QueueProcessor } from './types';
