@@ -270,8 +270,18 @@ const Index = () => {
                 
                 {/* Headline - Primary Focus */}
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] text-white tracking-tight">
-                  Your documentation is already written.
-                  <span className="block mt-2 text-white/80">It's just scattered across the internet.</span>
+                  <TypewriterText
+                    texts={[
+                      'Your documentation is already written.',
+                      "It's just scattered across the internet."
+                    ]}
+                    typingSpeed={40}
+                    pauseBeforeNext={950}
+                    separator={'\n'}
+                    className=""
+                    lineClassName="block mt-2 text-white/80 text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight"
+                    cursorClassName="ml-3 text-white/90"
+                  />
                 </h1>
                 
                 {/* Description - Secondary */}
