@@ -267,8 +267,8 @@ const Index = () => {
               </h1>
 
               {/* Description - Secondary */}
-              <p className="text-xl lg:text-2xl text-white/80 leading-relaxed max-w-3xl mx-auto">
-                Use all power of web design software and build ready-to-use React websites and apps
+              <p className="text-xl lg:text-2xl text-white/70 leading-relaxed max-w-3xl mx-auto font-thin text-left">
+                We research how developers actually use your product across 10+ high-quality sources including <strong>Stack Overflow</strong>, <strong>GitHub</strong>, <strong>YouTube</strong>, <strong>Reddit</strong>, <strong>DEV.to</strong>, <strong>CodeProject</strong>, <strong>Stack Exchange</strong>, <strong>Quora</strong>, and official forums then generate beautiful, <strong>Apple-quality docs</strong> that match your brand.
               </p>
 
               {/* CTA Button */}
