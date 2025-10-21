@@ -928,7 +928,7 @@ const Index = () => {
                   href="https://quarkly.io/dashboard"
                   className="inline-block px-8 md:px-10 py-3 md:py-4 bg-[rgb(14,19,23)] border-4 border-[rgb(102,255,228)] text-white hover:bg-[rgb(102,255,228)] hover:text-[rgb(14,19,23)] font-bold text-base md:text-lg rounded-full uppercase tracking-wider transition-all duration-500 shadow-xl hover:shadow-2xl hover:scale-105 focus:outline-none focus:ring-4 focus:ring-[rgb(102,255,228)]/50 active:scale-95"
                 >
-                  Create Project
+                  Create DOC
                 </a>
               </div>
             </div>
