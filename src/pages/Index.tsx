@@ -264,17 +264,18 @@ const Index = () => {
               <div className="lg:col-span-7 text-left space-y-8">
                 
                 {/* Headline - Primary Focus */}
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] text-white tracking-tight">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.05] text-white tracking-tight">
                   <TypewriterText
                     texts={[
-                      'YOUR DOCUMENTATION IS ALREADY WRITTEN ACROSS STACK OVERFLOW, GITHUB, YOUTUBE & REDDIT.',
-                      'WE ASSEMBLE IT.'
+                      'Your documentation already exists across Stack Overflow, GitHub, YouTube, and Reddit.',
+                      'We assemble it for you.'
                     ]}
-                    typingSpeed={36}
+                    typingSpeed={28}
                     pauseBeforeNext={900}
                     separator={'\n'}
                     className=""
-                    lineClassName="block mt-2 text-white/80 text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight"
+                    lineClassName="block mt-3 text-white/90 text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight"
+                    preserveSpace={true}
                   />
                 </h1>
 
