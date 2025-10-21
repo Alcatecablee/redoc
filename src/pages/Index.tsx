@@ -261,8 +261,8 @@ const Index = () => {
             <div className="space-y-8">
               {/* Headline - Primary Focus */}
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-white tracking-tight space-y-2">
-                <span className="text-[rgb(102,255,228)] block">Your Documentation is Already Written</span>
-                <span className="block">It's Just Scattered Across</span>
+                <span className="text-[rgb(102,255,228)] block font-black">Your Documentation is Already Written</span>
+                <span className="block font-thin">It's Just Scattered Across</span>
                 <span className="block">the Internet<span className="text-white">.</span></span>
               </h1>
 
