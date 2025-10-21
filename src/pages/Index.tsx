@@ -919,7 +919,7 @@ const Index = () => {
 
               {/* Description */}
               <p className="text-lg md:text-2xl lg:text-3xl text-[rgb(228,232,236)] leading-relaxed max-w-3xl mx-auto font-light">
-                We provide <strong className="font-semibold">for free</strong> as long as we can, and then <strong className="font-semibold">the lowest price</strong> among competitors.
+                Join&nbsp;<strong className="font-semibold">teams</strong>&nbsp;who've stopped guessing and started researching. Get comprehensive, accurate docs that match your brand&nbsp;<strong className="font-semibold">automatically</strong>
               </p>
 
               {/* CTA Button */}
