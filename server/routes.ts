@@ -2149,8 +2149,17 @@ router.use('/api/subscriptions', subscriptionsRouter);
 
 // Mount enterprise feature routers
 router.use(apiKeysRouter);
-router.use(webhooksRouter);
-router.use(supportRouter);
+  router.use(webhooksRouter);
+  router.use(supportRouter);
+
+  // Team & Org management
+  router.use(organizationsRouter);
+
+  // Billing endpoints
+  router.use(billingRouter);
+
+  // Activity and metrics
+  router.use(activityRouter);
 
 // Pricing calculation endpoint
 router.post('/api/pricing/calculate', async (req, res) => {
