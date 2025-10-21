@@ -686,15 +686,11 @@ const Index = () => {
           <div className="relative container mx-auto px-6 max-w-7xl">
             {/* Header */}
             <div className="text-center mb-20">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-900/10 border border-gray-900/20 mb-6">
-                <BoltIcon className="h-4 w-4 text-gray-900" />
-                <span className="text-sm font-medium text-gray-900/90">Powered by Real Research</span>
-              </div>
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
                 Built on Real User Knowledge
               </h2>
               <p className="text-xl text-gray-700 max-w-3xl mx-auto">
-                We don't guess what developers need—we research how they actually use your product across the web
+                We don't guess what developers need we research how they actually use your product across the web
               </p>
             </div>
             
