@@ -556,56 +556,56 @@ const Index = () => {
 
       {/* Pipeline Section - Rebuilt with Visual Storytelling */}
       {!generatedDoc && (
-        <section id="pipeline" className="relative overflow-hidden bg-gradient-to-br from-[rgb(36,77,91)] via-[rgb(40,85,100)] to-[rgb(36,77,91)] py-24 lg:py-32">
+        <section id="pipeline" className="relative overflow-hidden bg-gradient-to-br from-[rgb(36,77,91)] via-[rgb(40,85,100)] to-[rgb(36,77,91)] py-32 lg:py-40">
           {/* Subtle Background Pattern */}
           <div className="absolute inset-0 bg-grid-white/[0.02] opacity-50" />
-          
+
           <div className="relative container mx-auto px-6 max-w-7xl">
             {/* Header */}
-            <div className="text-center mb-20">
+            <div className="text-center mb-28">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm mb-6">
-                <ClipboardDocumentListIcon className="h-4 w-4 text-white" />
-                <span className="text-sm font-medium text-white/90">The Research Pipeline</span>
+                <ClipboardDocumentListIcon className="h-4 w-4 text-[rgb(102,255,228)]" />
+                <span className="text-sm font-semibold text-white/90 uppercase tracking-wide">The Research Pipeline</span>
               </div>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+              <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight tracking-tight">
                 From Discovery to Docs
               </h2>
-              <p className="text-xl text-white/70 max-w-3xl mx-auto">
-                A systematic 4-stage process that researches beyond your website to build comprehensive documentation
+              <p className="text-lg md:text-xl text-white/70 max-w-3xl mx-auto font-light">
+                A systematic 4-stage process that transforms external research into comprehensive, accurate documentation
               </p>
             </div>
-            
-            {/* Visual Pipeline - Simplified */}
-            <div className="relative max-w-5xl mx-auto">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 relative">
+
+            {/* Visual Pipeline */}
+            <div className="relative max-w-6xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 relative">
                 {[
-                  { num: "01", icon: GlobeAltIcon, title: "Site Discovery", desc: "Crawl multiple domains and subdomains, parse sitemaps and robots.txt, detect canonical and duplicate pages, and extract structured content, code samples, and metadata. We create a prioritized crawl map so the most important pages and community-driven content are fetched and analyzed first." },
-                  { num: "02", icon: MagnifyingGlassIcon, title: "Content Extraction", desc: "Extract code samples, configuration files, images, and structured metadata from pages. Normalize formatting, capture contextual snippets and error traces, and preserve example inputs/outputs for accurate troubleshooting sections." }
+                  { num: "01", icon: GlobeAltIcon, title: "Site Discovery", desc: "Crawl multiple domains, parse sitemaps, and extract all structured content and code samples." },
+                  { num: "02", icon: MagnifyingGlassIcon, title: "Content Extraction", desc: "Extract code samples, configuration files, and metadata. Normalize and structure for maximum clarity." }
                 ].map((stage, idx) => (
                   <div key={idx} className="group relative">
-                    <div className="relative bg-white/10 border border-white/20 rounded-2xl p-6 md:p-8 hover:bg-white/15 hover:border-white/40 transition-all duration-500 h-full transform hover:scale-105 hover:shadow-2xl focus-within:ring-2 focus-within:ring-[rgb(102,255,228)]/50">
-                      <div className="text-2xl md:text-3xl font-bold text-white/30 mb-4 group-hover:text-white/50 transition-colors">{stage.num}</div>
-                      <div className="w-10 h-10 md:w-8 md:h-8 text-white mb-4 group-hover:text-[rgb(102,255,228)] transition-colors" aria-hidden="true">
-                        <stage.icon strokeWidth={1.5} />
+                    <div className="relative bg-gradient-to-br from-white/15 to-white/5 border border-white/25 hover:border-[rgb(102,255,228)]/50 rounded-3xl p-8 transition-all duration-500 h-full backdrop-blur-sm hover:bg-gradient-to-br hover:from-white/20 hover:to-white/10 shadow-2xl hover:shadow-[0_20px_50px_rgba(102,255,228,0.15)]">
+                      <div className="absolute top-8 right-8 text-6xl font-black text-white/10 group-hover:text-[rgb(102,255,228)]/20 transition-colors">{stage.num}</div>
+                      <div className="w-12 h-12 text-white mb-6 group-hover:text-[rgb(102,255,228)] transition-all duration-300 group-hover:scale-110" aria-hidden="true">
+                        <stage.icon strokeWidth={1.2} />
                       </div>
-                      <h3 className="text-lg md:text-xl font-bold text-white mb-2">{stage.title}</h3>
-                      <p className="text-white/70 text-xs md:text-sm leading-relaxed">{stage.desc}</p>
+                      <h3 className="text-2xl font-bold text-white mb-3 leading-tight">{stage.title}</h3>
+                      <p className="text-white/70 text-base leading-relaxed">{stage.desc}</p>
                     </div>
                   </div>
                 ))}
-                
+
                 {[
-                  { num: "03", icon: DocumentMagnifyingGlassIcon, title: "External Research", desc: "Search and aggregate across Stack Overflow, GitHub Issues, YouTube transcripts, Reddit, and official documentation. Identify consensus answers, relevant threads, and community fixes, then score each source for relevance and authority." },
-                  { num: "04", icon: Square3Stack3DIcon, title: "Synthesis & Export", desc: "Synthesize findings into clear, searchable documentation, apply your brand theme, validate citations, and export to multiple formats—or publish to a branded subdomain with built-in search." }
+                  { num: "03", icon: DocumentMagnifyingGlassIcon, title: "External Research", desc: "Search Stack Overflow, GitHub, YouTube, Reddit, and 5+ sources. Score and rank by authority and relevance." },
+                  { num: "04", icon: Square3Stack3DIcon, title: "Synthesis & Export", desc: "Synthesize findings into clear docs, apply your brand, validate citations, and export to any format." }
                 ].map((stage, idx) => (
                   <div key={idx} className="group relative">
-                    <div className="relative bg-white/10 border border-white/20 rounded-2xl p-6 md:p-8 hover:bg-white/15 hover:border-white/40 transition-all duration-500 h-full transform hover:scale-105 hover:shadow-2xl focus-within:ring-2 focus-within:ring-[rgb(102,255,228)]/50">
-                      <div className="text-2xl md:text-3xl font-bold text-white/30 mb-4 group-hover:text-white/50 transition-colors">{stage.num}</div>
-                      <div className="w-10 h-10 md:w-8 md:h-8 text-white mb-4 group-hover:text-[rgb(102,255,228)] transition-colors" aria-hidden="true">
-                        <stage.icon strokeWidth={1.5} />
+                    <div className="relative bg-gradient-to-br from-white/15 to-white/5 border border-white/25 hover:border-[rgb(102,255,228)]/50 rounded-3xl p-8 transition-all duration-500 h-full backdrop-blur-sm hover:bg-gradient-to-br hover:from-white/20 hover:to-white/10 shadow-2xl hover:shadow-[0_20px_50px_rgba(102,255,228,0.15)]">
+                      <div className="absolute top-8 right-8 text-6xl font-black text-white/10 group-hover:text-[rgb(102,255,228)]/20 transition-colors">{stage.num}</div>
+                      <div className="w-12 h-12 text-white mb-6 group-hover:text-[rgb(102,255,228)] transition-all duration-300 group-hover:scale-110" aria-hidden="true">
+                        <stage.icon strokeWidth={1.2} />
                       </div>
-                      <h3 className="text-lg md:text-xl font-bold text-white mb-2">{stage.title}</h3>
-                      <p className="text-white/70 text-xs md:text-sm leading-relaxed">{stage.desc}</p>
+                      <h3 className="text-2xl font-bold text-white mb-3 leading-tight">{stage.title}</h3>
+                      <p className="text-white/70 text-base leading-relaxed">{stage.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -613,13 +613,15 @@ const Index = () => {
             </div>
 
             {/* Trust Card - Source Attribution */}
-            <div className="max-w-3xl mx-auto mt-16 md:mt-20 bg-white/10 backdrop-blur-md border border-white/20 hover:border-[rgb(102,255,228)]/40 rounded-3xl p-8 md:p-10 text-center shadow-2xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <CheckBadgeIcon className="h-6 w-6 md:h-8 md:w-8 text-[rgb(102,255,228)] flex-shrink-0" aria-hidden="true" />
-                <h4 className="text-xl md:text-2xl font-bold text-white">100% Source Attribution</h4>
+            <div className="max-w-3xl mx-auto mt-24 bg-gradient-to-r from-[rgb(102,255,228)]/10 to-[rgb(102,255,228)]/5 backdrop-blur-md border border-[rgb(102,255,228)]/30 rounded-3xl p-10 md:p-12 text-center shadow-2xl hover:shadow-[0_20px_50px_rgba(102,255,228,0.2)] transition-all duration-500 hover:border-[rgb(102,255,228)]/50">
+              <div className="flex items-center justify-center gap-4 mb-4">
+                <div className="p-2 bg-[rgb(102,255,228)]/20 rounded-full">
+                  <CheckBadgeIcon className="h-8 w-8 text-[rgb(102,255,228)]" aria-hidden="true" />
+                </div>
+                <h4 className="text-2xl md:text-3xl font-bold text-white">100% Source Attribution</h4>
               </div>
-              <p className="text-white/80 text-base md:text-lg leading-relaxed">
-                Every fact is traced to its source. Stack Overflow, GitHub, or your docs. Quality scored and validated for reliability.
+              <p className="text-white/80 text-lg leading-relaxed">
+                Every insight is traced to its source. Quality scored and validated for reliability.
               </p>
             </div>
           </div>
