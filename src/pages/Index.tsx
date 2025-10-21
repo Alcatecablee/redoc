@@ -653,11 +653,14 @@ const Index = () => {
             </div>
             
             {/* Capability Grid */}
-            <div className="grid gap-4">
+            <div className="grid gap-20">
               {/* Research Sources */}
-              <div className="mb-8">
-                <h3 className="text-2xl font-bold text-white mb-6 tracking-tight">Research Sources</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              <div>
+                <div className="flex items-center gap-4 mb-10">
+                  <div className="h-1 w-12 bg-gradient-to-r from-[rgb(102,255,228)] to-transparent"></div>
+                  <h3 className="text-2xl md:text-3xl font-bold text-white tracking-tight">Research Sources</h3>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
                   {[
                     { image: "/attached_assets/images/Stack-Overflow-Logo-emblem-of-the-programming-community-transparent-png-image.png", name: "Stack Overflow" },
                     { image: "/attached_assets/images/toppng.com-github-logo-524x512.png", name: "GitHub Issues" },
