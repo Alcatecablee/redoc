@@ -252,126 +252,79 @@ const Index = () => {
 
       {/* Hero Section */}
       <main id="main-content">
-      <section id="hero" className="relative overflow-hidden bg-gradient-to-br from-[rgb(36,77,91)] via-[rgb(40,85,100)] to-[rgb(36,77,91)]">
+      <section id="hero" className="relative overflow-hidden bg-gradient-to-b from-[rgb(14,19,23)] to-[rgb(34,38,46)]">
+        {/* Background Elements */}
+        <div className="absolute inset-0 bg-grid-white/[0.02] opacity-30" />
+
+        <div className="relative pt-20 pb-20 lg:pt-24 lg:pb-24">
+          <div className="container mx-auto px-6 max-w-5xl text-center">
+            <div className="space-y-8">
+              {/* Headline - Primary Focus */}
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-white tracking-tight space-y-2">
+                <span className="text-[rgb(102,255,228)] block">No-code / Low-code platform</span>
+                <span className="block">for creating websites</span>
+                <span className="block">and web apps<span className="text-white">.</span></span>
+              </h1>
+
+              {/* Description - Secondary */}
+              <p className="text-xl lg:text-2xl text-white/80 leading-relaxed max-w-3xl mx-auto">
+                Use all power of web design software and build ready-to-use React websites and apps
+              </p>
+
+              {/* CTA Button */}
+              <div className="pt-4">
+                <Button
+                  size="lg"
+                  asChild
+                  className="h-14 px-8 bg-transparent border-4 border-[rgb(102,255,228)] text-white hover:bg-[rgb(102,255,228)] hover:text-[rgb(14,19,23)] font-bold text-lg rounded-full transition-all shadow-xl hover:shadow-2xl hover:scale-105"
+                >
+                  <a href="https://quarkly.io/dashboard">Create Project</a>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Watch Demo Section - Below Hero on Desktop */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-[rgb(36,77,91)] via-[rgb(40,85,100)] to-[rgb(36,77,91)] py-20 lg:py-24">
         {/* Background Elements */}
         <div className="absolute inset-0 bg-grid-white/[0.02] opacity-50" />
         <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-white/5 to-transparent" />
-        
-        <div className="relative pt-24 pb-24 lg:pt-32 lg:pb-32">
-          <div className="container mx-auto px-6 max-w-7xl">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-              {/* Left Column - Text Content (7 columns) */}
-              <div className="lg:col-span-7 text-left space-y-8">
-                
-                {/* Headline - Primary Focus */}
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.05] text-white tracking-tight">
-                  <TypewriterText
-                    texts={[
-                      'Your documentation already exists across Stack Overflow, GitHub, YouTube, and Reddit.',
-                      'We assemble it for you.'
-                    ]}
-                    typingSpeed={28}
-                    pauseBeforeNext={900}
-                    separator={'\n'}
-                    className=""
-                    lineClassName="block mt-3 text-white/90 text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight"
-                    preserveSpace={true}
-                  />
-                </h1>
 
-                {/* Description - Secondary */}
-                <p className="text-lg lg:text-xl text-white/70 leading-relaxed max-w-xl">
-                  We transform any website into professional docs from 10+ sources in 5 minutes — including community solutions, troubleshooting fixes, and best practices.
-                </p>
+        <div className="relative container mx-auto px-6 max-w-7xl">
+          <div className="max-w-2xl mx-auto">
+            {/* Demo Card */}
+            <div className="relative aspect-[16/9] w-full rounded-3xl border border-white/20 bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-xl overflow-hidden shadow-2xl">
+              {/* Decorative Elements */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[rgb(36,77,91)]/50 to-transparent" />
+              <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
 
-                {/* CTA Form - Tertiary but Important */}
-                <div className="pt-4">
-                  <div className="flex flex-col sm:flex-row gap-3 p-2 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-md shadow-2xl">
-                    <Input
-                      type="url"
-                      placeholder="https://yourapp.com"
-                      value={url}
-                      onChange={(e) => setUrl(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
-                      className="flex-1 h-14 bg-white/10 border-0 text-white placeholder:text-white/50 text-base focus-visible:ring-2 focus-visible:ring-white/30"
-                      disabled={generateMutation.isPending}
-                    />
-                    <Button
-                      size="lg"
-                      onClick={handleGenerate}
-                      disabled={generateMutation.isPending || !url}
-                      className="h-14 px-6 bg-white text-[rgb(36,77,91)] hover:bg-white/90 font-semibold shadow-xl hover:shadow-2xl transition-all whitespace-nowrap"
-                    >
-                      {generateMutation.isPending ? (
-                        <>
-                          <ArrowPathIcon className="mr-2 h-5 w-5 animate-spin" />
-                          Generating...
-                        </>
-                      ) : (
-                        <>
-                          <DocumentTextIcon className="mr-2 h-5 w-5" />
-                          Generate Free Docs
-                        </>
-                      )}
-                    </Button>
+              {/* Demo Content */}
+              <div className="relative flex items-center justify-center h-full p-8">
+                <div className="text-center">
+                  <div id="demo" className="w-32 h-32 mx-auto mb-8 rounded-3xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 shadow-xl hover:scale-110 transition-transform cursor-pointer group">
+                    <PlayCircleIcon className="h-16 w-16 text-white group-hover:text-[rgb(102,255,228)] transition-colors" />
                   </div>
-
-                  {/* Pricing / Secondary CTAs */}
-                  <div className="mt-3 flex items-center gap-6 text-sm text-white/70 flex-wrap">
-                    <div className="flex items-center gap-3">
-                      <span className="font-medium">Pro:</span>
-                      <span className="font-semibold">$19/mo</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="font-medium">Custom:</span>
-                      <span className="font-semibold">$500+</span>
-                    </div>
-                    <button
-                      onClick={() => { const el = document.getElementById('demo'); if(el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}
-                      className="ml-2 underline text-white/90"
-                    >
-                      Watch Demo
-                    </button>
-                    <div className="ml-auto hidden sm:flex items-center gap-2 text-sm text-white/60">
-                      <span className="font-semibold">1,000+</span>
-                      <span>sections generated</span>
-                    </div>
-                  </div>
+                  <h2 className="text-3xl font-bold text-white mb-3">Watch Demo</h2>
+                  <p className="text-lg text-white/70">See how it works in action</p>
                 </div>
-
               </div>
+            </div>
 
-              {/* Right Column - Visual Demo (5 columns) */}
-              <div className="lg:col-span-5 relative">
-                <div className="relative aspect-[4/3] w-full rounded-2xl border border-white/20 bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-xl overflow-hidden shadow-2xl">
-                  {/* Decorative Elements */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[rgb(36,77,91)]/50 to-transparent" />
-                  <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                  
-                  {/* Demo Content */}
-                  <div className="relative flex items-center justify-center h-full p-8">
-                    <div className="text-center">
-                      <div id="demo" className="w-24 h-24 mx-auto mb-6 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 shadow-xl hover:scale-105 transition-transform cursor-pointer">
-                        <PlayCircleIcon className="h-12 w-12 text-white" />
-                      </div>
-                      <p className="text-base font-medium text-white/90">Watch Demo</p>
-                      <p className="text-sm text-white/60 mt-1">See it in action</p>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Floating Stats */}
-                <div className="absolute -bottom-6 -left-6 px-6 py-4 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 shadow-xl hidden lg:block">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-emerald-500/20">
-                      <RocketLaunchIcon className="h-5 w-5 text-emerald-400" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold text-white">1,000+</p>
-                      <p className="text-xs text-white/70">sections generated</p>
-                    </div>
-                  </div>
-                </div>
+            {/* Stats Below Demo */}
+            <div className="mt-12 grid grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-white mb-2">1,000+</div>
+                <p className="text-white/70">Sections Generated</p>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-white mb-2">5 min</div>
+                <p className="text-white/70">Average Build Time</p>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-white mb-2">10+</div>
+                <p className="text-white/70">Research Sources</p>
               </div>
             </div>
           </div>
