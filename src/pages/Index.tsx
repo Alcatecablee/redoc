@@ -655,7 +655,7 @@ const Index = () => {
               {/* Research Sources */}
               <div className="mb-8">
                 <h3 className="text-2xl font-bold text-white mb-6 tracking-tight">Research Sources</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                   {[
                     { image: "/attached_assets/images/Stack-Overflow-Logo-emblem-of-the-programming-community-transparent-png-image.png", name: "Stack Overflow" },
                     { image: "/attached_assets/images/toppng.com-github-logo-524x512.png", name: "GitHub Issues" },
@@ -670,11 +670,15 @@ const Index = () => {
                     <div key={item.name} className="group bg-[rgba(37,41,51,0.13)] rounded-2xl p-6 hover:bg-[rgb(40,45,55)] transition-all duration-300 border border-white/10 hover:border-[rgb(102,255,228)]/30">
                       <div className="flex flex-col items-center text-center gap-3">
                         <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-[rgb(102,255,228)]/20 transition-colors overflow-hidden">
-                          <img
-                            src={item.image}
-                            alt={item.name}
-                            className="h-8 w-8 object-contain group-hover:brightness-150 transition-all"
-                          />
+                          {item.image ? (
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="h-8 w-8 object-contain group-hover:brightness-150 transition-all"
+                            />
+                          ) : (
+                            <item.icon className="h-6 w-6 text-white/80 group-hover:text-[rgb(102,255,228)]" strokeWidth={1.5} />
+                          )}
                         </div>
                         <p className="text-sm font-medium text-white/80 leading-tight">{item.name}</p>
                       </div>
