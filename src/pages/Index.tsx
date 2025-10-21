@@ -784,7 +784,7 @@ const Index = () => {
             <div className="text-center mb-20">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm mb-6">
                 <ShieldCheckIcon className="h-4 w-4 text-white" />
-                <span className="text-sm font-medium text-white/90">Enterprise-Grade Quality</span>
+                <span className="text-sm font-medium text-white/90">Production-Ready Quality</span>
               </div>
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
                 Built for Reliability
