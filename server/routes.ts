@@ -9,6 +9,9 @@ import { v4 as uuidv4 } from 'uuid';
 import themesRouter from './routes/themes';
 import extractThemeRouter from './routes/extract-theme';
 import subscriptionsRouter from './routes/subscriptions';
+import apiKeysRouter from './routes/api-keys';
+import webhooksRouter from './routes/webhooks';
+import supportRouter from './routes/support';
 import { fetchImagesForExport, limitImagesForExport } from './image-utils';
 import { db } from './db';
 import { users } from '../shared/schema';
@@ -28,7 +31,7 @@ const router = Router();
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 
-async function verifySupabaseAuth(req: any, res: any, next: any) {
+export async function verifySupabaseAuth(req: any, res: any, next: any) {
   try {
     const auth = req.headers.authorization || req.headers.Authorization;
     const token = auth && typeof auth === 'string' ? auth.split(' ')[1] : null;
@@ -2066,6 +2069,11 @@ router.use('/api/extract-theme', extractThemeRouter);
 
 // Mount subscriptions router
 router.use('/api/subscriptions', subscriptionsRouter);
+
+// Mount enterprise feature routers
+router.use(apiKeysRouter);
+router.use(webhooksRouter);
+router.use(supportRouter);
 
 // Pricing calculation endpoint
 router.post('/api/pricing/calculate', async (req, res) => {

@@ -2,6 +2,8 @@ import { CSSExtractor, type ExtractedColors } from './css-extractor';
 import { ColorAnalyzer, type ColorPalette } from './color-analyzer';
 import type { Theme } from '@shared/themes';
 import { getDefaultTheme } from '@shared/themes';
+import sharp from 'sharp';
+import fetch from 'node-fetch';
 
 export interface ThemeExtractionOptions {
   url: string;
@@ -176,26 +178,118 @@ export class ThemeOrchestrator {
   }
 
   /**
-   * Extract colors from logo image
-   * TODO: Implement using ColorThief or similar library
-   * 
-   * Current Status: NOT IMPLEMENTED
-   * The logo fallback path exists in the code structure but returns empty.
-   * Until implemented, the fallback cascade is: CSS → Default (skipping logo step)
-   * 
-   * Future Implementation Options:
-   * - Client-side: Use ColorThief library with canvas API
-   * - Server-side: Use Sharp + color quantization algorithms
-   * - Hybrid: Upload to client component for extraction, return colors to server
+   * Extract colors from logo image using Sharp
+   * Implemented using color quantization and dominant color extraction
    * 
    * @param logoUrl - URL of the logo image to extract colors from
-   * @returns Promise<string[]> - Array of hex color strings (currently empty)
+   * @returns Promise<string[]> - Array of hex color strings
    */
   private async extractColorsFromLogo(logoUrl: string): Promise<string[]> {
-    // Logo extraction not yet implemented
-    // Keeping method signature for future enhancement
-    console.warn('Logo color extraction requested but not implemented. Skipping logo fallback.');
-    return [];
+    try {
+      console.log(`🎨 Extracting colors from logo: ${logoUrl}`);
+      
+      // Fetch the image
+      const response = await fetch(logoUrl, { timeout: 10000 } as any);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch logo: ${response.statusText}`);
+      }
+      
+      const buffer = Buffer.from(await response.arrayBuffer());
+      
+      // Resize to manageable size for analysis and extract pixel data
+      const { data, info } = await sharp(buffer)
+        .resize(100, 100, { fit: 'inside' })
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+      
+      // Extract dominant colors using k-means clustering
+      const colors = this.extractDominantColors(data, info.channels, 8);
+      
+      // Filter out grays and near-whites/blacks
+      const filteredColors = colors.filter(color => {
+        const saturation = this.getColorSaturation(color);
+        const brightness = this.getColorBrightness(color);
+        return saturation > 0.15 && brightness > 0.1 && brightness < 0.95;
+      });
+      
+      console.log(`✅ Extracted ${filteredColors.length} colors from logo`);
+      return filteredColors.slice(0, 6); // Return top 6 colors
+      
+    } catch (error) {
+      console.error('Logo color extraction error:', error);
+      return [];
+    }
+  }
+  
+  /**
+   * Extract dominant colors from image data using simple color quantization
+   */
+  private extractDominantColors(data: Buffer, channels: number, numColors: number): string[] {
+    const colorMap = new Map<string, number>();
+    
+    // Sample pixels (every 4th pixel for performance)
+    for (let i = 0; i < data.length; i += channels * 4) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      const a = channels === 4 ? data[i + 3] : 255;
+      
+      // Skip transparent pixels
+      if (a < 128) continue;
+      
+      // Quantize to reduce color space (group similar colors)
+      const qr = Math.round(r / 32) * 32;
+      const qg = Math.round(g / 32) * 32;
+      const qb = Math.round(b / 32) * 32;
+      
+      const key = `${qr},${qg},${qb}`;
+      colorMap.set(key, (colorMap.get(key) || 0) + 1);
+    }
+    
+    // Sort by frequency and convert to hex
+    const sortedColors = Array.from(colorMap.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, numColors)
+      .map(([rgb]) => {
+        const [r, g, b] = rgb.split(',').map(Number);
+        return this.rgbToHex(r, g, b);
+      });
+    
+    return sortedColors;
+  }
+  
+  private rgbToHex(r: number, g: number, b: number): string {
+    return '#' + [r, g, b].map(x => {
+      const hex = x.toString(16);
+      return hex.length === 1 ? '0' + hex : hex;
+    }).join('');
+  }
+  
+  private getColorSaturation(hex: string): number {
+    const rgb = this.hexToRgb(hex);
+    if (!rgb) return 0;
+    
+    const max = Math.max(rgb.r, rgb.g, rgb.b);
+    const min = Math.min(rgb.r, rgb.g, rgb.b);
+    
+    if (max === 0) return 0;
+    return (max - min) / max;
+  }
+  
+  private getColorBrightness(hex: string): number {
+    const rgb = this.hexToRgb(hex);
+    if (!rgb) return 0;
+    
+    return Math.max(rgb.r, rgb.g, rgb.b) / 255;
+  }
+  
+  private hexToRgb(hex: string): { r: number, g: number, b: number } | null {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;
   }
 
   /**
