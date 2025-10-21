@@ -12,6 +12,9 @@ import subscriptionsRouter from './routes/subscriptions';
 import apiKeysRouter from './routes/api-keys';
 import webhooksRouter from './routes/webhooks';
 import supportRouter from './routes/support';
+import organizationsRouter from './routes/organizations';
+import billingRouter from './routes/billing';
+import activityRouter from './routes/activity';
 import { fetchImagesForExport, limitImagesForExport } from './image-utils';
 import { db } from './db';
 import { users } from '../shared/schema';
@@ -2146,8 +2149,17 @@ router.use('/api/subscriptions', subscriptionsRouter);
 
 // Mount enterprise feature routers
 router.use(apiKeysRouter);
-router.use(webhooksRouter);
-router.use(supportRouter);
+  router.use(webhooksRouter);
+  router.use(supportRouter);
+
+  // Team & Org management
+  router.use(organizationsRouter);
+
+  // Billing endpoints
+  router.use(billingRouter);
+
+  // Activity and metrics
+  router.use(activityRouter);
 
 // Pricing calculation endpoint
 router.post('/api/pricing/calculate', async (req, res) => {
