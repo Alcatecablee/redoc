@@ -1213,8 +1213,12 @@ router.get("/api/export/markdown/:id", verifySupabaseAuth, async (req, res) => {
       markdown += `${parsedContent.description}\n\n`;
     }
     
+    // Helper: flexible citations structure can be an object (by section) or an array
+    const _citationsRoot = parsedContent.citations || parsedContent.source_citations || {};
+
     parsedContent.sections?.forEach((section: any) => {
       markdown += `## ${section.title}\n\n`;
+      // Render section blocks
       section.content?.forEach((block: any) => {
         switch (block.type) {
           case 'paragraph':
@@ -1239,6 +1243,43 @@ router.get("/api/export/markdown/:id", verifySupabaseAuth, async (req, res) => {
             break;
         }
       });
+
+      // Collect citations for this section from multiple possible structures
+      let sectionCites: any[] = [];
+      try {
+        if (Array.isArray(_citationsRoot)) {
+          // global list - include all (caller can trim later)
+          sectionCites = _citationsRoot;
+        } else if (_citationsRoot) {
+          if (section.id && _citationsRoot[section.id]) sectionCites.push(..._citationsRoot[section.id]);
+          if (section.title && _citationsRoot[section.title]) sectionCites.push(..._citationsRoot[section.title]);
+          if (_citationsRoot.sections && section.id && _citationsRoot.sections[section.id]) sectionCites.push(..._citationsRoot.sections[section.id]);
+        }
+        if (section.citations && Array.isArray(section.citations)) sectionCites.push(...section.citations);
+      } catch (e) {
+        // ignore malformed citation structures
+      }
+
+      // Deduplicate and normalize
+      const seen = new Set();
+      const normalized: string[] = [];
+      sectionCites.forEach((c: any) => {
+        if (!c) return;
+        let s = '';
+        if (typeof c === 'string') s = c;
+        else if (c.url && c.title) s = `[${c.title}](${c.url})`;
+        else if (c.url) s = c.url;
+        else s = JSON.stringify(c);
+        if (!seen.has(s)) { seen.add(s); normalized.push(s); }
+      });
+
+      if (normalized.length > 0) {
+        markdown += `**Sources:**\n\n`;
+        normalized.forEach((s) => {
+          markdown += `- ${s}\n`;
+        });
+        markdown += '\n';
+      }
     });
     
     res.setHeader('Content-Type', 'text/markdown');
@@ -1344,6 +1385,8 @@ router.get("/api/export/html/:id", verifySupabaseAuth, async (req, res) => {
   ${parsedContent.description ? `<p><em>${parsedContent.description}</em></p>` : ''}
 `;
     
+    const _citationsRoot = parsedContent.citations || parsedContent.source_citations || {};
+
     parsedContent.sections?.forEach((section: any) => {
       html += `  <h2>${section.title}</h2>\n`;
       section.content?.forEach((block: any) => {
@@ -1371,6 +1414,37 @@ router.get("/api/export/html/:id", verifySupabaseAuth, async (req, res) => {
             break;
         }
       });
+
+      // Collect citations for this section
+      let sectionCites: any[] = [];
+      try {
+        if (Array.isArray(_citationsRoot)) {
+          sectionCites = _citationsRoot;
+        } else if (_citationsRoot) {
+          if (section.id && _citationsRoot[section.id]) sectionCites.push(..._citationsRoot[section.id]);
+          if (section.title && _citationsRoot[section.title]) sectionCites.push(..._citationsRoot[section.title]);
+          if (_citationsRoot.sections && section.id && _citationsRoot.sections[section.id]) sectionCites.push(..._citationsRoot.sections[section.id]);
+        }
+        if (section.citations && Array.isArray(section.citations)) sectionCites.push(...section.citations);
+      } catch (e) {}
+
+      const seen = new Set();
+      const normalized: string[] = [];
+      sectionCites.forEach((c: any) => {
+        if (!c) return;
+        let s = '';
+        if (typeof c === 'string') s = c;
+        else if (c.title && c.url) s = `<a href="${c.url}">${c.title}</a>`;
+        else if (c.url) s = `<a href="${c.url}">${c.url}</a>`;
+        else s = `<code>${JSON.stringify(c)}</code>`;
+        if (!seen.has(s)) { seen.add(s); normalized.push(s); }
+      });
+
+      if (normalized.length > 0) {
+        html += '  <div class="callout">\n    <strong>Sources:</strong>\n    <ul>\n';
+        normalized.forEach((s) => { html += `      <li>${s}</li>\n`; });
+        html += '    </ul>\n  </div>\n';
+      }
     });
     
     html += `</body>\n</html>`;
