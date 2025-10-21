@@ -650,76 +650,104 @@ const Index = () => {
               </p>
             </div>
             
-            {/* Premium Feature Grid - Asymmetric Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              {/* Large Feature Card - Spans 8 columns */}
-              <div className="lg:col-span-8 group relative overflow-hidden bg-white/40 backdrop-blur-sm border border-gray-900/10 rounded-3xl p-10 hover:shadow-xl transition-all duration-500">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-gray-900/5 to-transparent rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative">
-                  <div className="w-16 h-16 rounded-2xl bg-gray-900/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <MagnifyingGlassIcon className="h-8 w-8 text-gray-900" strokeWidth={1.5} />
-                  </div>
-                  <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">Multi-Source Research Engine</h3>
-                  <p className="text-gray-700 text-lg leading-relaxed mb-6">
-                    We analyze your website, then research across 10+ high-quality sources including Stack Overflow, GitHub, YouTube, Reddit, DEV.to, CodeProject, Stack Exchange, Quora, and official forums. Every insight is quality-scored and source-attributed.
-                  </p>
-                  <div className="flex flex-wrap gap-3">
-                    <div className="px-4 py-2 rounded-full bg-gray-900/10 border border-gray-900/20 text-sm text-gray-900/90">Stack Overflow</div>
-                    <div className="px-4 py-2 rounded-full bg-gray-900/10 border border-gray-900/20 text-sm text-gray-900/90">GitHub Issues</div>
-                    <div className="px-4 py-2 rounded-full bg-gray-900/10 border border-gray-900/20 text-sm text-gray-900/90">YouTube Videos</div>
-                    <div className="px-4 py-2 rounded-full bg-gray-900/10 border border-gray-900/20 text-sm text-gray-900/90">Reddit Posts</div>
-                    <div className="px-4 py-2 rounded-full bg-gray-900/10 border border-gray-900/20 text-sm text-gray-900/90">DEV.to Articles</div>
-                    <div className="px-4 py-2 rounded-full bg-gray-900/10 border border-gray-900/20 text-sm text-gray-900/90">CodeProject</div>
-                    <div className="px-4 py-2 rounded-full bg-gray-900/10 border border-gray-900/20 text-sm text-gray-900/90">Stack Exchange</div>
-                    <div className="px-4 py-2 rounded-full bg-gray-900/10 border border-gray-900/20 text-sm text-gray-900/90">Quora Answers</div>
-                    <div className="px-4 py-2 rounded-full bg-gray-900/10 border border-gray-900/20 text-sm text-gray-900/90">Official Forums</div>
-                    <div className="px-4 py-2 rounded-full bg-gray-900/10 border border-gray-900/20 text-sm text-gray-900/90">Quality Scoring</div>
-                  </div>
+            {/* Capability Grid */}
+            <div className="grid gap-4">
+              {/* Research Sources */}
+              <div className="mb-8">
+                <h3 className="text-2xl font-bold text-white mb-6 tracking-tight">Research Sources</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                  {[
+                    { icon: MagnifyingGlassIcon, name: "Stack Overflow" },
+                    { icon: CodeBracketIcon, name: "GitHub Issues" },
+                    { icon: VideoCameraIcon, name: "YouTube" },
+                    { icon: ChatBubbleLeftRightIcon, name: "Reddit" },
+                    { icon: DocumentTextIcon, name: "Dev.to" }
+                  ].map((item) => (
+                    <div key={item.name} className="group bg-[rgb(34,38,46)] rounded-2xl p-6 hover:bg-[rgb(40,45,55)] transition-all duration-300 border border-white/10 hover:border-[rgb(102,255,228)]/30">
+                      <div className="flex flex-col items-center text-center gap-3">
+                        <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-[rgb(102,255,228)]/20 transition-colors">
+                          <item.icon className="h-6 w-6 text-white/80 group-hover:text-[rgb(102,255,228)]" strokeWidth={1.5} />
+                        </div>
+                        <p className="text-sm font-medium text-white/80 leading-tight">{item.name}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-              
-              {/* Smaller Feature Cards - Span 4 columns */}
-              <div className="lg:col-span-4 space-y-6">
-                <div className="group relative overflow-hidden bg-white/40 backdrop-blur-sm border border-gray-900/10 rounded-3xl p-8 hover:shadow-xl transition-all duration-300">
-                  <div className="w-14 h-14 rounded-xl bg-gray-900/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                    <VideoCameraIcon className="h-7 w-7 text-gray-900" strokeWidth={1.5} />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">YouTube Integration</h3>
-                  <p className="text-gray-700 text-sm leading-relaxed">Video tutorials, demos, transcripts, and AI-powered content analysis</p>
-                </div>
-                
-                <div className="group relative overflow-hidden bg-white/40 backdrop-blur-sm border border-gray-900/10 rounded-3xl p-8 hover:shadow-xl transition-all duration-300">
-                  <div className="w-14 h-14 rounded-xl bg-gray-900/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                    <MagnifyingGlassIcon className="h-7 w-7 text-gray-900" strokeWidth={1.5} />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">SEO Optimization</h3>
-                  <p className="text-gray-700 text-sm leading-relaxed">Meta tags, schema markup, sitemaps, and keyword optimization</p>
+
+              {/* Documentation Generation */}
+              <div className="mb-8">
+                <h3 className="text-2xl font-bold text-white mb-6 tracking-tight">Documentation Generation</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {[
+                    { icon: DocumentTextIcon, name: "Getting Started" },
+                    { icon: AcademicCapIcon, name: "Tutorials" },
+                    { icon: QuestionMarkCircleIcon, name: "FAQs" },
+                    { icon: BoltIcon, name: "Troubleshooting" },
+                    { icon: CodeBracketIcon, name: "API Docs" },
+                    { icon: CheckBadgeIcon, name: "Best Practices" },
+                    { icon: Square3Stack3DIcon, name: "Examples" },
+                    { icon: ShieldCheckIcon, name: "Security" }
+                  ].map((item) => (
+                    <div key={item.name} className="group bg-[rgb(34,38,46)] rounded-2xl p-6 hover:bg-[rgb(40,45,55)] transition-all duration-300 border border-white/10 hover:border-[rgb(102,255,228)]/30">
+                      <div className="flex flex-col items-center text-center gap-3">
+                        <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-[rgb(102,255,228)]/20 transition-colors">
+                          <item.icon className="h-6 w-6 text-white/80 group-hover:text-[rgb(102,255,228)]" strokeWidth={1.5} />
+                        </div>
+                        <p className="text-sm font-medium text-white/80 leading-tight">{item.name}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-              
-              {/* Three Equal Cards */}
-              <div className="lg:col-span-4 group relative overflow-hidden bg-white/40 backdrop-blur-sm border border-gray-900/10 rounded-3xl p-8 hover:shadow-xl transition-all duration-300">
-                <div className="w-14 h-14 rounded-xl bg-gray-900/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <SwatchIcon className="h-7 w-7 text-gray-900" strokeWidth={1.5} />
+
+              {/* Export Formats */}
+              <div className="mb-8">
+                <h3 className="text-2xl font-bold text-white mb-6 tracking-tight">Export & Publishing</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                  {[
+                    { icon: DocumentTextIcon, name: "PDF" },
+                    { icon: DocumentTextIcon, name: "DOCX" },
+                    { icon: GlobeAltIcon, name: "HTML" },
+                    { icon: CodeBracketIcon, name: "Markdown" },
+                    { icon: DocumentMagnifyingGlassIcon, name: "JSON" }
+                  ].map((item) => (
+                    <div key={item.name} className="group bg-[rgb(34,38,46)] rounded-2xl p-6 hover:bg-[rgb(40,45,55)] transition-all duration-300 border border-white/10 hover:border-[rgb(102,255,228)]/30">
+                      <div className="flex flex-col items-center text-center gap-3">
+                        <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-[rgb(102,255,228)]/20 transition-colors">
+                          <item.icon className="h-6 w-6 text-white/80 group-hover:text-[rgb(102,255,228)]" strokeWidth={1.5} />
+                        </div>
+                        <p className="text-sm font-medium text-white/80 leading-tight">{item.name}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Auto Brand Styling</h3>
-                <p className="text-gray-700 leading-relaxed">Automatic color extraction from your site, professional typography, and consistent formatting</p>
               </div>
-              
-              <div className="lg:col-span-4 group relative overflow-hidden bg-white/40 backdrop-blur-sm border border-gray-900/10 rounded-3xl p-8 hover:shadow-xl transition-all duration-300">
-                <div className="w-14 h-14 rounded-xl bg-gray-900/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <Square3Stack3DIcon className="h-7 w-7 text-gray-900" strokeWidth={1.5} />
+
+              {/* Quality & Features */}
+              <div>
+                <h3 className="text-2xl font-bold text-white mb-6 tracking-tight">Quality & Features</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {[
+                    { icon: CheckBadgeIcon, name: "Quality Scoring" },
+                    { icon: SwatchIcon, name: "Brand Styling" },
+                    { icon: MagnifyingGlassIcon, name: "Full Search" },
+                    { icon: Cog6ToothIcon, name: "SEO Ready" },
+                    { icon: ShieldCheckIcon, name: "Accessibility" },
+                    { icon: BuildingOfficeIcon, name: "Enterprise" },
+                    { icon: ArrowPathIcon, name: "Auto Updates" },
+                    { icon: ClipboardDocumentListIcon, name: "Analytics" }
+                  ].map((item) => (
+                    <div key={item.name} className="group bg-[rgb(34,38,46)] rounded-2xl p-6 hover:bg-[rgb(40,45,55)] transition-all duration-300 border border-white/10 hover:border-[rgb(102,255,228)]/30">
+                      <div className="flex flex-col items-center text-center gap-3">
+                        <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-[rgb(102,255,228)]/20 transition-colors">
+                          <item.icon className="h-6 w-6 text-white/80 group-hover:text-[rgb(102,255,228)]" strokeWidth={1.5} />
+                        </div>
+                        <p className="text-sm font-medium text-white/80 leading-tight">{item.name}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Multi-Format Export</h3>
-                <p className="text-gray-700 leading-relaxed">PDF, DOCX, HTML, Markdown, JSON, or hosted subdomain—all with your branding</p>
-              </div>
-              
-              <div className="lg:col-span-4 group relative overflow-hidden bg-white/40 backdrop-blur-sm border border-gray-900/10 rounded-3xl p-8 hover:shadow-xl transition-all duration-300">
-                <div className="w-14 h-14 rounded-xl bg-gray-900/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <Cog6ToothIcon className="h-7 w-7 text-gray-900" strokeWidth={1.5} />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Production Ready</h3>
-                <p className="text-gray-700 leading-relaxed">Built-in searchability, accessibility features, and validation</p>
               </div>
             </div>
           </div>
