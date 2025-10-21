@@ -739,30 +739,6 @@ const Index = () => {
                   ))}
                 </div>
 
-                {/* Custom Domain Section */}
-                <div className="bg-[rgba(40,45,55,0)] border border-white/10 rounded-2xl p-6 hover:border-[rgb(102,255,228)]/30 transition-all duration-300">
-                  <div className="flex items-center gap-3 mb-4">
-                    <GlobeAltIcon className="h-5 w-5 text-[rgb(102,255,228)]" strokeWidth={1.5} />
-                    <h4 className="text-lg font-semibold text-white">Custom Domain</h4>
-                  </div>
-                  <p className="text-sm text-white/70 mb-4">Publish your documentation at your own domain</p>
-                  <div className="flex gap-2">
-                    <Input
-                      type="text"
-                      placeholder="example.com"
-                      value={customDomain}
-                      onChange={(e) => setCustomDomain(e.target.value)}
-                      className="flex-1 bg-white/10 border border-white/20 text-white placeholder:text-white/50 rounded-lg focus:border-[rgb(102,255,228)] focus:ring-2 focus:ring-[rgb(102,255,228)]/20"
-                    />
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-white/20 bg-white/10 hover:bg-white/20 text-white rounded-lg whitespace-nowrap"
-                    >
-                      Set Domain
-                    </Button>
-                  </div>
-                </div>
               </div>
 
               {/* Quality & Features */}
