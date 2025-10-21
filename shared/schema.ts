@@ -220,6 +220,18 @@ export const activityLogs = pgTable("activity_logs", {
   created_at: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Idempotency keys for request deduplication
+export const idempotencyKeys = pgTable("idempotency_keys", {
+  id: serial("id").primaryKey(),
+  key: text("key").notNull().unique(),
+  status: text("status").notNull(), // 'processing', 'completed', 'failed'
+  status_code: integer("status_code"),
+  response: text("response"),
+  error: text("error"),
+  created_at: timestamp("created_at").notNull().defaultNow(),
+  expires_at: timestamp("expires_at").notNull(),
+});
+
 // Relations for new tables
 export const apiKeysRelations = relations(apiKeys, ({ one }) => ({
   user: one(users, {
