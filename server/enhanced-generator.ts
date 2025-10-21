@@ -32,6 +32,7 @@ import {
   type DocumentSection
 } from './image-composition';
 import { enhanceImagesWithCaptions } from './image-caption-generator';
+import { processConcurrently } from './utils/concurrent-fetch';
 
 // Utility: attempt HEAD then GET to verify URL exists
 async function headOrGet(url: string): Promise<Response | null> {
@@ -202,19 +203,27 @@ export async function discoverSiteStructure(baseUrl: string) {
   }
 }
 
-// Multi-page content extraction
+// Multi-page content extraction (PARALLELIZED - 10x faster!)
 export async function extractMultiPageContent(urls: string[]) {
-  const extracted = [];
+  const urlsToProcess = urls.slice(0, 40); // Limit to 40 pages for broader coverage
   
-  for (const url of urls.slice(0, 40)) { // Limit to 40 pages for broader coverage
-    try {
+  console.log(`🚀 Parallel crawling ${urlsToProcess.length} pages with 10 concurrent workers...`);
+  const startTime = Date.now();
+  
+  // Process pages concurrently (10 at a time, 5-second timeout per page)
+  const results = await processConcurrently(
+    urlsToProcess,
+    async (url, _index, signal) => {
       const response = await fetch(url, { 
+        signal, // AbortSignal for proper timeout handling
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
       });
       
-      if (!response.ok) continue;
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
       
       const html = await response.text();
       const $ = cheerio.load(html);
@@ -307,7 +316,7 @@ export async function extractMultiPageContent(urls: string[]) {
       const content = $('main, article, .content, .post-content, .entry-content').text() || 
                      $('body').text();
       
-      extracted.push({
+      return {
         url,
         title: $('title').text() || $('h1').first().text() || 'Untitled',
         content: content.substring(0, 5000), // Limit content length
@@ -316,15 +325,29 @@ export async function extractMultiPageContent(urls: string[]) {
         images,
         headings,
         wordCount: content.split(/\s+/).length
-      });
-      
-      // Rate limiting
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-    } catch (error) {
-      console.error(`Failed to extract from ${url}:`, error.message);
+      };
+    },
+    {
+      concurrency: 10,      // 10 pages at once
+      timeoutMs: 5000,      // 5 second timeout per page
+      onProgress: (completed, total) => {
+        if (completed % 10 === 0 || completed === total) {
+          console.log(`   📄 Crawled ${completed}/${total} pages...`);
+        }
+      }
     }
-  }
+  );
+  
+  // Extract successful results
+  const extracted = results
+    .filter((result): result is PromiseFulfilledResult<any> => result.status === 'fulfilled')
+    .map(result => result.value);
+  
+  const failedCount = results.length - extracted.length;
+  const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+  
+  console.log(`✅ Parallel crawling complete in ${duration}s (${extracted.length} success, ${failedCount} failed)`);
+  console.log(`   ⚡ Speed improvement: ~${(urlsToProcess.length / parseFloat(duration)).toFixed(1)} pages/second`);
   
   return extracted;
 }

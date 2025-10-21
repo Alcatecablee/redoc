@@ -72,6 +72,7 @@
     "next-themes": "^0.3.0",
     "node-fetch": "^2.7.0",
     "nodemon": "^3.1.10",
+    "p-limit": "^7.2.0",
     "pdfkit": "^0.17.2",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
