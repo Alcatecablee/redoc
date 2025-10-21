@@ -824,25 +824,45 @@ const Index = () => {
             <div className="max-w-4xl mx-auto">
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4 mb-6">
                 {[
-                  { name: 'PDF', icon: DocumentTextIcon },
-                  { name: 'DOCX', icon: DocumentTextIcon },
-                  { name: 'HTML', icon: GlobeAltIcon },
-                  { name: 'Markdown', icon: DocumentTextIcon },
-                  { name: 'JSON', icon: DocumentTextIcon }
+                  { image: "/attached_assets/images/toppng.com-exporter-pdf-en-450x423.png", name: 'PDF' },
+                  { image: "/attached_assets/images/toppng.com-shadow-microsoft-icons-by-blackvariant-microsoft-office-2013-899x899.png", name: 'DOCX' },
+                  { image: "/attached_assets/images/toppng.com-custom-software-development-web-application-development-451x333.png", name: 'HTML' },
+                  { image: "/attached_assets/images/toppng.com-markdown-logo-830x512.png", name: 'Markdown' },
+                  { image: "/attached_assets/images/json-file-document-icon-png-image_927931.jpg", name: 'JSON' }
                 ].map((fmt) => (
                   <div key={fmt.name} className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 md:p-6 text-center hover:bg-white/15 hover:border-[rgb(102,255,228)]/40 hover:shadow-lg transition-all duration-300 transform hover:scale-110 cursor-default focus-within:ring-2 focus-within:ring-[rgb(102,255,228)]/50">
-                    <fmt.icon className="h-6 md:h-8 h-6 md:w-8 text-white mx-auto mb-2 transition-colors group-hover:text-[rgb(102,255,228)]" aria-hidden="true" />
+                    <img
+                      src={fmt.image}
+                      alt={fmt.name}
+                      className="h-6 md:h-8 w-6 md:w-8 mx-auto mb-2 object-contain transition-all hover:brightness-150"
+                    />
                     <h5 className="font-semibold text-white text-sm md:text-base">{fmt.name}</h5>
                   </div>
                 ))}
               </div>
 
-              <div className="bg-white/10 backdrop-blur-md border border-white/30 hover:border-[rgb(102,255,228)]/40 rounded-2xl p-6 md:p-8 text-center transition-all duration-500 hover:shadow-2xl">
-                <div className="flex items-center justify-center gap-3 mb-3 flex-wrap">
-                  <ArrowTopRightOnSquareIcon className="h-5 md:h-6 h-5 md:w-6 text-[rgb(102,255,228)]" strokeWidth={1.5} aria-hidden="true" />
-                  <h5 className="text-lg md:text-xl font-bold text-white">Hosted Subdomain</h5>
+              <div className="bg-white/10 backdrop-blur-md border border-white/30 hover:border-[rgb(102,255,228)]/40 rounded-2xl p-6 md:p-8 transition-all duration-500 hover:shadow-2xl">
+                <div className="flex items-center justify-center gap-3 mb-4 flex-wrap">
+                  <GlobeAltIcon className="h-5 md:h-6 text-[rgb(102,255,228)]" strokeWidth={1.5} aria-hidden="true" />
+                  <h5 className="text-lg md:text-xl font-bold text-white">Custom Domain Publishing</h5>
                 </div>
-                <p className="text-white/80 text-sm md:text-base">Publish at <code className="px-2 py-1 rounded bg-white/20 text-[rgb(102,255,228)] font-mono text-xs md:text-sm">your-docs.example.com</code> with your theme</p>
+                <p className="text-white/80 text-sm md:text-base mb-4">Publish your docs at your own domain or use a hosted subdomain</p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Input
+                    type="text"
+                    placeholder="example.com"
+                    value={customDomain}
+                    onChange={(e) => setCustomDomain(e.target.value)}
+                    className="flex-1 bg-white/20 border border-white/30 text-white placeholder:text-white/50 rounded-lg focus:border-[rgb(102,255,228)] focus:ring-2 focus:ring-[rgb(102,255,228)]/20 px-4 py-2"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-white/30 bg-white/20 hover:bg-white/30 text-white rounded-lg whitespace-nowrap font-semibold"
+                  >
+                    Publish
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
