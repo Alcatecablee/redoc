@@ -721,23 +721,16 @@ const Index = () => {
                     ].map((item) => (
                       <div key={item.name} className="group">
                         <div className="relative bg-gradient-to-br from-white/10 to-white/5 hover:from-white/15 hover:to-white/10 border border-white/20 hover:border-[rgb(102,255,228)]/40 rounded-2xl p-7 transition-all duration-400 h-full backdrop-blur-sm hover:shadow-[0_10px_30px_rgba(102,255,228,0.1)]">
-                          {/* Animated glow background on hover */}
-                          <div className="absolute inset-0 bg-gradient-to-r from-[rgb(102,255,228)]/0 via-[rgb(102,255,228)]/10 to-[rgb(102,255,228)]/0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{animation: 'glow 2s ease-in-out infinite'}} />
-
                           <div className="flex flex-col items-center text-center gap-4 h-full relative z-10">
-                            <div className="w-14 h-14 rounded-xl bg-white/15 group-hover:bg-[rgb(102,255,228)]/20 flex items-center justify-center transition-all duration-300 group-hover:scale-110 overflow-hidden relative">
-                              {/* Flowing gradient pulse on icon */}
-                              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" style={{animation: 'pulse-flow 1.5s ease-in-out infinite'}} />
-
+                            <div className="w-14 h-14 rounded-xl bg-white/15 group-hover:bg-[rgb(102,255,228)]/20 flex items-center justify-center transition-all duration-300 group-hover:scale-110 overflow-hidden">
                               {item.image ? (
                                 <img
                                   src={item.image}
                                   alt={item.name}
-                                  className="h-8 w-8 object-contain group-hover:brightness-125 transition-all relative z-10"
-                                  style={{animation: 'iconFloat 3s ease-in-out infinite'}}
+                                  className="h-8 w-8 object-contain group-hover:brightness-125 transition-all"
                                 />
                               ) : (
-                                <item.icon className="h-6 w-6 text-white/80 group-hover:text-[rgb(102,255,228)] transition-colors relative z-10" strokeWidth={1.5} style={{animation: 'iconFloat 3s ease-in-out infinite'}} />
+                                <item.icon className="h-6 w-6 text-white/80 group-hover:text-[rgb(102,255,228)] transition-colors" strokeWidth={1.5} />
                               )}
                             </div>
                             <p className="text-sm font-semibold text-white/90 leading-snug">{item.name}</p>
@@ -749,22 +742,17 @@ const Index = () => {
                 </div>
 
                 <style>{`
-                  @keyframes iconFloat {
-                    0%, 100% { transform: translateY(0px); }
-                    50% { transform: translateY(-4px); }
+                  @keyframes flowCyan {
+                    from { stroke-dashoffset: 100; }
+                    to { stroke-dashoffset: 0; }
                   }
-                  @keyframes pulse-flow {
-                    0% { transform: translateX(-100%); opacity: 0; }
-                    50% { opacity: 1; }
-                    100% { transform: translateX(100%); opacity: 0; }
+                  @keyframes flowPurple {
+                    from { stroke-dashoffset: 100; }
+                    to { stroke-dashoffset: 0; }
                   }
-                  @keyframes glow {
-                    0%, 100% { opacity: 0; }
-                    50% { opacity: 1; }
-                  }
-                  @keyframes flowLine {
-                    0%, 100% { strokeDashoffset: 100; }
-                    50% { strokeDashoffset: 0; }
+                  @keyframes flowOrange {
+                    from { stroke-dashoffset: 100; }
+                    to { stroke-dashoffset: 0; }
                   }
                 `}</style>
               </div>
