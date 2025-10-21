@@ -674,7 +674,7 @@ const Index = () => {
                 <h4 className="text-2xl font-bold text-white">100% Source Attribution</h4>
               </div>
               <p className="text-white/80 text-lg leading-relaxed">
-                Every fact is traced to its source—Stack Overflow, GitHub, or your docs. Quality scored and validated for reliability.
+                Every fact is traced to its source. Stack Overflow, GitHub, or your docs. Quality scored and validated for reliability.
               </p>
             </div>
           </div>
@@ -893,22 +893,7 @@ const Index = () => {
                   </Button>
                 </div>
                 
-                {/* Trust Indicators */}
-                <div className="flex flex-wrap justify-center gap-6 pt-8">
-                  <div className="flex items-center gap-2">
-                    <CheckBadgeIcon className="h-5 w-5 text-gray-900" />
-                    <span className="text-sm text-gray-700">Free to try</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckBadgeIcon className="h-5 w-5 text-gray-900" />
-                    <span className="text-sm text-gray-700">No credit card</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckBadgeIcon className="h-5 w-5 text-gray-900" />
-                    <span className="text-sm text-gray-700">5-minute setup</span>
-                  </div>
                 </div>
-              </div>
             </div>
           </div>
         </section>
