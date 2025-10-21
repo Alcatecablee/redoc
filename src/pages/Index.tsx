@@ -366,8 +366,8 @@ const Index = () => {
                       <RocketLaunchIcon className="h-5 w-5 text-emerald-400" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-white">500+</p>
-                      <p className="text-xs text-white/70">Docs Generated</p>
+                      <p className="text-2xl font-bold text-white">1,000+</p>
+                      <p className="text-xs text-white/70">sections generated</p>
                     </div>
                   </div>
                 </div>
