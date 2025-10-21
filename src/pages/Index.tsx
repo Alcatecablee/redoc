@@ -286,7 +286,7 @@ const Index = () => {
                 
                 {/* Description - Secondary */}
                 <p className="text-lg lg:text-xl text-white/70 leading-relaxed max-w-xl">
-                  We pull real developer insights from Stack Overflow, GitHub and the web, then create polished, brand‑matched docs.
+                  We aggregate real developer insights — Stack Overflow, GitHub, issues, official docs, tutorials, forums, and videos — then produce polished, brand‑matched docs.
                 </p>
                 
                 {/* CTA Form - Tertiary but Important */}
