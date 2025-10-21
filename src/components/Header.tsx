@@ -51,13 +51,12 @@ const Header = () => {
   return (
     <>
       <SignInDialog open={showSignIn} onOpenChange={setShowSignIn} />
-      <header className="fixed top-0 left-0 right-0 z-50 w-full">
-        <div className="absolute inset-0 bg-gradient-to-r from-[rgb(36,77,91)]/90 via-[rgb(40,85,100)]/90 to-[rgb(36,77,91)]/90 backdrop-blur-xl border-b border-white/10"></div>
-        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
+      <header className="fixed top-0 left-0 right-0 z-50 w-full bg-[rgb(34,38,46)] border-b border-[rgb(14,19,23)]">
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="flex h-16 md:h-18 items-center justify-between">
             {/* Logo */}
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/20 flex items-center justify-center shadow-lg">
+              <div className="h-10 w-10 rounded-lg bg-white/20 backdrop-blur-sm border border-white/20 flex items-center justify-center shadow-lg">
                 <FileText className="h-6 w-6 text-white" />
               </div>
               <span className="text-2xl font-bold text-white">
@@ -68,20 +67,20 @@ const Header = () => {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-1">
               {navLinks.map((link) => (
-                <a 
-                  key={link.name} 
-                  href={link.href} 
-                  className="relative px-4 py-2 text-sm font-medium text-white/80 hover:text-white transition-all duration-300 rounded-xl hover:bg-white/10 backdrop-blur-sm group"
+                <a
+                  key={link.name}
+                  href={link.href}
+                  className="relative px-3 py-2 text-xs font-bold text-[rgb(228,232,236)] hover:text-white uppercase tracking-widest transition-colors duration-300"
                 >
-                  <span className="relative z-10">{link.name}</span>
+                  {link.name}
                 </a>
               ))}
               {user ? (
-                <a 
-                  href="/dashboard" 
-                  className="relative px-4 py-2 text-sm font-medium text-white/80 hover:text-white transition-all duration-300 rounded-xl hover:bg-white/10 backdrop-blur-sm group"
+                <a
+                  href="/dashboard"
+                  className="relative px-3 py-2 text-xs font-bold text-[rgb(228,232,236)] hover:text-white uppercase tracking-widest transition-colors duration-300"
                 >
-                  <span className="relative z-10">Dashboard</span>
+                  Dashboard
                 </a>
               ) : null}
             </nav>
@@ -90,26 +89,35 @@ const Header = () => {
             <div className="hidden md:flex items-center gap-3">
               {user ? (
                 <div className="flex items-center gap-3">
-                  <div className="px-4 py-2 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20">
-                    <span className="text-sm font-medium text-white/90">{user.email?.split('@')[0] || 'User'}</span>
+                  <div className="px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20">
+                    <span className="text-xs font-medium text-white/90">{user.email?.split('@')[0] || 'User'}</span>
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={signOut}
-                    className="px-4 py-2 text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 backdrop-blur-sm transition-all duration-300 rounded-xl"
+                    className="px-5 py-1 text-xs font-bold text-white/80 hover:text-white hover:bg-white/10 backdrop-blur-sm transition-all duration-300 rounded-full uppercase tracking-widest border border-[rgb(102,255,228)] border-2"
                   >
                     <LogOut className="mr-2 h-4 w-4" /> Sign Out
                   </Button>
                 </div>
               ) : (
-                <Button 
-                  size="sm" 
-                  onClick={signIn}
-                  className="px-6 py-2 bg-white text-[rgb(36,77,91)] hover:bg-white/90 font-medium rounded-xl shadow-lg transition-all duration-300 hover:scale-105"
-                >
-                  Get Started
-                </Button>
+                <>
+                  <a
+                    href="#"
+                    onClick={(e) => { e.preventDefault(); signIn(); }}
+                    className="px-5 py-1 text-xs font-bold text-white border-2 border-[rgb(102,255,228)] hover:bg-[rgb(102,255,228)] hover:text-[rgb(14,19,23)] rounded-full uppercase tracking-widest transition-all duration-100"
+                  >
+                    Log In
+                  </a>
+                  <a
+                    href="#"
+                    onClick={(e) => { e.preventDefault(); signIn(); }}
+                    className="px-5 py-1 text-xs font-bold text-[rgb(14,19,23)] bg-[rgb(102,255,228)] hover:bg-white rounded-full uppercase tracking-widest transition-all duration-100 ml-3"
+                  >
+                    Sign Up
+                  </a>
+                </>
               )}
             </div>
 
