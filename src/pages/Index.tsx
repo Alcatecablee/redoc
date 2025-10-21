@@ -660,38 +660,86 @@ const Index = () => {
                   <div className="h-1 w-12 bg-gradient-to-r from-[rgb(102,255,228)] to-transparent"></div>
                   <h3 className="text-2xl md:text-3xl font-bold text-white tracking-tight">Research Sources</h3>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
-                  {[
-                    { image: "/attached_assets/images/Stack-Overflow-Logo-emblem-of-the-programming-community-transparent-png-image.png", name: "Stack Overflow" },
-                    { image: "/attached_assets/images/toppng.com-github-logo-524x512.png", name: "GitHub Issues" },
-                    { image: "/attached_assets/images/toppng.com-youtube-icon-1024x1024.png", name: "YouTube Videos" },
-                    { image: "/attached_assets/images/toppng.com-reddit-logo-reddit-icon-698x698.png", name: "Reddit Posts" },
-                    { image: "/attached_assets/images/dev-rainbow.png", name: "DEV.to Articles" },
-                    { image: "/attached_assets/images/toppng.com-custom-software-development-web-application-development-451x333.png", name: "CodeProject" },
-                    { icon: DocumentTextIcon, name: "Stack Exchange" },
-                    { icon: ChatBubbleLeftRightIcon, name: "Quora Answers" },
-                    { icon: GlobeAltIcon, name: "Official Forums" }
-                  ].map((item) => (
-                    <div key={item.name} className="group">
-                      <div className="relative bg-gradient-to-br from-white/10 to-white/5 hover:from-white/15 hover:to-white/10 border border-white/20 hover:border-[rgb(102,255,228)]/40 rounded-2xl p-7 transition-all duration-400 h-full backdrop-blur-sm hover:shadow-[0_10px_30px_rgba(102,255,228,0.1)]">
-                        <div className="flex flex-col items-center text-center gap-4 h-full">
-                          <div className="w-14 h-14 rounded-xl bg-white/15 group-hover:bg-[rgb(102,255,228)]/20 flex items-center justify-center transition-all duration-300 group-hover:scale-110 overflow-hidden">
-                            {item.image ? (
-                              <img
-                                src={item.image}
-                                alt={item.name}
-                                className="h-8 w-8 object-contain group-hover:brightness-125 transition-all"
-                              />
-                            ) : (
-                              <item.icon className="h-6 w-6 text-white/80 group-hover:text-[rgb(102,255,228)] transition-colors" strokeWidth={1.5} />
-                            )}
+                <div className="relative">
+                  {/* SVG Animated connecting lines */}
+                  <svg className="absolute top-0 left-0 w-full h-full pointer-events-none" style={{height: '100%'}} preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="flowGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="rgb(102,255,228)" stopOpacity="0" />
+                        <stop offset="50%" stopColor="rgb(102,255,228)" stopOpacity="0.6" />
+                        <stop offset="100%" stopColor="rgb(102,255,228)" stopOpacity="0" />
+                      </linearGradient>
+                      <linearGradient id="flowGradient2" x1="100%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="rgb(102,255,228)" stopOpacity="0" />
+                        <stop offset="50%" stopColor="rgb(102,255,228)" stopOpacity="0.6" />
+                        <stop offset="100%" stopColor="rgb(102,255,228)" stopOpacity="0" />
+                      </linearGradient>
+                    </defs>
+                    <polyline points="0,50 20,50" stroke="url(#flowGradient1)" strokeWidth="2" fill="none" style={{animation: 'flowLine 3s ease-in-out infinite'}} />
+                  </svg>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5 relative z-10">
+                    {[
+                      { image: "/attached_assets/images/Stack-Overflow-Logo-emblem-of-the-programming-community-transparent-png-image.png", name: "Stack Overflow" },
+                      { image: "/attached_assets/images/toppng.com-github-logo-524x512.png", name: "GitHub Issues" },
+                      { image: "/attached_assets/images/toppng.com-youtube-icon-1024x1024.png", name: "YouTube Videos" },
+                      { image: "/attached_assets/images/toppng.com-reddit-logo-reddit-icon-698x698.png", name: "Reddit Posts" },
+                      { image: "/attached_assets/images/dev-rainbow.png", name: "DEV.to Articles" },
+                      { image: "/attached_assets/images/toppng.com-custom-software-development-web-application-development-451x333.png", name: "CodeProject" },
+                      { icon: DocumentTextIcon, name: "Stack Exchange" },
+                      { icon: ChatBubbleLeftRightIcon, name: "Quora Answers" },
+                      { icon: GlobeAltIcon, name: "Official Forums" },
+                      { icon: MagnifyingGlassIcon, name: "Web Search" },
+                      { icon: DocumentMagnifyingGlassIcon, name: "Internal Search" }
+                    ].map((item) => (
+                      <div key={item.name} className="group">
+                        <div className="relative bg-gradient-to-br from-white/10 to-white/5 hover:from-white/15 hover:to-white/10 border border-white/20 hover:border-[rgb(102,255,228)]/40 rounded-2xl p-7 transition-all duration-400 h-full backdrop-blur-sm hover:shadow-[0_10px_30px_rgba(102,255,228,0.1)]">
+                          {/* Animated glow background on hover */}
+                          <div className="absolute inset-0 bg-gradient-to-r from-[rgb(102,255,228)]/0 via-[rgb(102,255,228)]/10 to-[rgb(102,255,228)]/0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{animation: 'glow 2s ease-in-out infinite'}} />
+
+                          <div className="flex flex-col items-center text-center gap-4 h-full relative z-10">
+                            <div className="w-14 h-14 rounded-xl bg-white/15 group-hover:bg-[rgb(102,255,228)]/20 flex items-center justify-center transition-all duration-300 group-hover:scale-110 overflow-hidden relative">
+                              {/* Flowing gradient pulse on icon */}
+                              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" style={{animation: 'pulse-flow 1.5s ease-in-out infinite'}} />
+
+                              {item.image ? (
+                                <img
+                                  src={item.image}
+                                  alt={item.name}
+                                  className="h-8 w-8 object-contain group-hover:brightness-125 transition-all relative z-10"
+                                  style={{animation: 'iconFloat 3s ease-in-out infinite'}}
+                                />
+                              ) : (
+                                <item.icon className="h-6 w-6 text-white/80 group-hover:text-[rgb(102,255,228)] transition-colors relative z-10" strokeWidth={1.5} style={{animation: 'iconFloat 3s ease-in-out infinite'}} />
+                              )}
+                            </div>
+                            <p className="text-sm font-semibold text-white/90 leading-snug">{item.name}</p>
                           </div>
-                          <p className="text-sm font-semibold text-white/90 leading-snug">{item.name}</p>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
+
+                <style>{`
+                  @keyframes iconFloat {
+                    0%, 100% { transform: translateY(0px); }
+                    50% { transform: translateY(-4px); }
+                  }
+                  @keyframes pulse-flow {
+                    0% { transform: translateX(-100%); opacity: 0; }
+                    50% { opacity: 1; }
+                    100% { transform: translateX(100%); opacity: 0; }
+                  }
+                  @keyframes glow {
+                    0%, 100% { opacity: 0; }
+                    50% { opacity: 1; }
+                  }
+                  @keyframes flowLine {
+                    0%, 100% { strokeDashoffset: 100; }
+                    50% { strokeDashoffset: 0; }
+                  }
+                `}</style>
               </div>
 
               {/* Documentation Generation */}
