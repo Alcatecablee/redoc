@@ -326,7 +326,7 @@ const Index = () => {
                       <span className="font-semibold">$500+</span>
                     </div>
                     <button
-                      onClick={() => { /* scroll to demo area */ document.querySelector('#hero .PlayCircleIcon')?.scrollIntoView({ behavior: 'smooth' }); }}
+                      onClick={() => { const el = document.getElementById('demo'); if(el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}
                       className="ml-2 underline text-white/90"
                     >
                       Watch Demo
