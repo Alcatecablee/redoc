@@ -450,7 +450,7 @@ const Index = () => {
                       <AccordionContent className="pb-4">
                         <ul className="space-y-2 text-gray-700">
                           <li className="flex items-start gap-2">
-                            <span className="text-gray-900 mt-1">��</span>
+                            <span className="text-gray-900 mt-1">•</span>
                             <span>Ignore Stack Overflow solutions to common problems</span>
                           </li>
                           <li className="flex items-start gap-2">
@@ -598,13 +598,10 @@ const Index = () => {
                   { num: "03", icon: DocumentMagnifyingGlassIcon, title: "External Research", desc: "Search Stack Overflow, GitHub, YouTube, Reddit, and 5+ sources. Score and rank by authority and relevance." },
                   { num: "04", icon: Square3Stack3DIcon, title: "Synthesis & Export", desc: "Synthesize findings into clear docs, apply your brand, validate citations, and export to any format." }
                 ].map((stage, idx) => (
-                  <div key={idx} className="group relative" style={{animation: `slideInStage 0.8s ease-out ${(idx + 2) * 0.15}s both`}}>
+                  <div key={idx} className="group relative">
                     <div className="relative bg-gradient-to-br from-white/15 to-white/5 border border-white/25 hover:border-[rgb(102,255,228)]/50 rounded-3xl p-8 transition-all duration-500 h-full backdrop-blur-sm hover:bg-gradient-to-br hover:from-white/20 hover:to-white/10 shadow-2xl hover:shadow-[0_20px_50px_rgba(102,255,228,0.15)]">
-                      {/* Animated accent line */}
-                      <div className="absolute left-0 top-0 h-1 bg-gradient-to-r from-[rgb(102,255,228)] to-transparent rounded-t-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{width: '100%'}} />
-
-                      <div className="absolute top-8 right-8 text-6xl font-black text-white/10 group-hover:text-[rgb(102,255,228)]/20 transition-colors" style={{animation: 'numberFloat 3s ease-in-out infinite'}}>{stage.num}</div>
-                      <div className="w-12 h-12 text-white mb-6 group-hover:text-[rgb(102,255,228)] transition-all duration-300 group-hover:scale-110 relative" aria-hidden="true">
+                      <div className="absolute top-8 right-8 text-6xl font-black text-white/10 group-hover:text-[rgb(102,255,228)]/20 transition-colors">{stage.num}</div>
+                      <div className="w-12 h-12 text-white mb-6 group-hover:text-[rgb(102,255,228)] transition-all duration-300 group-hover:scale-110" aria-hidden="true">
                         <stage.icon strokeWidth={1.2} />
                       </div>
                       <h3 className="text-2xl font-bold text-white mb-3 leading-tight">{stage.title}</h3>
@@ -612,17 +609,6 @@ const Index = () => {
                     </div>
                   </div>
                 ))}
-
-                <style>{`
-                  @keyframes slideInStage {
-                    from { opacity: 0; transform: translateY(40px); }
-                    to { opacity: 1; transform: translateY(0); }
-                  }
-                  @keyframes numberFloat {
-                    0%, 100% { transform: translateY(0); opacity: 0.1; }
-                    50% { transform: translateY(-8px); opacity: 0.3; }
-                  }
-                `}</style>
               </div>
             </div>
 
