@@ -261,13 +261,13 @@ const Index = () => {
             <div className="space-y-8">
               {/* Headline - Primary Focus */}
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-white tracking-tight space-y-2">
-                <span className="text-[rgb(102,255,228)] block font-black">Your Documentation is Already Written</span>
-                <span className="block font-thin">It's Just Scattered Across</span>
-                <span className="block">the Internet<span className="text-white">.</span></span>
+                <span className="text-[rgb(102,255,228)] block font-black text-center">Your Documentation is Already Written</span>
+                <span className="block font-thin text-center">It's Just Scattered Across</span>
+                <span className="block"><div className="text-center">the Internet</div><span className="text-white">.</span></span>
               </h1>
 
               {/* Description - Secondary */}
-              <p className="text-xl lg:text-2xl text-white/70 leading-relaxed max-w-3xl mx-auto font-thin text-left">
+              <p className="text-xl lg:text-2xl text-white leading-relaxed max-w-3xl mx-auto font-thin text-center">
                 We research how developers actually use your product across 10+ high-quality sources including <strong>Stack Overflow</strong>, <strong>GitHub</strong>, <strong>YouTube</strong>, <strong>Reddit</strong>, <strong>DEV.to</strong>, <strong>CodeProject</strong>, <strong>Stack Exchange</strong>, <strong>Quora</strong>, and official forums then generate beautiful, <strong>Apple-quality docs</strong> that match your brand.
               </p>
 
