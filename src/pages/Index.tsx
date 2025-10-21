@@ -578,26 +578,22 @@ const Index = () => {
             
             {/* Visual Pipeline - Simplified */}
             <div className="relative max-w-5xl mx-auto">
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 relative">
-                {/* Stage 1 */}
-                <div className="group relative">
-                  <div className="relative bg-white/10 border border-white/20 rounded-2xl p-8 hover:bg-white/15 transition-all duration-300 h-full">
-                    <div className="text-3xl font-bold text-white/30 mb-4">01</div>
-                    <GlobeAltIcon className="h-8 w-8 text-white mb-4" strokeWidth={1.5} />
-                    <h3 className="text-xl font-bold text-white mb-2">Site Discovery</h3>
-                    <p className="text-white/70 text-sm">Crawl multiple domains and subdomains, parse sitemaps and robots.txt, detect canonical and duplicate pages, and extract structured content, code samples, and metadata. We create a prioritized crawl map so the most important pages and community-driven content are fetched and analyzed first.</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 relative">
+                {[
+                  { num: "01", icon: GlobeAltIcon, title: "Site Discovery", desc: "Crawl multiple domains and subdomains, parse sitemaps and robots.txt, detect canonical and duplicate pages, and extract structured content, code samples, and metadata. We create a prioritized crawl map so the most important pages and community-driven content are fetched and analyzed first." },
+                  { num: "02", icon: MagnifyingGlassIcon, title: "Content Extraction", desc: "Extract code samples, configuration files, images, and structured metadata from pages. Normalize formatting, capture contextual snippets and error traces, and preserve example inputs/outputs for accurate troubleshooting sections." }
+                ].map((stage, idx) => (
+                  <div key={idx} className="group relative">
+                    <div className="relative bg-white/10 border border-white/20 rounded-2xl p-6 md:p-8 hover:bg-white/15 hover:border-white/40 transition-all duration-500 h-full transform hover:scale-105 hover:shadow-2xl focus-within:ring-2 focus-within:ring-[rgb(102,255,228)]/50">
+                      <div className="text-2xl md:text-3xl font-bold text-white/30 mb-4 group-hover:text-white/50 transition-colors">{stage.num}</div>
+                      <div className="w-10 h-10 md:w-8 md:h-8 text-white mb-4 group-hover:text-[rgb(102,255,228)] transition-colors" aria-hidden="true">
+                        <stage.icon strokeWidth={1.5} />
+                      </div>
+                      <h3 className="text-lg md:text-xl font-bold text-white mb-2">{stage.title}</h3>
+                      <p className="text-white/70 text-xs md:text-sm leading-relaxed">{stage.desc}</p>
+                    </div>
                   </div>
-                </div>
-                
-                {/* Stage 2 */}
-                <div className="group relative">
-                  <div className="relative bg-white/10 border border-white/20 rounded-2xl p-8 hover:bg-white/15 transition-all duration-300 h-full">
-                    <div className="text-3xl font-bold text-white/30 mb-4">02</div>
-                    <MagnifyingGlassIcon className="h-8 w-8 text-white mb-4" strokeWidth={1.5} />
-                    <h3 className="text-xl font-bold text-white mb-2">Content Extraction</h3>
-                    <p className="text-white/70 text-sm">Extract code samples, configuration files, images, and structured metadata from pages. Normalize formatting, capture contextual snippets and error traces, and preserve example inputs/outputs for accurate troubleshooting sections.</p>
-                  </div>
-                </div>
+                ))}
                 
                 {/* Stage 3 */}
                 <div className="group relative">
