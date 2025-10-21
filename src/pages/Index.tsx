@@ -350,7 +350,7 @@ const Index = () => {
                   {/* Demo Content */}
                   <div className="relative flex items-center justify-center h-full p-8">
                     <div className="text-center">
-                      <div className="w-24 h-24 mx-auto mb-6 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 shadow-xl hover:scale-105 transition-transform cursor-pointer">
+                      <div id="demo" className="w-24 h-24 mx-auto mb-6 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 shadow-xl hover:scale-105 transition-transform cursor-pointer">
                         <PlayCircleIcon className="h-12 w-12 text-white" />
                       </div>
                       <p className="text-base font-medium text-white/90">Watch Demo</p>
