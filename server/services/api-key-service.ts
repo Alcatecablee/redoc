@@ -2,6 +2,7 @@ import { db } from '../db';
 import { apiKeys, activityLogs } from '../../shared/schema';
 import { eq, and, gte } from 'drizzle-orm';
 import crypto from 'crypto';
+import { withTransaction } from '../utils/transaction';
 
 export class ApiKeyService {
   private ensureDb() {
@@ -25,38 +26,42 @@ export class ApiKeyService {
   }
 
   async createApiKey(userId: number, name: string, description?: string, scopes: string[] = ['read', 'write']) {
-    const database = this.ensureDb();
+    this.ensureDb();
     const { key, hash, prefix } = this.generateApiKey();
     
-    const [newKey] = await database.insert(apiKeys).values({
-      user_id: userId,
-      key_hash: hash,
-      key_prefix: prefix,
-      name,
-      description: description || null,
-      scopes: JSON.stringify(scopes),
-      rate_limit_per_minute: 60,
-      rate_limit_per_day: 10000,
-      usage_count: 0,
-      is_active: true,
-      created_at: new Date(),
-      expires_at: null,
-      last_used_at: null,
-    }).returning();
+    const result = await withTransaction(async (tx) => {
+      const [newKey] = await tx.insert(apiKeys).values({
+        user_id: userId,
+        key_hash: hash,
+        key_prefix: prefix,
+        name,
+        description: description || null,
+        scopes: JSON.stringify(scopes),
+        rate_limit_per_minute: 60,
+        rate_limit_per_day: 10000,
+        usage_count: 0,
+        is_active: true,
+        created_at: new Date(),
+        expires_at: null,
+        last_used_at: null,
+      }).returning();
 
-    await database.insert(activityLogs).values({
-      user_id: userId,
-      action: 'created',
-      resource_type: 'api_key',
-      resource_id: String(newKey.id),
-      metadata: JSON.stringify({ name, scopes }),
-      created_at: new Date(),
-      organization_id: null,
-      ip_address: null,
-      user_agent: null,
+      await tx.insert(activityLogs).values({
+        user_id: userId,
+        action: 'created',
+        resource_type: 'api_key',
+        resource_id: String(newKey.id),
+        metadata: JSON.stringify({ name, scopes }),
+        created_at: new Date(),
+        organization_id: null,
+        ip_address: null,
+        user_agent: null,
+      });
+
+      return { ...newKey, key };
     });
 
-    return { ...newKey, key };
+    return result;
   }
 
   async listApiKeys(userId: number) {
@@ -106,45 +111,51 @@ export class ApiKeyService {
   }
 
   async revokeApiKey(keyId: number, userId: number) {
-    const database = this.ensureDb();
-    await database.update(apiKeys)
-      .set({ is_active: false })
-      .where(and(
-        eq(apiKeys.id, keyId),
-        eq(apiKeys.user_id, userId)
-      ));
+    this.ensureDb();
+    
+    await withTransaction(async (tx) => {
+      await tx.update(apiKeys)
+        .set({ is_active: false })
+        .where(and(
+          eq(apiKeys.id, keyId),
+          eq(apiKeys.user_id, userId)
+        ));
 
-    await database.insert(activityLogs).values({
-      user_id: userId,
-      action: 'revoked',
-      resource_type: 'api_key',
-      resource_id: String(keyId),
-      metadata: null,
-      created_at: new Date(),
-      organization_id: null,
-      ip_address: null,
-      user_agent: null,
+      await tx.insert(activityLogs).values({
+        user_id: userId,
+        action: 'revoked',
+        resource_type: 'api_key',
+        resource_id: String(keyId),
+        metadata: null,
+        created_at: new Date(),
+        organization_id: null,
+        ip_address: null,
+        user_agent: null,
+      });
     });
   }
 
   async deleteApiKey(keyId: number, userId: number) {
-    const database = this.ensureDb();
-    await database.delete(apiKeys)
-      .where(and(
-        eq(apiKeys.id, keyId),
-        eq(apiKeys.user_id, userId)
-      ));
+    this.ensureDb();
+    
+    await withTransaction(async (tx) => {
+      await tx.delete(apiKeys)
+        .where(and(
+          eq(apiKeys.id, keyId),
+          eq(apiKeys.user_id, userId)
+        ));
 
-    await database.insert(activityLogs).values({
-      user_id: userId,
-      action: 'deleted',
-      resource_type: 'api_key',
-      resource_id: String(keyId),
-      metadata: null,
-      created_at: new Date(),
-      organization_id: null,
-      ip_address: null,
-      user_agent: null,
+      await tx.insert(activityLogs).values({
+        user_id: userId,
+        action: 'deleted',
+        resource_type: 'api_key',
+        resource_id: String(keyId),
+        metadata: null,
+        created_at: new Date(),
+        organization_id: null,
+        ip_address: null,
+        user_agent: null,
+      });
     });
   }
 

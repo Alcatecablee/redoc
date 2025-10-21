@@ -22,6 +22,9 @@ import { db } from './db';
 import { users } from '../shared/schema';
 import { eq } from 'drizzle-orm';
 import { canGenerateDocumentation, calculateSmartScaling, enforceTierLimits } from './tier-config';
+import { idempotencyMiddleware, generateIdempotencyKey } from './middleware/idempotency';
+import { validate } from './middleware/validation';
+import { generateDocsSchema } from './validation/schemas';
 
 // Guard against undefined db
 function ensureDb() {
@@ -214,7 +217,14 @@ router.get("/api/progress/:sessionId", (req, res) => {
 });
 
 // Generate documentation endpoint
-router.post("/api/generate-docs", verifySupabaseAuth, async (req, res) => {
+router.post("/api/generate-docs", 
+  verifySupabaseAuth,
+  validate(generateDocsSchema, 'body'),
+  idempotencyMiddleware({ 
+    ttlSeconds: 86400,
+    generateKey: generateIdempotencyKey
+  }), 
+  async (req, res) => {
   try {
     // Log incoming request for debugging
     console.log('/api/generate-docs called', {
@@ -894,7 +904,14 @@ Return ONLY valid JSON.`
 });
 
 // Enqueue generate-docs (background)
-router.post("/api/generate-docs-enqueue", verifySupabaseAuth, async (req, res) => {
+router.post("/api/generate-docs-enqueue", 
+  verifySupabaseAuth,
+  validate(generateDocsSchema, 'body'),
+  idempotencyMiddleware({ 
+    ttlSeconds: 86400,
+    generateKey: generateIdempotencyKey
+  }), 
+  async (req, res) => {
   try {
     const { url } = req.body;
     if (!url) return res.status(400).json({ error: 'URL is required' });
@@ -2153,6 +2170,17 @@ router.use(apiKeysRouter);
 
   // Job status and queue monitoring
   router.use(jobsRouter);
+
+// Idempotency stats endpoint (monitoring)
+router.get('/api/idempotency/stats', verifySupabaseAuth, async (req, res) => {
+  try {
+    const { getIdempotencyStats } = await import('./middleware/idempotency');
+    const stats = getIdempotencyStats();
+    res.json({ success: true, stats });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // Pricing calculation endpoint
 router.post('/api/pricing/calculate', async (req, res) => {

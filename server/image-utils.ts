@@ -493,10 +493,20 @@ export function limitImagesForExport(
 
 /**
  * Cache images to avoid re-downloading
+ * Uses LRU cache with bounded size to prevent memory leaks
  */
+import { LRUCache } from 'lru-cache';
+
 export class ImageCache {
-  private cache = new Map<string, { metadata: ImageMetadata; timestamp: number }>();
-  private readonly TTL = 24 * 60 * 60 * 1000; // 24 hours
+  private cache = new LRUCache<string, { metadata: ImageMetadata; timestamp: number }>({
+    max: 5000, // Maximum 5000 cached images
+    ttl: 24 * 60 * 60 * 1000, // 24 hours
+    updateAgeOnGet: true, // Refresh TTL on access
+    maxSize: 50 * 1024 * 1024, // 50MB total cache size
+    sizeCalculation: (value) => {
+      return JSON.stringify(value).length;
+    },
+  });
 
   set(url: string, metadata: ImageMetadata): void {
     this.cache.set(url, {
@@ -511,12 +521,6 @@ export class ImageCache {
       return null;
     }
 
-    // Check if expired
-    if (Date.now() - cached.timestamp > this.TTL) {
-      this.cache.delete(url);
-      return null;
-    }
-
     return cached.metadata;
   }
 
@@ -526,12 +530,7 @@ export class ImageCache {
 
   // Cleanup expired entries
   cleanup(): void {
-    const now = Date.now();
-    for (const [url, cached] of this.cache.entries()) {
-      if (now - cached.timestamp > this.TTL) {
-        this.cache.delete(url);
-      }
-    }
+    this.cache.purgeStale();
   }
 }
 

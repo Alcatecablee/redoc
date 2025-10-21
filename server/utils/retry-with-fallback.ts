@@ -3,6 +3,8 @@
  * Implements robust error recovery for API calls
  */
 
+import { LRUCache } from 'lru-cache';
+
 interface RetryOptions {
   maxRetries?: number;
   timeout?: number;
@@ -17,9 +19,13 @@ interface CachedResult<T> {
   provider: string;
 }
 
-// Simple in-memory cache (can be replaced with Redis in production)
-const resultCache = new Map<string, CachedResult<any>>();
+// LRU cache with bounded size and TTL
 const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+const resultCache = new LRUCache<string, CachedResult<any>>({
+  max: 1000, // Maximum 1000 cached results
+  ttl: CACHE_TTL,
+  updateAgeOnGet: true, // Refresh TTL on access
+});
 
 /**
  * Execute a list of provider functions with automatic fallback and retry logic
@@ -131,16 +137,12 @@ export async function withTimeout<T>(
 }
 
 /**
- * Clear old cache entries (call periodically)
+ * Clear old cache entries
+ * Note: LRU cache handles TTL automatically, but we keep this for manual cleanup
  */
 export function clearExpiredCache() {
-  const now = Date.now();
-  for (const [key, cached] of resultCache.entries()) {
-    if (now - cached.timestamp > CACHE_TTL) {
-      resultCache.delete(key);
-    }
-  }
+  resultCache.purgeStale();
 }
 
-// Auto-clear expired cache every 10 minutes
+// Optional: Manual cleanup every 10 minutes (LRU handles this automatically)
 setInterval(clearExpiredCache, 10 * 60 * 1000);

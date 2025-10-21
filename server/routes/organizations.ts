@@ -2,6 +2,9 @@ import { Router } from 'express';
 import { db } from '../db';
 import { organizations, organizationMembers, users } from '../../shared/schema';
 import { eq } from 'drizzle-orm';
+import { withTransaction } from '../utils/transaction';
+import { validate } from '../middleware/validation';
+import { createOrganizationSchema, addOrganizationMemberSchema } from '../validation/schemas';
 
 const router = Router();
 
@@ -67,7 +70,9 @@ router.get('/api/organizations', verifySupabaseAuth, async (req: any, res) => {
 });
 
 // Create organization
-router.post('/api/organizations', async (req: any, res) => {
+router.post('/api/organizations', 
+  validate(createOrganizationSchema, 'body'),
+  async (req: any, res) => {
   try {
     const user = req.user;
     if (!user || !user.email) return res.status(401).json({ error: 'Unauthorized' });
@@ -75,28 +80,36 @@ router.post('/api/organizations', async (req: any, res) => {
     if (!name || !slug) return res.status(400).json({ error: 'Missing name or slug' });
     if (!db) return res.status(500).json({ error: 'Database not initialized' });
 
-    const foundUsers = await db.select().from(users).where(eq(users.email, user.email));
-    let currentUser = foundUsers[0];
+    const org = await withTransaction(async (tx) => {
+      const foundUsers = await tx.select().from(users).where(eq(users.email, user.email));
+      let currentUser = foundUsers[0];
 
-    if (!currentUser) {
-      // Create lightweight user record if not present
-      const inserted = await db.insert(users).values({ email: user.email, name: user.user_metadata?.full_name || null }).returning();
-      currentUser = inserted[0];
-    }
+      if (!currentUser) {
+        const inserted = await tx.insert(users).values({ email: user.email, name: user.user_metadata?.full_name || null }).returning();
+        currentUser = inserted[0];
+      }
 
-    // Ensure slug uniqueness
-    const existing = await db.select().from(organizations).where(eq(organizations.slug, slug));
-    if (existing.length > 0) return res.status(409).json({ error: 'Slug already exists' });
+      const existing = await tx.select().from(organizations).where(eq(organizations.slug, slug));
+      if (existing.length > 0) {
+        throw new Error('Slug already exists');
+      }
 
-    const insertResult = await db.insert(organizations).values({ name, slug, owner_id: currentUser.id }).returning();
-    const org = insertResult[0];
+      const insertResult = await tx.insert(organizations).values({ name, slug, owner_id: currentUser.id }).returning();
+      const newOrg = insertResult[0];
 
-    // Add owner as member with role 'owner'
-    await db.insert(organizationMembers).values({ organization_id: org.id, user_id: currentUser.id, role: 'owner' });
+      await tx.insert(organizationMembers).values({ organization_id: newOrg.id, user_id: currentUser.id, role: 'owner' });
+
+      return newOrg;
+    });
 
     res.status(201).json({ organization: org });
   } catch (err: any) {
     console.error('Error creating organization:', err);
+    
+    if (err.message === 'Slug already exists') {
+      return res.status(409).json({ error: 'Slug already exists' });
+    }
+    
     res.status(500).json({ error: err.message || 'Failed to create organization' });
   }
 });
@@ -125,7 +138,9 @@ router.get('/api/organizations/:id/members', async (req: any, res) => {
 });
 
 // Add member by email (invites are immediate add for simplicity)
-router.post('/api/organizations/:id/members', async (req: any, res) => {
+router.post('/api/organizations/:id/members', 
+  validate(addOrganizationMemberSchema, 'body'),
+  async (req: any, res) => {
   try {
     const user = req.user;
     if (!user || !user.email) return res.status(401).json({ error: 'Unauthorized' });
