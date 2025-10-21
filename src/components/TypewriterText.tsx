@@ -8,6 +8,7 @@ interface TypewriterTextProps {
   cursorClassName?: string;
   loop?: boolean;
   separator?: string; // what to insert between sentences, default is ' '
+  lineClassName?: string; // class applied to additional lines after the first
 }
 
 export const TypewriterText = ({
@@ -17,7 +18,8 @@ export const TypewriterText = ({
   className = '',
   cursorClassName = 'ml-1 text-white/90',
   loop = false,
-  separator = ' '
+  separator = '\n',
+  lineClassName = 'block mt-2 text-white/80'
 }: TypewriterTextProps) => {
   const [displayed, setDisplayed] = useState('');
   const [finished, setFinished] = useState(false);
@@ -94,9 +96,13 @@ export const TypewriterText = ({
     return () => clearInterval(iv);
   }, []);
 
+  const parts = displayed.split('\n');
+
   return (
-    <span className={`inline-flex items-center ${className}`} aria-live="polite">
-      <span>{displayed}</span>
+    <span className={`inline-flex items-start flex-col ${className}`} aria-live="polite">
+      {parts.map((part, idx) => (
+        <span key={idx} className={idx === 0 ? undefined : lineClassName}>{part}</span>
+      ))}
       <span
         aria-hidden="true"
         className={cursorClassName}
