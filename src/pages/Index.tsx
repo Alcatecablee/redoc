@@ -637,9 +637,17 @@ const Index = () => {
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
                 Built on Real User Knowledge
               </h2>
-              <p className="text-xl text-white/70 max-w-3xl mx-auto">
+              <p className="text-xl text-white/70 max-w-3xl mx-auto mb-8">
                 We don't guess what developers need — we research how they actually use your product across the web
               </p>
+
+              {/* Multi-Source Research Engine */}
+              <div className="bg-white/10 border border-white/20 rounded-2xl p-8 max-w-3xl mx-auto">
+                <h3 className="text-2xl font-bold text-white mb-4">Multi-Source Research Engine</h3>
+                <p className="text-white/80 leading-relaxed">
+                  We analyze your website, then research across 10+ high-quality sources including Stack Overflow, GitHub, YouTube, Reddit, DEV.to, CodeProject, Stack Exchange, Quora, and official forums. Every insight is quality-scored and source-attributed.
+                </p>
+              </div>
             </div>
             
             {/* Capability Grid */}
