@@ -793,7 +793,9 @@ export default function CustomPricingForm() {
               <Button
                 onClick={handleSubmit}
                 disabled={loading || !formData.url}
-                className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-xl"
+                variant="default"
+                size="lg"
+                className="w-full"
               >
                 {loading ? (
                   'Processing...'
