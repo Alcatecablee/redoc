@@ -88,9 +88,9 @@ const Index = () => {
 
   const stages = [
     { id: 1, name: "Site Discovery", description: "Comprehensive site discovery — multi-domain crawling, sitemap parsing, subdomain enumeration, robots.txt-aware crawling, and link-graph analysis to prioritize high-value pages." },
-    { id: 2, name: "Research & Analysis", description: "External research and community insights" },
-    { id: 3, name: "Documentation Generation", description: "Professional content creation and structuring" },
-    { id: 4, name: "Export & Optimization", description: "Multi-format export with theme application" }
+    { id: 2, name: "Research & Analysis", description: "Aggregate community knowledge across Stack Overflow, GitHub, YouTube, Reddit, and official docs. Extract authoritative answers, issue threads, and transcripts, then quality-score and prioritize insights for documentation." },
+    { id: 3, name: "Documentation Generation", description: "Synthesize research into structured documentation—getting started guides, tutorials, troubleshooting, FAQs, and API references—with embedded code samples and inline source attributions." },
+    { id: 4, name: "Export & Optimization", description: "Apply brand styling, run accessibility and SEO checks, and export to PDF, DOCX, HTML, Markdown, or JSON. Optionally publish to a hosted subdomain with search and indexing enabled." }
   ];
 
   const generateMutation = useMutation({
@@ -642,7 +642,7 @@ const Index = () => {
                     <div className="text-3xl font-bold text-white/30 mb-4">02</div>
                     <MagnifyingGlassIcon className="h-8 w-8 text-white mb-4" strokeWidth={1.5} />
                     <h3 className="text-xl font-bold text-white mb-2">Content Extraction</h3>
-                    <p className="text-white/70 text-sm">Code blocks, images, and structure</p>
+                    <p className="text-white/70 text-sm">Extract code samples, configuration files, images, and structured metadata from pages. Normalize formatting, capture contextual snippets and error traces, and preserve example inputs/outputs for accurate troubleshooting sections.</p>
                   </div>
                 </div>
                 
@@ -652,7 +652,7 @@ const Index = () => {
                     <div className="text-3xl font-bold text-white/30 mb-4">03</div>
                     <DocumentMagnifyingGlassIcon className="h-8 w-8 text-white mb-4" strokeWidth={1.5} />
                     <h3 className="text-xl font-bold text-white mb-2">External Research</h3>
-                    <p className="text-white/70 text-sm">Stack Overflow, GitHub, Google</p>
+                    <p className="text-white/70 text-sm">Search and aggregate across Stack Overflow, GitHub Issues, YouTube transcripts, Reddit, and official documentation. Identify consensus answers, relevant threads, and community fixes, then score each source for relevance and authority.</p>
                   </div>
                 </div>
                 
@@ -662,7 +662,7 @@ const Index = () => {
                     <div className="text-3xl font-bold text-white/30 mb-4">04</div>
                     <Square3Stack3DIcon className="h-8 w-8 text-white mb-4" strokeWidth={1.5} />
                     <h3 className="text-xl font-bold text-white mb-2">Synthesis & Export</h3>
-                    <p className="text-white/70 text-sm">Beautiful docs in 5+ formats</p>
+                    <p className="text-white/70 text-sm">Synthesize findings into clear, searchable documentation, apply your brand theme, validate citations, and export to multiple formats—or publish to a branded subdomain with built-in search.</p>
                   </div>
                 </div>
               </div>
