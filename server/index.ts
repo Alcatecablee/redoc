@@ -162,16 +162,17 @@ app.use(async (req, res, next) => {
 
 const server = createServer(app);
 
-// Initialize background job queue (in-memory fallback)
-import { initInMemoryQueue } from './queue';
+// Initialize background job queue (unified: BullMQ or in-memory)
+import { initUnifiedQueue } from './queue/unified-queue';
 import { generateDocumentationPipeline } from './generator';
 
-initInMemoryQueue(async (job: any) => {
+// Initialize with 5 concurrent workers for production
+initUnifiedQueue(async (job: any) => {
   try {
     console.log('Processing job', job.id, job.name);
-    const { url, userId } = job.payload || {};
+    const { url, userId, sessionId, userPlan } = job.payload || {};
     if (job.name === 'generate-docs' && url) {
-      const result = await generateDocumentationPipeline(url, userId || null);
+      const result = await generateDocumentationPipeline(url, userId || null, sessionId, userPlan || 'free');
       job.result = { documentationId: result.documentation.id };
       console.log('Job completed', job.id, job.result);
     } else {
@@ -182,7 +183,7 @@ initInMemoryQueue(async (job: any) => {
     console.error('Job failed', job.id, job.error);
     throw err;
   }
-});
+}, { concurrency: 5 });
 
 async function start() {
   await setupVite(app, server);

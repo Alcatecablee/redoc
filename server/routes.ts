@@ -16,6 +16,7 @@ import organizationsRouter from './routes/organizations';
 import billingRouter from './routes/billing';
 import activityRouter from './routes/activity';
 import enterpriseRouter from './routes/enterprise';
+import jobsRouter from './routes/jobs';
 import { fetchImagesForExport, limitImagesForExport } from './image-utils';
 import { db } from './db';
 import { users } from '../shared/schema';
@@ -900,29 +901,14 @@ router.post("/api/generate-docs-enqueue", verifySupabaseAuth, async (req, res) =
     try { new URL(url); } catch { return res.status(400).json({ error: 'Invalid URL format' }); }
 
     const userId = req.user?.id || null;
-    const queueModule = await import('./queue');
-    const queue = queueModule.getQueue();
-    const job = await queue.enqueue('generate-docs', { url, userId });
+    const { getUnifiedQueue } = await import('./queue/unified-queue');
+    const queue = getUnifiedQueue();
+    const job = await queue.enqueue('generate-docs', { url, userId, sessionId, subdomain: requestedSubdomain, userPlan: 'free' });
 
     res.json({ jobId: job.id, status: job.status });
   } catch (error) {
     console.error('Failed to enqueue generate-docs job', error);
     res.status(500).json({ error: 'Failed to enqueue job' });
-  }
-});
-
-// Job status endpoint
-router.get('/api/jobs/:id', verifySupabaseAuth, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const queueModule = await import('./queue');
-    const queue = queueModule.getQueue();
-    const job = queue.getJob(id);
-    if (!job) return res.status(404).json({ error: 'Job not found' });
-    res.json({ id: job.id, status: job.status, error: job.error, result: job.result });
-  } catch (err) {
-    console.error('Failed to fetch job', err);
-    res.status(500).json({ error: 'Failed to fetch job status' });
   }
 });
 
@@ -2164,6 +2150,9 @@ router.use(apiKeysRouter);
 
   // Enterprise white-label and branding
   router.use(enterpriseRouter);
+
+  // Job status and queue monitoring
+  router.use(jobsRouter);
 
 // Pricing calculation endpoint
 router.post('/api/pricing/calculate', async (req, res) => {
