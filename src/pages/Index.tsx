@@ -790,7 +790,7 @@ const Index = () => {
             </div>
             
             <div className="max-w-4xl mx-auto">
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4 mb-6">
                 {[
                   { name: 'PDF', icon: DocumentTextIcon },
                   { name: 'DOCX', icon: DocumentTextIcon },
@@ -798,19 +798,19 @@ const Index = () => {
                   { name: 'Markdown', icon: DocumentTextIcon },
                   { name: 'JSON', icon: DocumentTextIcon }
                 ].map((fmt) => (
-                  <div key={fmt.name} className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 text-center hover:bg-white/15 hover:border-white/30 transition-all duration-200">
-                    <fmt.icon className="h-8 w-8 text-white mx-auto mb-2" />
-                    <h5 className="font-semibold text-white">{fmt.name}</h5>
+                  <div key={fmt.name} className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 md:p-6 text-center hover:bg-white/15 hover:border-[rgb(102,255,228)]/40 hover:shadow-lg transition-all duration-300 transform hover:scale-110 cursor-default focus-within:ring-2 focus-within:ring-[rgb(102,255,228)]/50">
+                    <fmt.icon className="h-6 md:h-8 h-6 md:w-8 text-white mx-auto mb-2 transition-colors group-hover:text-[rgb(102,255,228)]" aria-hidden="true" />
+                    <h5 className="font-semibold text-white text-sm md:text-base">{fmt.name}</h5>
                   </div>
                 ))}
               </div>
-              
-              <div className="bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl p-8 text-center">
-                <div className="flex items-center justify-center gap-3 mb-3">
-                  <ArrowTopRightOnSquareIcon className="h-6 w-6 text-white" strokeWidth={1.5} />
-                  <h5 className="text-xl font-bold text-white">Hosted Subdomain</h5>
+
+              <div className="bg-white/10 backdrop-blur-md border border-white/30 hover:border-[rgb(102,255,228)]/40 rounded-2xl p-6 md:p-8 text-center transition-all duration-500 hover:shadow-2xl">
+                <div className="flex items-center justify-center gap-3 mb-3 flex-wrap">
+                  <ArrowTopRightOnSquareIcon className="h-5 md:h-6 h-5 md:w-6 text-[rgb(102,255,228)]" strokeWidth={1.5} aria-hidden="true" />
+                  <h5 className="text-lg md:text-xl font-bold text-white">Hosted Subdomain</h5>
                 </div>
-                <p className="text-white/80">Publish at <code className="px-2 py-1 rounded bg-white/20 text-white font-mono text-sm">your-docs.example.com</code> with your theme</p>
+                <p className="text-white/80 text-sm md:text-base">Publish at <code className="px-2 py-1 rounded bg-white/20 text-[rgb(102,255,228)] font-mono text-xs md:text-sm">your-docs.example.com</code> with your theme</p>
               </div>
             </div>
           </div>
