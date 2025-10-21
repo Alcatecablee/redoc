@@ -490,7 +490,7 @@ const Index = () => {
                   <Accordion type="single" collapsible className="w-full space-y-3">
                     <AccordionItem value="item-1" className="bg-white/40 backdrop-blur-sm border border-gray-900/10 rounded-xl px-6 data-[state=open]:shadow-lg transition-all">
                       <AccordionTrigger className="text-gray-900 hover:text-gray-900 font-medium py-4 hover:no-underline">
-                        Only scrape your website—missing community knowledge
+                        Only scrape your website missing community knowledge
                       </AccordionTrigger>
                       <AccordionContent className="pb-4">
                         <ul className="space-y-2 text-gray-700">
