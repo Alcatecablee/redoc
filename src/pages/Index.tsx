@@ -262,11 +262,6 @@ const Index = () => {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
               {/* Left Column - Text Content (7 columns) */}
               <div className="lg:col-span-7 text-left space-y-8">
-                {/* Eyebrow */}
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm">
-                  <BoltIcon className="h-4 w-4 text-white" />
-                  <span className="text-sm font-medium text-white/90">AI-Powered Documentation</span>
-                </div>
                 
                 {/* Headline - Primary Focus */}
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] text-white tracking-tight">
