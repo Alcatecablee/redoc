@@ -23,6 +23,7 @@ interface WhiteLabelConfig {
 export default function WhiteLabelSettings() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [initialLoad, setInitialLoad] = useState(true);
   const [config, setConfig] = useState<WhiteLabelConfig>({
     removeBranding: false,
     customProductName: 'DocSnap',
@@ -33,6 +34,33 @@ export default function WhiteLabelSettings() {
       brandColor: '#2563eb',
     },
   });
+
+  React.useEffect(() => {
+    const loadConfig = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const response = await fetch('/api/enterprise/white-label', {
+          headers: {
+            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.config) {
+            setConfig(data.config);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load white-label config:', error);
+      } finally {
+        setInitialLoad(false);
+      }
+    };
+    loadConfig();
+  }, []);
 
   const handleSave = async () => {
     setLoading(true);

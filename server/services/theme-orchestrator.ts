@@ -2,8 +2,14 @@ import { CSSExtractor, type ExtractedColors } from './css-extractor';
 import { ColorAnalyzer, type ColorPalette } from './color-analyzer';
 import type { Theme } from '../../shared/themes';
 import { getDefaultTheme } from '../../shared/themes';
-import sharp from 'sharp';
 import fetch from 'node-fetch';
+
+let sharp: any = null;
+try {
+  sharp = require('sharp');
+} catch (error) {
+  console.warn('Sharp module not available for theme extraction');
+}
 
 export interface ThemeExtractionOptions {
   url: string;
@@ -185,6 +191,11 @@ export class ThemeOrchestrator {
    * @returns Promise<string[]> - Array of hex color strings
    */
   private async extractColorsFromLogo(logoUrl: string): Promise<string[]> {
+    if (!sharp) {
+      console.warn('Sharp not available, skipping logo color extraction');
+      return [];
+    }
+
     try {
       console.log(`🎨 Extracting colors from logo: ${logoUrl}`);
       

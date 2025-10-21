@@ -22,6 +22,7 @@ export default function BrandingSettings() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
+  const [initialLoad, setInitialLoad] = useState(true);
   const [config, setConfig] = useState<BrandingConfig>({
     logoUrl: '',
     brandColors: {
@@ -31,6 +32,33 @@ export default function BrandingSettings() {
     },
     extractedColors: [],
   });
+
+  React.useEffect(() => {
+    const loadConfig = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const response = await fetch('/api/enterprise/branding', {
+          headers: {
+            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.config) {
+            setConfig({ ...data.config, extractedColors: [] });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load branding config:', error);
+      } finally {
+        setInitialLoad(false);
+      }
+    };
+    loadConfig();
+  }, []);
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

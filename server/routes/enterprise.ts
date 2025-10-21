@@ -1,25 +1,95 @@
 import { Router } from 'express';
 import { storage } from '../storage';
 import { ThemeOrchestrator } from '../services/theme-orchestrator';
-import sharp from 'sharp';
+import { verifySupabaseAuth } from '../routes';
+
+let sharp: any = null;
+try {
+  sharp = require('sharp');
+} catch (error) {
+  console.warn('Sharp module not available, logo color extraction will use fallback');
+}
 
 const router = Router();
 
 const themeOrchestrator = new ThemeOrchestrator();
 
-function verifySupabaseAuth(req: any, res: any, next: any) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-  next();
+interface WhiteLabelConfig {
+  userId: string;
+  removeBranding: boolean;
+  customProductName: string;
+  customSupportEmail: string;
+  emailTemplateCustomization: {
+    headerText: string;
+    footerText: string;
+    brandColor: string;
+  };
+  updatedAt: string;
 }
+
+interface BrandingConfig {
+  userId: string;
+  logoUrl: string;
+  brandColors: {
+    primary: string;
+    secondary: string;
+    accent: string;
+  };
+  updatedAt: string;
+}
+
+const whiteLabelStore = new Map<string, WhiteLabelConfig>();
+const brandingStore = new Map<string, BrandingConfig>();
+
+router.get('/api/enterprise/white-label', verifySupabaseAuth, async (req, res) => {
+  try {
+    const userId = (req as any).user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'User ID not found in token' });
+    }
+
+    const config = whiteLabelStore.get(userId);
+    if (!config) {
+      return res.json({ success: true, config: null });
+    }
+
+    res.json({ success: true, config });
+  } catch (error: any) {
+    console.error('Get white-label configuration error:', error);
+    res.status(500).json({ error: error.message || 'Failed to retrieve configuration' });
+  }
+});
+
+router.get('/api/enterprise/branding', verifySupabaseAuth, async (req, res) => {
+  try {
+    const userId = (req as any).user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'User ID not found in token' });
+    }
+
+    const config = brandingStore.get(userId);
+    if (!config) {
+      return res.json({ success: true, config: null });
+    }
+
+    res.json({ success: true, config });
+  } catch (error: any) {
+    console.error('Get branding configuration error:', error);
+    res.status(500).json({ error: error.message || 'Failed to retrieve configuration' });
+  }
+});
 
 router.post('/api/enterprise/white-label', verifySupabaseAuth, async (req, res) => {
   try {
+    const userId = (req as any).user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'User ID not found in token' });
+    }
+
     const { removeBranding, customProductName, customSupportEmail, emailTemplateCustomization } = req.body;
 
-    const config = {
+    const config: WhiteLabelConfig = {
+      userId,
       removeBranding: !!removeBranding,
       customProductName: customProductName || 'DocSnap',
       customSupportEmail: customSupportEmail || '',
@@ -31,7 +101,8 @@ router.post('/api/enterprise/white-label', verifySupabaseAuth, async (req, res) 
       updatedAt: new Date().toISOString(),
     };
 
-    console.log('Saved white-label configuration:', config);
+    whiteLabelStore.set(userId, config);
+    console.log(`Saved white-label configuration for user ${userId}:`, config);
 
     res.json({
       success: true,
@@ -46,9 +117,15 @@ router.post('/api/enterprise/white-label', verifySupabaseAuth, async (req, res) 
 
 router.post('/api/enterprise/branding', verifySupabaseAuth, async (req, res) => {
   try {
+    const userId = (req as any).user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'User ID not found in token' });
+    }
+
     const { logoUrl, brandColors } = req.body;
 
-    const config = {
+    const config: BrandingConfig = {
+      userId,
       logoUrl: logoUrl || '',
       brandColors: {
         primary: brandColors?.primary || '#2563eb',
@@ -58,7 +135,8 @@ router.post('/api/enterprise/branding', verifySupabaseAuth, async (req, res) => 
       updatedAt: new Date().toISOString(),
     };
 
-    console.log('Saved branding configuration:', config);
+    brandingStore.set(userId, config);
+    console.log(`Saved branding configuration for user ${userId}:`, config);
 
     res.json({
       success: true,
@@ -92,6 +170,19 @@ router.post('/api/enterprise/extract-logo-colors', verifySupabaseAuth, async (re
       buffer = Buffer.from(await response.arrayBuffer());
     }
 
+    if (!sharp) {
+      console.warn('Sharp not available, using fallback color extraction');
+      
+      const fallbackColors = ['#2563eb', '#64748b', '#0ea5e9', '#8b5cf6', '#06b6d4', '#10b981'];
+      
+      return res.json({
+        success: true,
+        colors: fallbackColors,
+        fallback: true,
+        message: 'Using fallback colors (Sharp library not available)',
+      });
+    }
+
     try {
       const { data, info } = await sharp(buffer)
         .resize(100, 100, { fit: 'inside' })
@@ -117,15 +208,15 @@ router.post('/api/enterprise/extract-logo-colors', verifySupabaseAuth, async (re
         message: `Successfully extracted ${topColors.length} brand colors`,
       });
     } catch (sharpError) {
-      console.warn('Sharp not available, using fallback color extraction');
+      console.warn('Sharp extraction error, using fallback:', sharpError);
       
-      const fallbackColors = ['#2563eb', '#64748b', '#0ea5e9'];
+      const fallbackColors = ['#2563eb', '#64748b', '#0ea5e9', '#8b5cf6', '#06b6d4', '#10b981'];
       
       res.json({
         success: true,
         colors: fallbackColors,
         fallback: true,
-        message: 'Using fallback colors (Sharp module not available)',
+        message: 'Using fallback colors (extraction failed)',
       });
     }
   } catch (error: any) {
