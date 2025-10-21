@@ -868,14 +868,7 @@ Return JSON: {metadata: {title, description, keywords}, searchability: {primary_
     });
   }
   
-  // Save to database
-  const documentation = await storage.createDocumentation({
-    url,
-    title: finalDoc.title,
-    content: JSON.stringify(finalDoc),
-    user_id: userId,
-  } as any);
-  
+  // Return documentation data (will be saved in transaction by caller)
   if (sessionId) {
     progressTracker.emitProgress(sessionId, {
       stage: 7,
@@ -886,8 +879,14 @@ Return JSON: {metadata: {title, description, keywords}, searchability: {primary_
   }
   pipelineMonitor.completePipeline(pmId);
 
+  // Return data to be saved in transaction
   return { 
-    documentation, 
+    documentationData: {
+      url,
+      title: finalDoc.title,
+      content: JSON.stringify(finalDoc),
+      user_id: userId,
+    },
     finalDoc,
     seoMetadata,
     schemaMarkup,

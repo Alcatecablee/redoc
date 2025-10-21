@@ -60,11 +60,17 @@ export interface GitHubIssue {
   comments_count: number;
 }
 
+import { LRUCache } from 'lru-cache';
+
 // Search service class
 export class SearchService {
   private serpApiKey: string | undefined;
   private braveApiKey: string | undefined;
-  private staticCache: Map<string, { data: SearchResult[]; timestamp: number }> = new Map();
+  private staticCache = new LRUCache<string, { data: SearchResult[]; timestamp: number }>({
+    max: 1000, // Maximum 1000 cached searches
+    ttl: 30 * 60 * 1000, // 30 minutes TTL
+    updateAgeOnGet: true, // Refresh TTL on access
+  });
   private static readonly CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
 
   // Dynamic source limits based on product complexity

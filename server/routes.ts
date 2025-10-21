@@ -309,33 +309,42 @@ router.post("/api/generate-docs",
       // Prefer enhanced research-driven pipeline; fallback to legacy flow only if it fails
       try {
         const result = await generateDocumentationPipeline(url, userId, sessionId, userPlan);
-        const parsed = JSON.parse(result.documentation.content);
+        
+        // Save documentation and update user count atomically in transaction
+        const { createDocumentationWithTransaction, cleanupFailedGeneration } = await import('./utils/documentation-transaction');
+        
+        try {
+          const { documentation } = await createDocumentationWithTransaction({
+            documentationData: result.documentationData as any,
+            userEmail,
+            metadata: {
+              url,
+              userPlan,
+              sessionId,
+            },
+          });
 
-        // Increment generation count for the user
-        if (userEmail) {
-          const database = ensureDb();
-          await database.update(users)
-            .set({ 
-              generation_count: generationCount + 1,
-              updated_at: new Date()
-            })
-            .where(eq(users.email, userEmail));
+          const parsed = JSON.parse(documentation.content);
+          progressTracker.endSession(sessionId, 'complete');
+
+          return res.json({
+            id: documentation.id,
+            title: documentation.title,
+            description: parsed.description,
+            sections: parsed.sections || [],
+            url: documentation.url,
+            generatedAt: documentation.generatedAt,
+            theme: parsed.theme,
+            metadata: parsed.metadata,
+            searchability: parsed.searchability,
+            sessionId: sessionId,
+          });
+        } catch (transactionError: any) {
+          console.error('❌ Transaction failed:', transactionError);
+          // Clean up orphaned resources
+          await cleanupFailedGeneration(sessionId);
+          throw transactionError;
         }
-
-        progressTracker.endSession(sessionId, 'complete');
-
-        return res.json({
-          id: result.documentation.id,
-          title: result.documentation.title,
-          description: parsed.description,
-          sections: parsed.sections || [],
-          url: result.documentation.url,
-          generatedAt: result.documentation.generatedAt,
-          theme: parsed.theme,
-          metadata: parsed.metadata,
-          searchability: parsed.searchability,
-          sessionId: sessionId,
-        });
       } catch (e: any) {
         console.error('Enhanced pipeline failed, continuing with legacy flow:', e?.message || e);
         // Don't end session yet, let legacy flow continue
@@ -913,7 +922,7 @@ router.post("/api/generate-docs-enqueue",
   }), 
   async (req, res) => {
   try {
-    const { url } = req.body;
+    const { url, sessionId, subdomain: requestedSubdomain } = req.body;
     if (!url) return res.status(400).json({ error: 'URL is required' });
     try { new URL(url); } catch { return res.status(400).json({ error: 'Invalid URL format' }); }
 

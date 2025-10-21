@@ -45,8 +45,14 @@ export interface PipelineReport {
   recommendations: string[];
 }
 
+import { LRUCache } from 'lru-cache';
+
 class PipelineMonitor {
-  private reports: Map<string, PipelineReport> = new Map();
+  private reports = new LRUCache<string, PipelineReport>({
+    max: 1000, // Maximum 1000 pipeline reports
+    ttl: 24 * 60 * 60 * 1000, // 24 hours TTL
+    updateAgeOnGet: false, // Don't refresh TTL on access
+  });
   
   /**
    * Initialize a new pipeline tracking session

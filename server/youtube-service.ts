@@ -30,13 +30,19 @@ export interface YouTubeSearchResult {
   qualityScore: number;
 }
 
+import { LRUCache } from 'lru-cache';
+
 export class YouTubeService {
   private apiKey: string | undefined;
   private baseUrl = 'https://www.googleapis.com/youtube/v3';
   private quotaUsed = 0;
   private quotaLimit = 10000;
   private quotaResetTime = new Date();
-  private transcriptCache = new Map<string, { transcript: string; timestamp: number }>();
+  private transcriptCache = new LRUCache<string, { transcript: string; timestamp: number }>({
+    max: 500, // Maximum 500 cached transcripts
+    ttl: 24 * 60 * 60 * 1000, // 24 hours TTL
+    updateAgeOnGet: true, // Refresh TTL on access
+  });
   private static readonly TRANSCRIPT_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
   constructor(apiKey?: string) {

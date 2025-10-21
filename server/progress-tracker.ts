@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import { LRUCache } from 'lru-cache';
 
 export type ProgressEvent = {
   stage: number;
@@ -10,7 +11,11 @@ export type ProgressEvent = {
 };
 
 class ProgressTracker extends EventEmitter {
-  private sessions: Map<string, ProgressEvent[]> = new Map();
+  private sessions = new LRUCache<string, ProgressEvent[]>({
+    max: 1000, // Maximum 1000 sessions
+    ttl: 60 * 60 * 1000, // 1 hour TTL - auto-expire old sessions
+    updateAgeOnGet: false, // Don't refresh TTL on access
+  });
 
   createSession(sessionId: string) {
     this.sessions.set(sessionId, []);
