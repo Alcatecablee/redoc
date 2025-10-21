@@ -87,7 +87,7 @@ const Index = () => {
   const [showSignIn, setShowSignIn] = useState(false);
 
   const stages = [
-    { id: 1, name: "Site Discovery", description: "Multi-domain crawling and content mapping" },
+    { id: 1, name: "Site Discovery", description: "Comprehensive site discovery — multi-domain crawling, sitemap parsing, subdomain enumeration, robots.txt-aware crawling, and link-graph analysis to prioritize high-value pages." },
     { id: 2, name: "Research & Analysis", description: "External research and community insights" },
     { id: 3, name: "Documentation Generation", description: "Professional content creation and structuring" },
     { id: 4, name: "Export & Optimization", description: "Multi-format export with theme application" }
@@ -632,7 +632,7 @@ const Index = () => {
                     <div className="text-3xl font-bold text-white/30 mb-4">01</div>
                     <GlobeAltIcon className="h-8 w-8 text-white mb-4" strokeWidth={1.5} />
                     <h3 className="text-xl font-bold text-white mb-2">Site Discovery</h3>
-                    <p className="text-white/70 text-sm">Multi-domain crawling and sitemap parsing</p>
+                    <p className="text-white/70 text-sm">Crawl multiple domains and subdomains, parse sitemaps and robots.txt, detect canonical and duplicate pages, and extract structured content, code samples, and metadata. We create a prioritized crawl map so the most important pages and community-driven content are fetched and analyzed first.</p>
                   </div>
                 </div>
                 
