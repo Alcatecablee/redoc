@@ -724,7 +724,7 @@ const Index = () => {
                     { image: "/attached_assets/images/toppng.com-markdown-logo-830x512.png", name: "Markdown" },
                     { image: "/attached_assets/images/json-file-document-icon-png-image_927931.jpg", name: "JSON" }
                   ].map((item) => (
-                    <div key={item.name} className="group bg-[rgb(34,38,46)] rounded-2xl p-6 hover:bg-[rgb(40,45,55)] transition-all duration-300 border border-white/10 hover:border-[rgb(102,255,228)]/30">
+                    <div key={item.name} className="group bg-[rgba(34,38,46,0)] rounded-2xl p-6 hover:bg-[rgb(40,45,55)] transition-all duration-300 border border-white/10 hover:border-[rgb(102,255,228)]/30">
                       <div className="flex flex-col items-center text-center gap-3">
                         <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-[rgb(102,255,228)]/20 transition-colors overflow-hidden">
                           <img
@@ -740,7 +740,7 @@ const Index = () => {
                 </div>
 
                 {/* Custom Domain Section */}
-                <div className="bg-[rgb(40,45,55)] border border-white/10 rounded-2xl p-6 hover:border-[rgb(102,255,228)]/30 transition-all duration-300">
+                <div className="bg-[rgba(40,45,55,0)] border border-white/10 rounded-2xl p-6 hover:border-[rgb(102,255,228)]/30 transition-all duration-300">
                   <div className="flex items-center gap-3 mb-4">
                     <GlobeAltIcon className="h-5 w-5 text-[rgb(102,255,228)]" strokeWidth={1.5} />
                     <h4 className="text-lg font-semibold text-white">Custom Domain</h4>
