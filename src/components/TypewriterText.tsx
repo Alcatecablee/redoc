@@ -5,10 +5,10 @@ interface TypewriterTextProps {
   typingSpeed?: number; // base ms per character
   pauseBeforeNext?: number; // pause after each completed sentence
   className?: string;
-  cursorClassName?: string;
   loop?: boolean;
-  separator?: string; // what to insert between sentences, default is ' '
+  separator?: string; // what to insert between sentences, default is '\n'
   lineClassName?: string; // class applied to additional lines after the first
+  preserveSpace?: boolean; // reserve full height to prevent layout shift
 }
 
 export const TypewriterText = ({
@@ -16,14 +16,13 @@ export const TypewriterText = ({
   typingSpeed = 45,
   pauseBeforeNext = 1200,
   className = '',
-  cursorClassName = 'ml-1 text-white/90',
   loop = false,
   separator = '\n',
-  lineClassName = 'block mt-2 text-white/80'
+  lineClassName = 'block mt-2 text-white/80',
+  preserveSpace = true,
 }: TypewriterTextProps) => {
   const [displayed, setDisplayed] = useState('');
   const [finished, setFinished] = useState(false);
-  const [showCursor, setShowCursor] = useState(true);
   const mounted = useRef(true);
 
   useEffect(() => {
@@ -45,16 +44,15 @@ export const TypewriterText = ({
         const nextChar = text.charAt(charIndex);
         setDisplayed(prev => prev + nextChar);
         charIndex++;
-        // Natural variance
+        // Natural variance for more human feel
         const variance = Math.round((Math.random() - 0.5) * typingSpeed * 0.6);
-        const delay = Math.max(15, typingSpeed + variance);
+        const delay = Math.max(12, typingSpeed + variance);
         timeout = setTimeout(typeNextChar, delay);
         return;
       }
 
       // Finished current text
       if (currentTextIndex < texts.length - 1) {
-        // Pause, then insert separator and move to next text
         timeout = setTimeout(() => {
           if (!mounted.current) return;
           setDisplayed(prev => prev + separator);
@@ -63,7 +61,6 @@ export const TypewriterText = ({
           typeNextChar();
         }, pauseBeforeNext);
       } else {
-        // Completed all texts
         setFinished(true);
         if (loop) {
           timeout = setTimeout(() => {
@@ -88,27 +85,25 @@ export const TypewriterText = ({
     };
   }, [texts, typingSpeed, pauseBeforeNext, loop, separator]);
 
-  // Cursor blinking
-  useEffect(() => {
-    const iv = setInterval(() => {
-      setShowCursor((s) => !s);
-    }, 500);
-    return () => clearInterval(iv);
-  }, []);
-
-  const parts = displayed.split('\n');
+  const visibleParts = displayed.split('\n');
+  const fullText = texts.join(separator);
 
   return (
-    <span className={`inline-flex items-start flex-col ${className}`} aria-live="polite">
-      {parts.map((part, idx) => (
-        <span key={idx} className={idx === 0 ? undefined : lineClassName}>{part}</span>
-      ))}
-      <span
-        aria-hidden="true"
-        className={cursorClassName}
-        style={{ opacity: showCursor ? 1 : 0, transition: 'opacity 120ms linear' }}
-      >
-        |
+    <span className={`relative inline-block ${className}`} aria-live="polite">
+      {preserveSpace && (
+        // Invisible full text placeholder reserves height/width preventing layout shift
+        <span className="invisible whitespace-pre-wrap block" aria-hidden>
+          {fullText}
+        </span>
+      )}
+
+      {/* Visible typing layer placed absolute to overlay reserved space */}
+      <span className="absolute inset-0 left-0 top-0 whitespace-pre-wrap block">
+        {visibleParts.map((part, idx) => (
+          <span key={idx} className={idx === 0 ? undefined : lineClassName}>
+            {part}
+          </span>
+        ))}
       </span>
     </span>
   );
