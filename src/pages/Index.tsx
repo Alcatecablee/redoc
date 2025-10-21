@@ -281,7 +281,7 @@ const Index = () => {
 
                 {/* Description - Secondary */}
                 <p className="text-lg lg:text-xl text-white/70 leading-relaxed max-w-xl">
-                  We transform any website into professional docs from 10+ sources in 5 minutes—community solutions, troubleshooting fixes, and best practices included.
+                  We transform any website into professional docs from 10+ sources in 5 minutes — including community solutions, troubleshooting fixes, and best practices.
                 </p>
 
                 {/* CTA Form - Tertiary but Important */}
