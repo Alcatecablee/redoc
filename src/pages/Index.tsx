@@ -614,11 +614,12 @@ const Index = () => {
             </div>
 
             {/* Trust Card - Source Attribution */}
-            <div className="max-w-3xl mx-auto mt-20 bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-10 text-center shadow-2xl">
+            <div className="max-w-3xl mx-auto mt-16 md:mt-20 bg-white/10 backdrop-blur-md border border-white/20 hover:border-[rgb(102,255,228)]/40 rounded-3xl p-8 md:p-10 text-center shadow-2xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105">
               <div className="flex items-center justify-center gap-3 mb-4">
-                <h4 className="text-2xl font-bold text-white">100% Source Attribution</h4>
+                <CheckBadgeIcon className="h-6 w-6 md:h-8 md:w-8 text-[rgb(102,255,228)] flex-shrink-0" aria-hidden="true" />
+                <h4 className="text-xl md:text-2xl font-bold text-white">100% Source Attribution</h4>
               </div>
-              <p className="text-white/80 text-lg leading-relaxed">
+              <p className="text-white/80 text-base md:text-lg leading-relaxed">
                 Every fact is traced to its source. Stack Overflow, GitHub, or your docs. Quality scored and validated for reliability.
               </p>
             </div>
