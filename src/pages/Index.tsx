@@ -773,17 +773,12 @@ const Index = () => {
                     { icon: CheckBadgeIcon, name: "Best Practices" },
                     { icon: Square3Stack3DIcon, name: "Examples" },
                     { icon: ShieldCheckIcon, name: "Security" }
-                  ].map((item, idx) => (
-                    <div key={item.name} className="group" style={{animation: `slideUp 0.6s ease-out ${idx * 0.1}s both`}}>
+                  ].map((item) => (
+                    <div key={item.name} className="group">
                       <div className="relative bg-gradient-to-br from-white/10 to-white/5 hover:from-white/15 hover:to-white/10 border border-white/20 hover:border-[rgb(102,255,228)]/40 rounded-2xl p-7 transition-all duration-400 h-full backdrop-blur-sm hover:shadow-[0_10px_30px_rgba(102,255,228,0.1)]">
-                        {/* Animated border glow */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-[rgb(102,255,228)]/20 via-transparent to-[rgb(102,255,228)]/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{animation: 'borderGlow 2s ease-in-out infinite'}} />
-
-                        <div className="flex flex-col items-center text-center gap-4 h-full relative z-10">
-                          <div className="w-14 h-14 rounded-xl bg-white/15 group-hover:bg-[rgb(102,255,228)]/20 flex items-center justify-center transition-all duration-300 group-hover:scale-110 relative overflow-hidden">
-                            {/* Rotating background on hover */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-[rgb(102,255,228)]/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{animation: 'rotate 4s linear infinite'}} />
-                            <item.icon className="h-6 w-6 text-white/80 group-hover:text-[rgb(102,255,228)] transition-colors relative z-10" strokeWidth={1.5} />
+                        <div className="flex flex-col items-center text-center gap-4 h-full">
+                          <div className="w-14 h-14 rounded-xl bg-white/15 group-hover:bg-[rgb(102,255,228)]/20 flex items-center justify-center transition-all duration-300 group-hover:scale-110">
+                            <item.icon className="h-6 w-6 text-white/80 group-hover:text-[rgb(102,255,228)] transition-colors" strokeWidth={1.5} />
                           </div>
                           <p className="text-sm font-semibold text-white/90 leading-snug">{item.name}</p>
                         </div>
@@ -791,21 +786,6 @@ const Index = () => {
                     </div>
                   ))}
                 </div>
-
-                <style>{`
-                  @keyframes slideUp {
-                    from { opacity: 0; transform: translateY(20px); }
-                    to { opacity: 1; transform: translateY(0); }
-                  }
-                  @keyframes borderGlow {
-                    0%, 100% { opacity: 0; }
-                    50% { opacity: 1; }
-                  }
-                  @keyframes rotate {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
-                  }
-                `}</style>
               </div>
 
               {/* Export Formats */}
