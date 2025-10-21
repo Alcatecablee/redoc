@@ -861,51 +861,6 @@ const Index = () => {
         </section>
       )}
 
-      {/* Premium Final CTA Section */}
-      {!generatedDoc && (
-        <section className="relative overflow-hidden bg-[rgb(142,209,198)] py-24 lg:py-32">
-          {/* Animated Background */}
-          <div className="absolute inset-0 bg-grid-white/[0.03] opacity-40" />
-          
-          <div className="relative container mx-auto px-6 max-w-7xl">
-            <div className="max-w-5xl mx-auto text-center">
-              <div className="space-y-8">
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                  Ready to transform your documentation?
-                </h2>
-                <p className="text-xl text-gray-700 leading-relaxed max-w-3xl mx-auto">
-                  Join teams who've stopped guessing and started researching. Get comprehensive, accurate docs that match your brand—automatically.
-                </p>
-                
-                {/* CTA Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-                  <Button 
-                    size="lg" 
-                    onClick={() => setShowSignIn(true)}
-                    className="h-14 px-8 bg-gray-900 text-white hover:bg-gray-800 font-semibold shadow-xl hover:shadow-2xl transition-all text-lg group"
-                  >
-                    <RocketLaunchIcon className="mr-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                    Start Generating Docs
-                  </Button>
-                  <Button 
-                    size="lg" 
-                    variant="outline"
-                    asChild
-                    className="h-14 px-8 border-2 border-gray-900 bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white font-semibold text-lg transition-all"
-                  >
-                    <a href="#pipeline">
-                      <PlayCircleIcon className="mr-2 h-5 w-5" />
-                      See How It Works
-                    </a>
-                  </Button>
-                </div>
-                
-                </div>
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* Final CTA Section - Try it Free */}
       {!generatedDoc && (
         <section className="relative overflow-hidden bg-[rgb(34,38,46)] py-16 md:py-20 lg:py-28">
