@@ -864,24 +864,25 @@ const Index = () => {
 
       {/* Final CTA Section - Try it Free */}
       {!generatedDoc && (
-        <section className="relative overflow-hidden bg-[rgb(34,38,46)] py-20 lg:py-28">
+        <section className="relative overflow-hidden bg-[rgb(34,38,46)] py-16 md:py-20 lg:py-28">
+          <div className="absolute inset-0 bg-grid-white/[0.02] opacity-30" />
           <div className="relative container mx-auto px-6 max-w-5xl text-center">
-            <div className="space-y-12">
+            <div className="space-y-8 md:space-y-12">
               {/* Heading */}
-              <h2 className="text-6xl md:text-7xl lg:text-8xl font-black leading-tight text-white tracking-tight">
+              <h2 className="text-4xl md:text-6xl lg:text-7xl font-black leading-tight text-white tracking-tight">
                 Try it for <span className="text-[rgb(102,255,228)] font-semibold">free<span className="text-[rgb(102,255,228)] font-black">.</span></span>
               </h2>
 
               {/* Description */}
-              <p className="text-2xl md:text-3xl text-[rgb(228,232,236)] leading-relaxed max-w-3xl mx-auto">
-                We provide <strong className="font-bold">for free</strong> as long as we can, and then <strong className="font-bold">the lowest price</strong> among competitors.
+              <p className="text-lg md:text-2xl lg:text-3xl text-[rgb(228,232,236)] leading-relaxed max-w-3xl mx-auto font-light">
+                We provide <strong className="font-semibold">for free</strong> as long as we can, and then <strong className="font-semibold">the lowest price</strong> among competitors.
               </p>
 
               {/* CTA Button */}
-              <div>
+              <div className="pt-4 md:pt-8">
                 <a
                   href="https://quarkly.io/dashboard"
-                  className="inline-block px-10 py-4 bg-[rgb(14,19,23)] border-4 border-[rgb(102,255,228)] text-white hover:bg-[rgb(102,255,228)] hover:text-[rgb(14,19,23)] font-bold text-base rounded-full uppercase tracking-wider transition-all duration-200 shadow-xl hover:shadow-2xl hover:scale-105"
+                  className="inline-block px-8 md:px-10 py-3 md:py-4 bg-[rgb(14,19,23)] border-4 border-[rgb(102,255,228)] text-white hover:bg-[rgb(102,255,228)] hover:text-[rgb(14,19,23)] font-bold text-base md:text-lg rounded-full uppercase tracking-wider transition-all duration-500 shadow-xl hover:shadow-2xl hover:scale-105 focus:outline-none focus:ring-4 focus:ring-[rgb(102,255,228)]/50 active:scale-95"
                 >
                   Create Project
                 </a>
