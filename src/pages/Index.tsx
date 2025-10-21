@@ -77,6 +77,7 @@ function convertToViewerTheme(theme: Theme) {
 const Index = () => {
   const [url, setUrl] = useState("");
   const [subdomain, setSubdomain] = useState("");
+  const [customDomain, setCustomDomain] = useState("");
   const [progress, setProgress] = useState(0);
   const [currentStage, setCurrentStage] = useState<number>(0);
   const [currentStageName, setCurrentStageName] = useState<string>("");
