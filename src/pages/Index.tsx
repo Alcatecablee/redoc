@@ -801,21 +801,15 @@ const Index = () => {
                     { image: "/attached_assets/images/toppng.com-custom-software-development-web-application-development-451x333.png", name: "HTML" },
                     { image: "/attached_assets/images/toppng.com-markdown-logo-830x512.png", name: "Markdown" },
                     { image: "/attached_assets/images/json-file-document-icon-png-image_927931.jpg", name: "JSON" }
-                  ].map((item, idx) => (
-                    <div key={item.name} className="group" style={{animation: `scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${idx * 0.12}s both`}}>
+                  ].map((item) => (
+                    <div key={item.name} className="group">
                       <div className="relative bg-gradient-to-br from-white/10 to-white/5 hover:from-white/15 hover:to-white/10 border border-white/20 hover:border-[rgb(102,255,228)]/40 rounded-2xl p-7 transition-all duration-400 h-full backdrop-blur-sm hover:shadow-[0_10px_30px_rgba(102,255,228,0.1)]">
-                        {/* Shimmer effect on hover */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{animation: 'shimmer 2s infinite'}} />
-
-                        <div className="flex flex-col items-center text-center gap-4 h-full relative z-10">
-                          <div className="w-14 h-14 rounded-xl bg-white/15 group-hover:bg-[rgb(102,255,228)]/20 flex items-center justify-center transition-all duration-300 group-hover:scale-110 overflow-hidden relative">
-                            {/* Pulsing background */}
-                            <div className="absolute inset-0 bg-[rgb(102,255,228)]/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{animation: 'pulse 2s ease-in-out infinite'}} />
+                        <div className="flex flex-col items-center text-center gap-4 h-full">
+                          <div className="w-14 h-14 rounded-xl bg-white/15 group-hover:bg-[rgb(102,255,228)]/20 flex items-center justify-center transition-all duration-300 group-hover:scale-110 overflow-hidden">
                             <img
                               src={item.image}
                               alt={item.name}
-                              className="h-8 w-8 object-contain group-hover:brightness-125 transition-all relative z-10"
-                              style={{animation: 'iconBounce 2s ease-in-out infinite'}}
+                              className="h-8 w-8 object-contain group-hover:brightness-125 transition-all"
                             />
                           </div>
                           <p className="text-sm font-semibold text-white/90 leading-snug">{item.name}</p>
@@ -824,25 +818,6 @@ const Index = () => {
                     </div>
                   ))}
                 </div>
-
-                <style>{`
-                  @keyframes scaleIn {
-                    from { opacity: 0; transform: scale(0.8); }
-                    to { opacity: 1; transform: scale(1); }
-                  }
-                  @keyframes shimmer {
-                    0% { transform: translateX(-100%); }
-                    100% { transform: translateX(100%); }
-                  }
-                  @keyframes pulse {
-                    0%, 100% { opacity: 0.3; }
-                    50% { opacity: 1; }
-                  }
-                  @keyframes iconBounce {
-                    0%, 100% { transform: translateY(0); }
-                    50% { transform: translateY(-6px); }
-                  }
-                `}</style>
               </div>
 
               {/* Quality & Features */}
