@@ -356,21 +356,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Trusted By / Customers - Integrated into mint theme */}
-      {!generatedDoc && (
-        <section id="customers" className="relative overflow-hidden bg-[rgb(142,209,198)] py-12 border-t border-gray-900/10">
-          <div className="relative container mx-auto px-6 max-w-7xl">
-            <div className="text-center">
-              <p className="text-sm font-medium text-gray-700 mb-8">Trusted by teams shipping better docs faster</p>
-              <div className="flex flex-wrap items-center justify-center gap-8 lg:gap-16 opacity-60">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="h-8 w-24 bg-gray-900/10 rounded"></div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Results Section */}
       {generatedDoc && (
@@ -664,9 +649,6 @@ const Index = () => {
             {/* Trust Card - Source Attribution */}
             <div className="max-w-3xl mx-auto mt-20 bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-10 text-center shadow-2xl">
               <div className="flex items-center justify-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-full bg-emerald-500/30 flex items-center justify-center">
-                  <CheckBadgeIcon className="h-6 w-6 text-emerald-300" />
-                </div>
                 <h4 className="text-2xl font-bold text-white">100% Source Attribution</h4>
               </div>
               <p className="text-white/80 text-lg leading-relaxed">
