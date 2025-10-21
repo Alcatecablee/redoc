@@ -321,21 +321,6 @@ const Index = () => {
                   </p>
                 </div>
 
-                {/* Trust Elements */}
-                <div className="pt-4 flex items-center gap-6 flex-wrap">
-                  <div className="flex items-center gap-2">
-                    <CheckBadgeIcon className="h-5 w-5 text-emerald-400" />
-                    <span className="text-sm text-white/70">No credit card required</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckBadgeIcon className="h-5 w-5 text-emerald-400" />
-                    <span className="text-sm text-white/70">5+ export formats</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckBadgeIcon className="h-5 w-5 text-emerald-400" />
-                    <span className="text-sm text-white/70">Custom branding</span>
-                  </div>
-                </div>
               </div>
 
               {/* Right Column - Visual Demo (5 columns) */}
