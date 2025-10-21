@@ -700,23 +700,52 @@ const Index = () => {
               {/* Export Formats */}
               <div className="mb-8">
                 <h3 className="text-2xl font-bold text-white mb-6 tracking-tight">Export & Publishing</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
                   {[
-                    { icon: DocumentTextIcon, name: "PDF" },
-                    { icon: DocumentTextIcon, name: "DOCX" },
-                    { icon: GlobeAltIcon, name: "HTML" },
-                    { icon: CodeBracketIcon, name: "Markdown" },
-                    { icon: DocumentMagnifyingGlassIcon, name: "JSON" }
+                    { image: "/attached_assets/images/toppng.com-exporter-pdf-en-450x423.png", name: "PDF" },
+                    { image: "/attached_assets/images/toppng.com-shadow-microsoft-icons-by-blackvariant-microsoft-office-2013-899x899.png", name: "DOCX" },
+                    { image: "/attached_assets/images/toppng.com-custom-software-development-web-application-development-451x333.png", name: "HTML" },
+                    { image: "/attached_assets/images/toppng.com-markdown-logo-830x512.png", name: "Markdown" },
+                    { image: "/attached_assets/images/json-file-document-icon-png-image_927931.jpg", name: "JSON" }
                   ].map((item) => (
                     <div key={item.name} className="group bg-[rgb(34,38,46)] rounded-2xl p-6 hover:bg-[rgb(40,45,55)] transition-all duration-300 border border-white/10 hover:border-[rgb(102,255,228)]/30">
                       <div className="flex flex-col items-center text-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-[rgb(102,255,228)]/20 transition-colors">
-                          <item.icon className="h-6 w-6 text-white/80 group-hover:text-[rgb(102,255,228)]" strokeWidth={1.5} />
+                        <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-[rgb(102,255,228)]/20 transition-colors overflow-hidden">
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="h-8 w-8 object-contain group-hover:brightness-150 transition-all"
+                          />
                         </div>
                         <p className="text-sm font-medium text-white/80 leading-tight">{item.name}</p>
                       </div>
                     </div>
                   ))}
+                </div>
+
+                {/* Custom Domain Section */}
+                <div className="bg-[rgb(40,45,55)] border border-white/10 rounded-2xl p-6 hover:border-[rgb(102,255,228)]/30 transition-all duration-300">
+                  <div className="flex items-center gap-3 mb-4">
+                    <GlobeAltIcon className="h-5 w-5 text-[rgb(102,255,228)]" strokeWidth={1.5} />
+                    <h4 className="text-lg font-semibold text-white">Custom Domain</h4>
+                  </div>
+                  <p className="text-sm text-white/70 mb-4">Publish your documentation at your own domain</p>
+                  <div className="flex gap-2">
+                    <Input
+                      type="text"
+                      placeholder="example.com"
+                      value={customDomain}
+                      onChange={(e) => setCustomDomain(e.target.value)}
+                      className="flex-1 bg-white/10 border border-white/20 text-white placeholder:text-white/50 rounded-lg focus:border-[rgb(102,255,228)] focus:ring-2 focus:ring-[rgb(102,255,228)]/20"
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-white/20 bg-white/10 hover:bg-white/20 text-white rounded-lg whitespace-nowrap"
+                    >
+                      Set Domain
+                    </Button>
+                  </div>
                 </div>
               </div>
 
