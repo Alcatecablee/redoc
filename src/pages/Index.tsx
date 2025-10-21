@@ -634,20 +634,19 @@ const Index = () => {
         </section>
       )}
 
-      {/* Features Section - Rebuilt with Premium Design */}
+      {/* Features Section - Capability Showcase */}
       {!generatedDoc && (
-        <section id="features" className="relative overflow-hidden bg-[rgb(142,209,198)] py-24 lg:py-32">
-          {/* Animated Background */}
-          <div className="absolute inset-0 bg-grid-white/[0.03] opacity-40" />
-          
+        <section id="features" className="relative overflow-hidden bg-[rgb(14,19,23)] py-24 lg:py-32">
+          <div className="absolute inset-0 bg-grid-white/[0.02] opacity-30" />
+
           <div className="relative container mx-auto px-6 max-w-7xl">
             {/* Header */}
-            <div className="text-center mb-20">
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+            <div className="text-center mb-24">
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
                 Built on Real User Knowledge
               </h2>
-              <p className="text-xl text-gray-700 max-w-3xl mx-auto">
-                We don't guess what developers need we research how they actually use your product across the web
+              <p className="text-xl text-white/70 max-w-3xl mx-auto">
+                We don't guess what developers need — we research how they actually use your product across the web
               </p>
             </div>
             
