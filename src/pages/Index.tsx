@@ -595,25 +595,21 @@ const Index = () => {
                   </div>
                 ))}
                 
-                {/* Stage 3 */}
-                <div className="group relative">
-                  <div className="relative bg-white/10 border border-white/20 rounded-2xl p-8 hover:bg-white/15 transition-all duration-300 h-full">
-                    <div className="text-3xl font-bold text-white/30 mb-4">03</div>
-                    <DocumentMagnifyingGlassIcon className="h-8 w-8 text-white mb-4" strokeWidth={1.5} />
-                    <h3 className="text-xl font-bold text-white mb-2">External Research</h3>
-                    <p className="text-white/70 text-sm">Search and aggregate across Stack Overflow, GitHub Issues, YouTube transcripts, Reddit, and official documentation. Identify consensus answers, relevant threads, and community fixes, then score each source for relevance and authority.</p>
+                {[
+                  { num: "03", icon: DocumentMagnifyingGlassIcon, title: "External Research", desc: "Search and aggregate across Stack Overflow, GitHub Issues, YouTube transcripts, Reddit, and official documentation. Identify consensus answers, relevant threads, and community fixes, then score each source for relevance and authority." },
+                  { num: "04", icon: Square3Stack3DIcon, title: "Synthesis & Export", desc: "Synthesize findings into clear, searchable documentation, apply your brand theme, validate citations, and export to multiple formats—or publish to a branded subdomain with built-in search." }
+                ].map((stage, idx) => (
+                  <div key={idx} className="group relative">
+                    <div className="relative bg-white/10 border border-white/20 rounded-2xl p-6 md:p-8 hover:bg-white/15 hover:border-white/40 transition-all duration-500 h-full transform hover:scale-105 hover:shadow-2xl focus-within:ring-2 focus-within:ring-[rgb(102,255,228)]/50">
+                      <div className="text-2xl md:text-3xl font-bold text-white/30 mb-4 group-hover:text-white/50 transition-colors">{stage.num}</div>
+                      <div className="w-10 h-10 md:w-8 md:h-8 text-white mb-4 group-hover:text-[rgb(102,255,228)] transition-colors" aria-hidden="true">
+                        <stage.icon strokeWidth={1.5} />
+                      </div>
+                      <h3 className="text-lg md:text-xl font-bold text-white mb-2">{stage.title}</h3>
+                      <p className="text-white/70 text-xs md:text-sm leading-relaxed">{stage.desc}</p>
+                    </div>
                   </div>
-                </div>
-                
-                {/* Stage 4 */}
-                <div className="group relative">
-                  <div className="relative bg-white/10 border border-white/20 rounded-2xl p-8 hover:bg-white/15 transition-all duration-300 h-full">
-                    <div className="text-3xl font-bold text-white/30 mb-4">04</div>
-                    <Square3Stack3DIcon className="h-8 w-8 text-white mb-4" strokeWidth={1.5} />
-                    <h3 className="text-xl font-bold text-white mb-2">Synthesis & Export</h3>
-                    <p className="text-white/70 text-sm">Synthesize findings into clear, searchable documentation, apply your brand theme, validate citations, and export to multiple formats—or publish to a branded subdomain with built-in search.</p>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
 
