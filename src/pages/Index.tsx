@@ -287,45 +287,43 @@ const Index = () => {
       </section>
 
       {/* Watch Demo Section - Below Hero on Desktop */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[rgb(36,77,91)] via-[rgb(40,85,100)] to-[rgb(36,77,91)] py-20 lg:py-24">
+      <section className="relative overflow-hidden bg-gradient-to-br from-[rgb(36,77,91)] via-[rgb(40,85,100)] to-[rgb(36,77,91)] py-16 md:py-20 lg:py-24">
         {/* Background Elements */}
         <div className="absolute inset-0 bg-grid-white/[0.02] opacity-50" />
         <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-white/5 to-transparent" />
 
-        <div className="relative container mx-auto px-6 max-w-7xl">
+        <div className="relative container mx-auto px-4 md:px-6 max-w-7xl">
           <div className="max-w-2xl mx-auto">
             {/* Demo Card */}
-            <div className="relative aspect-[16/9] w-full rounded-3xl border border-white/20 bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-xl overflow-hidden shadow-2xl">
+            <div className="relative aspect-[16/9] w-full rounded-2xl md:rounded-3xl border border-white/20 hover:border-[rgb(102,255,228)]/40 bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-xl overflow-hidden shadow-2xl transition-all duration-500 hover:shadow-2xl">
               {/* Decorative Elements */}
               <div className="absolute inset-0 bg-gradient-to-t from-[rgb(36,77,91)]/50 to-transparent" />
               <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
 
               {/* Demo Content */}
-              <div className="relative flex items-center justify-center h-full p-8">
+              <div className="relative flex items-center justify-center h-full p-6 md:p-8">
                 <div className="text-center">
-                  <div id="demo" className="w-32 h-32 mx-auto mb-8 rounded-3xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 shadow-xl hover:scale-110 transition-transform cursor-pointer group">
-                    <PlayCircleIcon className="h-16 w-16 text-white group-hover:text-[rgb(102,255,228)] transition-colors" />
+                  <div id="demo" className="w-24 md:w-32 h-24 md:h-32 mx-auto mb-6 md:mb-8 rounded-3xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 shadow-xl hover:scale-110 hover:shadow-2xl transition-all duration-300 cursor-pointer group focus:outline-none focus:ring-4 focus:ring-[rgb(102,255,228)]/50" role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { const el = document.getElementById('demo'); if(el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }}>
+                    <PlayCircleIcon className="h-12 md:h-16 w-12 md:w-16 text-white group-hover:text-[rgb(102,255,228)] transition-colors" aria-hidden="true" />
                   </div>
-                  <h2 className="text-3xl font-bold text-white mb-3">Watch Demo</h2>
-                  <p className="text-lg text-white/70">See how it works in action</p>
+                  <h2 className="text-2xl md:text-3xl font-bold text-white mb-2 md:mb-3">Watch Demo</h2>
+                  <p className="text-base md:text-lg text-white/70">See how it works in action</p>
                 </div>
               </div>
             </div>
 
             {/* Stats Below Demo */}
-            <div className="mt-12 grid grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-2">1,000+</div>
-                <p className="text-white/70">Sections Generated</p>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-2">5 min</div>
-                <p className="text-white/70">Average Build Time</p>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-2">10+</div>
-                <p className="text-white/70">Research Sources</p>
-              </div>
+            <div className="mt-10 md:mt-12 grid grid-cols-3 gap-4 md:gap-6">
+              {[
+                { num: "1,000+", label: "Sections Generated" },
+                { num: "5 min", label: "Average Build Time" },
+                { num: "10+", label: "Research Sources" }
+              ].map((stat, idx) => (
+                <div key={idx} className="text-center group">
+                  <div className="text-2xl md:text-3xl font-bold text-white mb-1 md:mb-2 group-hover:text-[rgb(102,255,228)] transition-colors">{stat.num}</div>
+                  <p className="text-xs md:text-sm text-white/70 leading-tight">{stat.label}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
