@@ -288,42 +288,68 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Watch Demo Section - Below Hero on Desktop */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[rgb(36,77,91)] via-[rgb(40,85,100)] to-[rgb(36,77,91)] py-16 md:py-20 lg:py-24">
+      {/* Watch Demo Section - Premium Dark Design */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-[rgb(36,77,91)] via-[rgb(40,85,100)] to-[rgb(36,77,91)] py-24 md:py-32 lg:py-40">
         {/* Background Elements */}
         <div className="absolute inset-0 bg-grid-white/[0.02] opacity-50" />
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-white/5 to-transparent" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-radial from-[rgb(102,255,228)]/10 via-transparent to-transparent blur-3xl" />
 
-        <div className="relative container mx-auto px-4 md:px-6 max-w-7xl">
-          <div className="max-w-2xl mx-auto">
+        <div className="relative container mx-auto px-6 max-w-7xl">
+          <div className="max-w-4xl mx-auto">
+            {/* Header */}
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm mb-6">
+                <PlayCircleIcon className="h-4 w-4 text-[rgb(102,255,228)]" />
+                <span className="text-sm font-semibold text-white/90 uppercase tracking-wide">See It In Action</span>
+              </div>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
+                Watch the Magic Happen
+              </h2>
+              <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto">
+                From URL to comprehensive documentation in under 5 minutes
+              </p>
+            </div>
+
             {/* Demo Card */}
-            <div className="relative aspect-[16/9] w-full rounded-2xl md:rounded-3xl border border-white/20 hover:border-[rgb(102,255,228)]/40 bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-xl overflow-hidden shadow-2xl transition-all duration-500 hover:shadow-2xl">
+            <div className="relative aspect-[16/9] w-full rounded-3xl border-2 border-white/25 hover:border-[rgb(102,255,228)]/50 bg-gradient-to-br from-white/15 via-white/10 to-white/5 backdrop-blur-xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_80px_rgba(102,255,228,0.2)] transition-all duration-500 group">
               {/* Decorative Elements */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[rgb(36,77,91)]/50 to-transparent" />
-              <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[rgb(36,77,91)]/60 to-transparent" />
+              <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[rgb(102,255,228)]/50 to-transparent" />
+              <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[rgb(102,255,228)]/50 to-transparent" />
+              
+              {/* Corner Accents */}
+              <div className="absolute top-0 left-0 w-24 h-24 border-t-2 border-l-2 border-[rgb(102,255,228)]/40 rounded-tl-3xl"></div>
+              <div className="absolute bottom-0 right-0 w-24 h-24 border-b-2 border-r-2 border-[rgb(102,255,228)]/40 rounded-br-3xl"></div>
 
               {/* Demo Content */}
-              <div className="relative flex items-center justify-center h-full p-6 md:p-8">
+              <div className="relative flex items-center justify-center h-full p-8">
                 <div className="text-center">
-                  <div id="demo" className="w-24 md:w-32 h-24 md:h-32 mx-auto mb-6 md:mb-8 rounded-3xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 shadow-xl hover:scale-110 hover:shadow-2xl transition-all duration-300 cursor-pointer group focus:outline-none focus:ring-4 focus:ring-[rgb(102,255,228)]/50" role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { const el = document.getElementById('demo'); if(el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }}>
-                    <PlayCircleIcon className="h-12 md:h-16 w-12 md:w-16 text-white group-hover:text-[rgb(102,255,228)] transition-colors" aria-hidden="true" />
+                  <div id="demo" className="w-28 md:w-36 h-28 md:h-36 mx-auto mb-8 rounded-3xl bg-gradient-to-br from-[rgb(102,255,228)]/20 to-[rgb(102,255,228)]/10 backdrop-blur-sm flex items-center justify-center border-2 border-[rgb(102,255,228)]/40 shadow-2xl hover:scale-110 hover:shadow-[0_20px_50px_rgba(102,255,228,0.3)] transition-all duration-300 cursor-pointer group/play focus:outline-none focus:ring-4 focus:ring-[rgb(102,255,228)]/50" role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { const el = document.getElementById('demo'); if(el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }}>
+                    <PlayCircleIcon className="h-16 md:h-20 w-16 md:w-20 text-[rgb(102,255,228)] group-hover/play:scale-110 transition-transform" aria-hidden="true" />
                   </div>
-                  <h2 className="text-2xl md:text-3xl font-bold text-white mb-2 md:mb-3">Watch Demo</h2>
-                  <p className="text-base md:text-lg text-white/70">See how it works in action</p>
+                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">Watch Demo Video</h3>
+                  <p className="text-base md:text-lg text-white/80">See the complete workflow from start to finish</p>
                 </div>
               </div>
             </div>
 
-            {/* Stats Below Demo */}
-            <div className="mt-10 md:mt-12 grid grid-cols-3 gap-4 md:gap-6">
+            {/* Stats Grid */}
+            <div className="mt-16 grid grid-cols-3 gap-6 md:gap-8">
               {[
-                { num: "1,000+", label: "Sections Generated" },
-                { num: "5 min", label: "Average Build Time" },
-                { num: "10+", label: "Research Sources" }
+                { num: "1,000+", label: "Sections Generated", icon: DocumentTextIcon },
+                { num: "5 min", label: "Average Build Time", icon: BoltIcon },
+                { num: "10+", label: "Research Sources", icon: MagnifyingGlassIcon }
               ].map((stat, idx) => (
-                <div key={idx} className="text-center group">
-                  <div className="text-2xl md:text-3xl font-bold text-white mb-1 md:mb-2 group-hover:text-[rgb(102,255,228)] transition-colors">{stat.num}</div>
-                  <p className="text-xs md:text-sm text-white/70 leading-tight">{stat.label}</p>
+                <div key={idx} className="group relative">
+                  <div className="relative bg-gradient-to-br from-white/15 to-white/5 border border-white/25 hover:border-[rgb(102,255,228)]/50 rounded-2xl p-6 md:p-8 transition-all duration-500 backdrop-blur-sm hover:shadow-[0_15px_40px_rgba(102,255,228,0.15)] hover:scale-105">
+                    <div className="flex flex-col items-center text-center gap-3">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[rgb(102,255,228)]/20 to-[rgb(102,255,228)]/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <stat.icon className="h-6 w-6 text-[rgb(102,255,228)]" strokeWidth={1.5} />
+                      </div>
+                      <div className="text-3xl md:text-4xl font-bold text-white group-hover:text-[rgb(102,255,228)] transition-colors">{stat.num}</div>
+                      <p className="text-sm text-white/70 leading-tight">{stat.label}</p>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -660,144 +686,121 @@ const Index = () => {
         </section>
       )}
 
-      {/* WHY Section + Problems Accordion */}
+      {/* WHY Section - Problem/Solution Framework */}
       {!generatedDoc && (
-        <section id="why" className="relative overflow-hidden bg-[rgb(142,209,198)] py-16 lg:py-20">
-          {/* Subtle Background Pattern */}
+        <section id="why" className="relative overflow-hidden bg-gradient-to-br from-[rgb(142,209,198)] via-[rgb(152,219,208)] to-[rgb(142,209,198)] py-32 lg:py-40">
+          {/* Background Elements */}
           <div className="absolute inset-0 bg-grid-white/[0.03] opacity-40" />
+          <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-radial from-white/10 via-transparent to-transparent blur-3xl" />
           
           <div className="relative container mx-auto px-6 max-w-7xl">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-              {/* Left Column - Content (7 columns) */}
-              <div className="lg:col-span-7 space-y-6">
-                <div className="space-y-4">
-                  <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                    Traditional Docs Tools Only Scratch the Surface
-                  </h2>
-                  <p className="text-xl text-gray-700 leading-relaxed">
-                    Your website tells one part of the story. Real knowledge lives in Stack Overflow, GitHub, and community discussions.
-                  </p>
-                </div>
-                
-                <div className="pt-4">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-8 mt-8">Traditional tools fall short because they:</h3>
-                  <Accordion type="single" collapsible className="w-full space-y-3">
-                    <AccordionItem value="item-1" className="bg-white/40 backdrop-blur-sm border border-gray-900/10 rounded-xl px-6 data-[state=open]:shadow-lg transition-all">
-                      <AccordionTrigger className="text-gray-900 hover:text-gray-900 font-medium py-4 hover:no-underline">
-                        Only scrape your website missing community knowledge
-                      </AccordionTrigger>
-                      <AccordionContent className="pb-4">
-                        <ul className="space-y-2 text-gray-700">
-                          <li className="flex items-start gap-2">
-                            <span className="text-gray-900 mt-1">•</span>
-                            <span>Ignore Stack Overflow solutions to common problems</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-gray-900 mt-1">•</span>
-                            <span>Miss GitHub Issues where users report real bugs</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-gray-900 mt-1">•</span>
-                            <span>Skip community forums with best practices</span>
-                          </li>
-                        </ul>
-                      </AccordionContent>
-                    </AccordionItem>
-                    
-                    <AccordionItem value="item-2" className="bg-white/40 backdrop-blur-sm border border-gray-900/10 rounded-xl px-6 data-[state=open]:shadow-lg transition-all">
-                      <AccordionTrigger className="text-gray-900 hover:text-gray-900 font-medium py-4 hover:no-underline">
-                        Generate incomplete troubleshooting sections
-                      </AccordionTrigger>
-                      <AccordionContent className="pb-4">
-                        <ul className="space-y-2 text-gray-700">
-                          <li className="flex items-start gap-2">
-                            <span className="text-gray-900 mt-1">•</span>
-                            <span>FAQs based on guesses, not real user questions</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-gray-900 mt-1">•</span>
-                            <span>Missing edge cases and error messages</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-gray-900 mt-1">•</span>
-                            <span>No validation of content quality or sources</span>
-                          </li>
-                        </ul>
-                      </AccordionContent>
-                    </AccordionItem>
-                    
-                    <AccordionItem value="item-3" className="bg-white/40 backdrop-blur-sm border border-gray-900/10 rounded-xl px-6 data-[state=open]:shadow-lg transition-all">
-                      <AccordionTrigger className="text-gray-900 hover:text-gray-900 font-medium py-4 hover:no-underline">
-                        Require manual styling and brand matching
-                      </AccordionTrigger>
-                      <AccordionContent className="pb-4">
-                        <ul className="space-y-2 text-gray-700">
-                          <li className="flex items-start gap-2">
-                            <span className="text-gray-900 mt-1">•</span>
-                            <span>Generic templates that don't match your brand</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-gray-900 mt-1">•</span>
-                            <span>Manual color and font configuration</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-gray-900 mt-1">•</span>
-                            <span>Inconsistent formatting across export formats</span>
-                          </li>
-                        </ul>
-                      </AccordionContent>
-                    </AccordionItem>
-                    
-                    <AccordionItem value="item-4" className="bg-white/40 backdrop-blur-sm border border-gray-900/10 rounded-xl px-6 data-[state=open]:shadow-lg transition-all">
-                      <AccordionTrigger className="text-gray-900 hover:text-gray-900 font-medium py-4 hover:no-underline">
-                        Lack transparency and reliability
-                      </AccordionTrigger>
-                      <AccordionContent className="pb-4">
-                        <ul className="space-y-2 text-gray-700">
-                          <li className="flex items-start gap-2">
-                            <span className="text-gray-900 mt-1">•</span>
-                            <span>No visibility into what sources were used</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-gray-900 mt-1">•</span>
-                            <span>Single-point failures kill the entire pipeline</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-gray-900 mt-1">•</span>
-                            <span>No quality scores or source attribution</span>
-                          </li>
-                        </ul>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                </div>
+            {/* Header */}
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 border border-white/30 backdrop-blur-sm mb-6">
+                <QuestionMarkCircleIcon className="h-4 w-4 text-gray-900" strokeWidth={2} />
+                <span className="text-sm font-semibold text-gray-900 uppercase tracking-wide">The Problem</span>
               </div>
-              
-              {/* Right Column - Visual (5 columns) */}
-              <div className="lg:col-span-5">
-                <div className="relative aspect-[3/4] w-full rounded-2xl border border-gray-900/10 bg-white/30 backdrop-blur-sm overflow-hidden shadow-xl">
-                  {/* Decorative gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-transparent to-gray-900/5" />
-                  
-                  <div className="relative flex items-center justify-center h-full p-6">
-                    <img 
-                      src="https://placehold.co/600x800?text=Docs+Screenshot" 
-                      alt="Documentation screenshot showing multi-source research" 
-                      className="rounded-lg border border-gray-900/10 shadow-lg w-full h-full object-cover" 
-                    />
+              <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
+                Traditional Tools Only Scratch the Surface
+              </h2>
+              <p className="text-xl md:text-2xl text-gray-800 max-w-3xl mx-auto leading-relaxed">
+                Your website tells <strong>one part of the story</strong>. Real knowledge lives in Stack Overflow, GitHub, and community discussions.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 max-w-6xl mx-auto">
+              {/* Problem Cards */}
+              {[
+                {
+                  icon: MagnifyingGlassIcon,
+                  title: "Missing Community Knowledge",
+                  problems: [
+                    "Ignore Stack Overflow solutions to common problems",
+                    "Miss GitHub Issues where users report real bugs",
+                    "Skip community forums with best practices"
+                  ]
+                },
+                {
+                  icon: QuestionMarkCircleIcon,
+                  title: "Incomplete Troubleshooting",
+                  problems: [
+                    "FAQs based on guesses, not real user questions",
+                    "Missing edge cases and error messages",
+                    "No validation of content quality or sources"
+                  ]
+                },
+                {
+                  icon: SwatchIcon,
+                  title: "Manual Styling Required",
+                  problems: [
+                    "Generic templates that don't match your brand",
+                    "Manual color and font configuration",
+                    "Inconsistent formatting across export formats"
+                  ]
+                },
+                {
+                  icon: ShieldCheckIcon,
+                  title: "Lack of Transparency",
+                  problems: [
+                    "No visibility into what sources were used",
+                    "Single-point failures kill the entire pipeline",
+                    "No quality scores or source attribution"
+                  ]
+                }
+              ].map((item, idx) => (
+                <div key={idx} className="group">
+                  <div className="relative bg-white/60 backdrop-blur-sm border-2 border-gray-900/15 hover:border-gray-900/30 rounded-3xl p-8 md:p-10 transition-all duration-500 hover:shadow-2xl hover:scale-105">
+                    {/* Decorative corner */}
+                    <div className="absolute top-0 right-0 w-20 h-20 border-t-2 border-r-2 border-gray-900/20 rounded-tr-3xl"></div>
+                    
+                    <div className="relative z-10">
+                      <div className="w-14 h-14 rounded-xl bg-gray-900/10 group-hover:bg-gray-900/15 flex items-center justify-center mb-6 group-hover:scale-110 transition-all duration-300">
+                        <item.icon className="h-7 w-7 text-gray-900" strokeWidth={1.5} />
+                      </div>
+                      
+                      <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-5 leading-tight">{item.title}</h3>
+                      
+                      <ul className="space-y-3">
+                        {item.problems.map((problem, pidx) => (
+                          <li key={pidx} className="flex items-start gap-3 text-gray-800">
+                            <div className="flex-shrink-0 w-2 h-2 rounded-full bg-gray-900 mt-2"></div>
+                            <span className="text-base leading-relaxed">{problem}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
                 </div>
+              ))}
+            </div>
+
+            {/* Solution CTA */}
+            <div className="mt-16 text-center">
+              <div className="inline-flex flex-col items-center gap-4 px-10 py-8 rounded-3xl bg-white/70 backdrop-blur-sm border-2 border-gray-900/20 shadow-2xl">
+                <CheckBadgeIcon className="h-12 w-12 text-gray-900" strokeWidth={1.5} />
+                <h4 className="text-2xl md:text-3xl font-bold text-gray-900">We Solve All of This</h4>
+                <p className="text-lg text-gray-800 max-w-xl">
+                  Multi-source research, automated styling, complete transparency, and enterprise-grade reliability built in.
+                </p>
+                <Button
+                  size="lg"
+                  asChild
+                  className="mt-2 h-14 px-10 bg-gray-900 text-white hover:bg-gray-800 font-bold text-base rounded-full uppercase tracking-wider transition-all duration-200 shadow-xl hover:shadow-2xl hover:scale-105"
+                >
+                  <a href="#how-it-works">See How It Works</a>
+                </Button>
               </div>
             </div>
           </div>
         </section>
       )}
 
-      {/* Pipeline Section - Rebuilt with Visual Storytelling */}
+      {/* Pipeline Section - Enhanced Visual Storytelling */}
       {!generatedDoc && (
         <section id="pipeline" className="relative overflow-hidden bg-gradient-to-br from-[rgb(36,77,91)] via-[rgb(40,85,100)] to-[rgb(36,77,91)] py-32 lg:py-40">
-          {/* Subtle Background Pattern */}
+          {/* Background Elements */}
           <div className="absolute inset-0 bg-grid-white/[0.02] opacity-50" />
+          <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-gradient-radial from-[rgb(102,255,228)]/10 via-transparent to-transparent blur-3xl" />
 
           <div className="relative container mx-auto px-6 max-w-7xl">
             {/* Header */}
@@ -810,58 +813,54 @@ const Index = () => {
                 From Discovery to Docs
               </h2>
               <p className="text-lg md:text-xl text-white/70 max-w-3xl mx-auto font-light">
-                A systematic 4-stage process that transforms external research into comprehensive, accurate documentation
+                A systematic 4-stage process that transforms scattered internet knowledge into comprehensive, accurate documentation
               </p>
             </div>
 
-            {/* Visual Pipeline */}
-            <div className="relative max-w-6xl mx-auto">
+            {/* Visual Pipeline Grid */}
+            <div className="relative max-w-6xl mx-auto mb-24">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 relative">
                 {[
-                  { num: "01", icon: GlobeAltIcon, title: "Site Discovery", desc: "Crawl multiple domains, parse sitemaps, and extract all structured content and code samples." },
-                  { num: "02", icon: MagnifyingGlassIcon, title: "Content Extraction", desc: "Extract code samples, configuration files, and metadata. Normalize and structure for maximum clarity." }
+                  { num: "01", icon: GlobeAltIcon, title: "Site Discovery", desc: "Crawl multiple domains, parse sitemaps, and extract all structured content and code samples.", color: "from-cyan-500/20 to-cyan-500/10" },
+                  { num: "02", icon: MagnifyingGlassIcon, title: "Content Extraction", desc: "Extract code samples, configuration files, and metadata. Normalize and structure for maximum clarity.", color: "from-blue-500/20 to-blue-500/10" },
+                  { num: "03", icon: DocumentMagnifyingGlassIcon, title: "External Research", desc: "Search Stack Overflow, GitHub, YouTube, Reddit, and 5+ sources. Score and rank by authority and relevance.", color: "from-purple-500/20 to-purple-500/10" },
+                  { num: "04", icon: Square3Stack3DIcon, title: "Synthesis & Export", desc: "Synthesize findings into clear docs, apply your brand, validate citations, and export to any format.", color: "from-green-500/20 to-green-500/10" }
                 ].map((stage, idx) => (
                   <div key={idx} className="group relative">
-                    <div className="relative bg-gradient-to-br from-white/15 to-white/5 border border-white/25 hover:border-[rgb(102,255,228)]/50 rounded-3xl p-8 transition-all duration-500 h-full backdrop-blur-sm hover:bg-gradient-to-br hover:from-white/20 hover:to-white/10 shadow-2xl hover:shadow-[0_20px_50px_rgba(102,255,228,0.15)]">
-                      <div className="absolute top-8 right-8 text-6xl font-black text-white/10 group-hover:text-[rgb(102,255,228)]/20 transition-colors">{stage.num}</div>
-                      <div className="w-12 h-12 text-white mb-6 group-hover:text-[rgb(102,255,228)] transition-all duration-300 group-hover:scale-110" aria-hidden="true">
-                        <stage.icon strokeWidth={1.2} />
+                    <div className="relative bg-gradient-to-br from-white/15 to-white/5 border-2 border-white/25 hover:border-[rgb(102,255,228)]/60 rounded-3xl p-8 transition-all duration-500 h-full backdrop-blur-sm hover:bg-gradient-to-br hover:from-white/20 hover:to-white/10 shadow-2xl hover:shadow-[0_25px_60px_rgba(102,255,228,0.2)] hover:scale-105">
+                      {/* Stage Number Watermark */}
+                      <div className="absolute top-6 right-6 text-7xl font-black text-white/10 group-hover:text-[rgb(102,255,228)]/25 transition-colors leading-none">{stage.num}</div>
+                      
+                      {/* Icon */}
+                      <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${stage.color} group-hover:bg-gradient-to-br group-hover:from-[rgb(102,255,228)]/30 group-hover:to-[rgb(102,255,228)]/15 flex items-center justify-center mb-6 group-hover:scale-110 transition-all duration-300 relative z-10`}>
+                        <stage.icon className="h-7 w-7 text-white" strokeWidth={1.5} />
                       </div>
-                      <h3 className="text-2xl font-bold text-white mb-3 leading-tight">{stage.title}</h3>
-                      <p className="text-white/70 text-base leading-relaxed">{stage.desc}</p>
-                    </div>
-                  </div>
-                ))}
-
-                {[
-                  { num: "03", icon: DocumentMagnifyingGlassIcon, title: "External Research", desc: "Search Stack Overflow, GitHub, YouTube, Reddit, and 5+ sources. Score and rank by authority and relevance." },
-                  { num: "04", icon: Square3Stack3DIcon, title: "Synthesis & Export", desc: "Synthesize findings into clear docs, apply your brand, validate citations, and export to any format." }
-                ].map((stage, idx) => (
-                  <div key={idx} className="group relative">
-                    <div className="relative bg-gradient-to-br from-white/15 to-white/5 border border-white/25 hover:border-[rgb(102,255,228)]/50 rounded-3xl p-8 transition-all duration-500 h-full backdrop-blur-sm hover:bg-gradient-to-br hover:from-white/20 hover:to-white/10 shadow-2xl hover:shadow-[0_20px_50px_rgba(102,255,228,0.15)]">
-                      <div className="absolute top-8 right-8 text-6xl font-black text-white/10 group-hover:text-[rgb(102,255,228)]/20 transition-colors">{stage.num}</div>
-                      <div className="w-12 h-12 text-white mb-6 group-hover:text-[rgb(102,255,228)] transition-all duration-300 group-hover:scale-110" aria-hidden="true">
-                        <stage.icon strokeWidth={1.2} />
-                      </div>
-                      <h3 className="text-2xl font-bold text-white mb-3 leading-tight">{stage.title}</h3>
-                      <p className="text-white/70 text-base leading-relaxed">{stage.desc}</p>
+                      
+                      <h3 className="text-2xl font-bold text-white mb-3 leading-tight relative z-10">{stage.title}</h3>
+                      <p className="text-white/75 text-base leading-relaxed relative z-10">{stage.desc}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Trust Card - Source Attribution */}
-            <div className="max-w-3xl mx-auto mt-24 bg-gradient-to-r from-[rgb(102,255,228)]/10 to-[rgb(102,255,228)]/5 backdrop-blur-md border border-[rgb(102,255,228)]/30 rounded-3xl p-10 md:p-12 text-center shadow-2xl hover:shadow-[0_20px_50px_rgba(102,255,228,0.2)] transition-all duration-500 hover:border-[rgb(102,255,228)]/50">
-              <div className="flex items-center justify-center gap-4 mb-4">
-                <div className="p-2 bg-[rgb(102,255,228)]/20 rounded-full">
-                  <CheckBadgeIcon className="h-8 w-8 text-[rgb(102,255,228)]" aria-hidden="true" />
+            {/* Trust Card - Enhanced Source Attribution */}
+            <div className="max-w-4xl mx-auto bg-gradient-to-br from-[rgb(102,255,228)]/15 to-[rgb(102,255,228)]/5 border-2 border-[rgb(102,255,228)]/40 rounded-3xl p-10 md:p-14 text-center shadow-[0_25px_60px_rgba(102,255,228,0.25)] hover:shadow-[0_30px_80px_rgba(102,255,228,0.3)] transition-all duration-500 hover:border-[rgb(102,255,228)]/60">
+              {/* Decorative corners */}
+              <div className="absolute top-0 left-0 w-24 h-24 border-t-2 border-l-2 border-[rgb(102,255,228)]/60 rounded-tl-3xl"></div>
+              <div className="absolute bottom-0 right-0 w-24 h-24 border-b-2 border-r-2 border-[rgb(102,255,228)]/60 rounded-br-3xl"></div>
+              
+              <div className="relative z-10">
+                <div className="flex items-center justify-center gap-4 mb-6">
+                  <div className="p-3 bg-[rgb(102,255,228)]/25 rounded-full">
+                    <CheckBadgeIcon className="h-10 w-10 text-[rgb(102,255,228)]" aria-hidden="true" />
+                  </div>
+                  <h4 className="text-3xl md:text-4xl font-bold text-white">100% Source Attribution</h4>
                 </div>
-                <h4 className="text-2xl md:text-3xl font-bold text-white">100% Source Attribution</h4>
+                <p className="text-white/90 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto">
+                  Every insight is traced to its source. Quality scored, validated for reliability, and fully transparent so you can verify any claim.
+                </p>
               </div>
-              <p className="text-white/80 text-lg leading-relaxed">
-                Every insight is traced to its source. Quality scored and validated for reliability.
-              </p>
             </div>
           </div>
         </section>
@@ -1108,30 +1107,44 @@ const Index = () => {
                 </div>
               </div>
 
-              {/* Quality & Features */}
+              {/* Enterprise Features */}
               <div>
-                <div className="flex items-center gap-4 mb-10">
-                  <div className="h-1 w-12 bg-gradient-to-r from-[rgb(102,255,228)] to-transparent"></div>
-                  <h3 className="text-2xl md:text-3xl font-bold text-white tracking-tight">Quality & Features</h3>
+                <div className="flex flex-col items-center text-center mb-12">
+                  <div className="inline-flex items-center gap-3 mb-4">
+                    <div className="h-px w-12 bg-gradient-to-r from-transparent to-[rgb(102,255,228)]"></div>
+                    <BuildingOfficeIcon className="h-6 w-6 text-[rgb(102,255,228)]" strokeWidth={1.5} />
+                    <div className="h-px w-12 bg-gradient-to-l from-transparent to-[rgb(102,255,228)]"></div>
+                  </div>
+                  <h3 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-3">Enterprise Features</h3>
+                  <p className="text-white/70 text-lg max-w-2xl">
+                    Production-ready capabilities for teams that demand the best
+                  </p>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+                
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
                   {[
-                    { icon: CheckBadgeIcon, name: "Quality Scoring" },
-                    { icon: SwatchIcon, name: "Brand Styling" },
-                    { icon: MagnifyingGlassIcon, name: "Full Search" },
-                    { icon: Cog6ToothIcon, name: "SEO Ready" },
-                    { icon: ShieldCheckIcon, name: "Accessibility" },
-                    { icon: BuildingOfficeIcon, name: "Enterprise" },
-                    { icon: ArrowPathIcon, name: "Auto Updates" },
-                    { icon: ClipboardDocumentListIcon, name: "Analytics" }
-                  ].map((item) => (
-                    <div key={item.name} className="group">
-                      <div className="relative bg-gradient-to-br from-white/10 to-white/5 hover:from-white/15 hover:to-white/10 border border-white/20 hover:border-[rgb(102,255,228)]/40 rounded-2xl p-7 transition-all duration-400 h-full backdrop-blur-sm hover:shadow-[0_10px_30px_rgba(102,255,228,0.1)]">
-                        <div className="flex flex-col items-center text-center gap-4 h-full">
-                          <div className="w-14 h-14 rounded-xl bg-white/15 group-hover:bg-[rgb(102,255,228)]/20 flex items-center justify-center transition-all duration-300 group-hover:scale-110">
+                    { icon: CheckBadgeIcon, name: "Quality Scoring", desc: "AI-Powered Validation" },
+                    { icon: SwatchIcon, name: "Brand Styling", desc: "Auto-Match Colors" },
+                    { icon: MagnifyingGlassIcon, name: "Full Search", desc: "Advanced Indexing" },
+                    { icon: Cog6ToothIcon, name: "SEO Ready", desc: "Meta & Schema" },
+                    { icon: ShieldCheckIcon, name: "Accessibility", desc: "WCAG Compliant" },
+                    { icon: BuildingOfficeIcon, name: "Enterprise SSO", desc: "SAML & OAuth" },
+                    { icon: ArrowPathIcon, name: "Auto Updates", desc: "Stay Current" },
+                    { icon: ClipboardDocumentListIcon, name: "Analytics", desc: "Usage Insights" }
+                  ].map((item, idx) => (
+                    <div key={item.name} className="group" style={{animationDelay: `${idx * 40}ms`}}>
+                      <div className="relative bg-gradient-to-br from-white/10 to-white/5 hover:from-white/15 hover:to-white/10 border border-white/20 hover:border-[rgb(102,255,228)]/50 rounded-2xl p-6 md:p-7 transition-all duration-400 h-full backdrop-blur-sm hover:shadow-[0_15px_40px_rgba(102,255,228,0.15)] hover:scale-105">
+                        {/* Glow effect */}
+                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[rgb(102,255,228)]/0 to-[rgb(102,255,228)]/0 group-hover:from-[rgb(102,255,228)]/5 group-hover:to-transparent transition-all duration-400"></div>
+                        
+                        <div className="flex flex-col items-center text-center gap-3 h-full relative z-10">
+                          <div className="w-14 h-14 rounded-xl bg-white/15 group-hover:bg-[rgb(102,255,228)]/25 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 shadow-lg">
                             <item.icon className="h-6 w-6 text-white/80 group-hover:text-[rgb(102,255,228)] transition-colors" strokeWidth={1.5} />
                           </div>
-                          <p className="text-sm font-semibold text-white/90 leading-snug">{item.name}</p>
+                          <div>
+                            <p className="text-sm font-bold text-white/95 leading-snug mb-1">{item.name}</p>
+                            <p className="text-xs text-white/60 leading-tight">{item.desc}</p>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1143,89 +1156,125 @@ const Index = () => {
         </section>
       )}
 
-      {/* Combined Quality, Exports & Trust Section */}
+      {/* Enterprise-Grade Reliability & Publishing */}
       {!generatedDoc && (
-        <section id="quality-exports" className="relative overflow-hidden bg-gradient-to-br from-[rgb(36,77,91)] via-[rgb(40,85,100)] to-[rgb(36,77,91)] py-24 lg:py-32">
+        <section id="quality-exports" className="relative overflow-hidden bg-gradient-to-br from-[rgb(36,77,91)] via-[rgb(40,85,100)] to-[rgb(36,77,91)] py-32 lg:py-40">
+          {/* Background Elements */}
           <div className="absolute inset-0 bg-grid-white/[0.02] opacity-50" />
+          <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[rgb(14,19,23)]/30 to-transparent" />
           
           <div className="relative container mx-auto px-6 max-w-7xl">
-            {/* Quality & Reliability */}
-            <div className="text-center mb-20">
+            {/* Header */}
+            <div className="text-center mb-24">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm mb-6">
-                <ShieldCheckIcon className="h-4 w-4 text-white" />
-                <span className="text-sm font-medium text-white/90">Production-Ready Quality</span>
+                <ShieldCheckIcon className="h-4 w-4 text-[rgb(102,255,228)]" strokeWidth={2} />
+                <span className="text-sm font-semibold text-white/90 uppercase tracking-wide">Enterprise-Grade</span>
               </div>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+              <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
                 Built for Reliability
               </h2>
-              <p className="text-xl text-white/70 max-w-3xl mx-auto">
-                Pipeline monitoring, multi-provider fallbacks, and quality scoring deliver predictable outcomes
+              <p className="text-lg md:text-xl text-white/70 max-w-3xl mx-auto">
+                Pipeline monitoring, multi-provider fallbacks, and quality scoring deliver predictable outcomes every time
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-20">
+            {/* Reliability Features Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-28 max-w-6xl mx-auto">
               {[
-                { icon: ClipboardDocumentListIcon, title: "Pipeline Monitoring", desc: "Stage-by-stage progress tracking with recommendations and partial success handling" },
-                { icon: ShieldCheckIcon, title: "Fallbacks & Retries", desc: "Provider rotation, exponential backoff, timeouts, and intelligent caching" },
-                { icon: CheckBadgeIcon, title: "Quality Scoring", desc: "Research weighted by authority, freshness, and consensus across sources" }
+                { 
+                  icon: ClipboardDocumentListIcon, 
+                  title: "Pipeline Monitoring", 
+                  desc: "Stage-by-stage progress tracking with real-time recommendations and partial success handling for uninterrupted workflows"
+                },
+                { 
+                  icon: ShieldCheckIcon, 
+                  title: "Fallbacks & Retries", 
+                  desc: "Automatic provider rotation, exponential backoff, smart timeouts, and intelligent caching ensure 99.9% reliability"
+                },
+                { 
+                  icon: CheckBadgeIcon, 
+                  title: "Quality Scoring", 
+                  desc: "AI-powered research weighted by authority, freshness, and consensus across sources for maximum accuracy"
+                }
               ].map((item, idx) => (
-                <div key={idx} className="group bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 hover:bg-white/15 hover:border-white/40 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1 focus-within:ring-2 focus-within:ring-[rgb(102,255,228)]/50">
-                  <div className="w-14 h-14 rounded-xl bg-white/20 group-hover:bg-white/30 flex items-center justify-center mb-6 transition-all duration-300 transform group-hover:scale-110">
-                    <item.icon className="h-7 w-7 text-white" strokeWidth={1.5} aria-hidden="true" />
+                <div key={idx} className="group relative">
+                  <div className="relative bg-gradient-to-br from-white/15 to-white/5 border-2 border-white/25 hover:border-[rgb(102,255,228)]/60 rounded-3xl p-8 md:p-10 transition-all duration-500 backdrop-blur-sm hover:shadow-[0_25px_60px_rgba(102,255,228,0.2)] hover:scale-105 h-full">
+                    {/* Decorative corner */}
+                    <div className="absolute top-0 right-0 w-20 h-20 border-t-2 border-r-2 border-white/20 group-hover:border-[rgb(102,255,228)]/40 rounded-tr-3xl transition-colors"></div>
+                    
+                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[rgb(102,255,228)]/20 to-[rgb(102,255,228)]/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-all duration-300">
+                      <item.icon className="h-8 w-8 text-[rgb(102,255,228)]" strokeWidth={1.5} aria-hidden="true" />
+                    </div>
+                    <h4 className="text-2xl md:text-3xl font-bold text-white mb-4">{item.title}</h4>
+                    <p className="text-white/75 leading-relaxed text-base">{item.desc}</p>
                   </div>
-                  <h4 className="text-xl font-bold text-white mb-3">{item.title}</h4>
-                  <p className="text-white/70 leading-relaxed text-sm md:text-base">{item.desc}</p>
                 </div>
               ))}
             </div>
 
-            {/* Export Formats */}
-            <div className="text-center mb-12">
-              <h3 className="text-3xl md:text-4xl font-bold text-white mb-4">Export Anywhere</h3>
-              <p className="text-lg text-white/70">One-click exports in multiple formats, or publish to a custom subdomain</p>
-            </div>
-            
-            <div className="max-w-4xl mx-auto">
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4 mb-6">
+            {/* Export & Publishing Section */}
+            <div className="max-w-5xl mx-auto">
+              <div className="text-center mb-12">
+                <h3 className="text-4xl md:text-5xl font-bold text-white mb-4">Export & Publish Anywhere</h3>
+                <p className="text-lg md:text-xl text-white/70">One-click exports in multiple formats or publish to your custom domain</p>
+              </div>
+              
+              {/* Export Formats Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 md:gap-5 mb-12">
                 {[
-                  { image: "/attached_assets/images/toppng.com-exporter-pdf-en-450x423.png", name: 'PDF' },
-                  { image: "/attached_assets/images/toppng.com-shadow-microsoft-icons-by-blackvariant-microsoft-office-2013-899x899.png", name: 'DOCX' },
-                  { image: "/attached_assets/images/toppng.com-custom-software-development-web-application-development-451x333.png", name: 'HTML' },
-                  { image: "/attached_assets/images/toppng.com-markdown-logo-830x512.png", name: 'Markdown' },
-                  { image: "/attached_assets/images/json-file-document-icon-png-image_927931.jpg", name: 'JSON' }
-                ].map((fmt) => (
-                  <div key={fmt.name} className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 md:p-6 text-center hover:bg-white/15 hover:border-[rgb(102,255,228)]/40 hover:shadow-lg transition-all duration-300 transform hover:scale-110 cursor-default focus-within:ring-2 focus-within:ring-[rgb(102,255,228)]/50">
-                    <img
-                      src={fmt.image}
-                      alt={fmt.name}
-                      className="h-6 md:h-8 w-6 md:w-8 mx-auto mb-2 object-contain transition-all hover:brightness-150"
-                    />
-                    <h5 className="font-semibold text-white text-sm md:text-base">{fmt.name}</h5>
+                  { image: "/attached_assets/images/toppng.com-exporter-pdf-en-450x423.png", name: 'PDF', desc: 'Print-Ready' },
+                  { image: "/attached_assets/images/toppng.com-shadow-microsoft-icons-by-blackvariant-microsoft-office-2013-899x899.png", name: 'DOCX', desc: 'Editable' },
+                  { image: "/attached_assets/images/toppng.com-custom-software-development-web-application-development-451x333.png", name: 'HTML', desc: 'Web Pages' },
+                  { image: "/attached_assets/images/toppng.com-markdown-logo-830x512.png", name: 'Markdown', desc: 'Dev Format' },
+                  { image: "/attached_assets/images/json-file-document-icon-png-image_927931.jpg", name: 'JSON', desc: 'Structured' }
+                ].map((fmt, idx) => (
+                  <div key={fmt.name} className="group">
+                    <div className="relative bg-gradient-to-br from-white/15 to-white/5 border border-white/25 hover:border-[rgb(102,255,228)]/50 rounded-2xl p-6 text-center transition-all duration-400 hover:shadow-[0_15px_40px_rgba(102,255,228,0.15)] hover:scale-110 backdrop-blur-sm">
+                      <div className="w-14 h-14 mx-auto mb-3 rounded-xl bg-white/10 group-hover:bg-[rgb(102,255,228)]/20 flex items-center justify-center transition-all">
+                        <img
+                          src={fmt.image}
+                          alt={fmt.name}
+                          className="h-8 w-8 object-contain group-hover:brightness-150 transition-all"
+                        />
+                      </div>
+                      <h5 className="font-bold text-white text-sm mb-1">{fmt.name}</h5>
+                      <p className="text-xs text-white/60">{fmt.desc}</p>
+                    </div>
                   </div>
                 ))}
               </div>
 
-              <div className="bg-white/10 backdrop-blur-md border border-white/30 hover:border-[rgb(102,255,228)]/40 rounded-2xl p-6 md:p-8 transition-all duration-500 hover:shadow-2xl">
-                <div className="flex items-center justify-center gap-3 mb-4 flex-wrap">
-                  <GlobeAltIcon className="h-5 md:h-6 text-[rgb(102,255,228)]" strokeWidth={1.5} aria-hidden="true" />
-                  <h5 className="text-lg md:text-xl font-bold text-white">Custom Domain Publishing</h5>
-                </div>
-                <p className="text-white/80 text-sm md:text-base mb-4">Publish your docs at your own domain or use a hosted subdomain</p>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <Input
-                    type="text"
-                    placeholder="example.com"
-                    value={customDomain}
-                    onChange={(e) => setCustomDomain(e.target.value)}
-                    className="flex-1 bg-white/20 border border-white/30 text-white placeholder:text-white/50 rounded-lg focus:border-[rgb(102,255,228)] focus:ring-2 focus:ring-[rgb(102,255,228)]/20 px-4 py-2"
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-white/30 bg-white/20 hover:bg-white/30 text-white rounded-lg whitespace-nowrap font-semibold"
-                  >
-                    Publish
-                  </Button>
+              {/* Custom Domain Publishing Card */}
+              <div className="relative bg-gradient-to-br from-[rgb(102,255,228)]/15 to-[rgb(102,255,228)]/5 border-2 border-[rgb(102,255,228)]/40 rounded-3xl p-8 md:p-10 shadow-[0_25px_60px_rgba(102,255,228,0.25)] hover:shadow-[0_30px_80px_rgba(102,255,228,0.3)] transition-all duration-500">
+                {/* Decorative corners */}
+                <div className="absolute top-0 left-0 w-20 h-20 border-t-2 border-l-2 border-[rgb(102,255,228)]/60 rounded-tl-3xl"></div>
+                <div className="absolute bottom-0 right-0 w-20 h-20 border-b-2 border-r-2 border-[rgb(102,255,228)]/60 rounded-br-3xl"></div>
+                
+                <div className="relative z-10">
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
+                    <div className="p-3 bg-[rgb(102,255,228)]/25 rounded-full">
+                      <GlobeAltIcon className="h-8 w-8 text-[rgb(102,255,228)]" strokeWidth={1.5} aria-hidden="true" />
+                    </div>
+                    <h5 className="text-2xl md:text-3xl font-bold text-white">Custom Domain Publishing</h5>
+                  </div>
+                  <p className="text-white/90 text-base md:text-lg mb-6 text-center max-w-2xl mx-auto">
+                    Publish your documentation at your own domain or use a hosted subdomain with full SSL and CDN support
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
+                    <Input
+                      type="text"
+                      placeholder="docs.yourcompany.com"
+                      value={customDomain}
+                      onChange={(e) => setCustomDomain(e.target.value)}
+                      className="flex-1 h-12 bg-white/20 border-2 border-white/30 text-white placeholder:text-white/50 rounded-xl focus:border-[rgb(102,255,228)] focus:ring-2 focus:ring-[rgb(102,255,228)]/20 px-4 text-base"
+                    />
+                    <Button
+                      size="lg"
+                      className="h-12 px-8 bg-[rgb(102,255,228)] text-[rgb(14,19,23)] hover:bg-[rgb(102,255,228)]/90 font-bold rounded-xl whitespace-nowrap shadow-xl hover:shadow-2xl hover:scale-105 transition-all"
+                    >
+                      Publish Now
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>

@@ -123,46 +123,79 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="container mx-auto px-4 pt-24 pb-8">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Home
-          </Button>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <Button variant="default" onClick={() => navigate('/')} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Generate New Doc
-          </Button>
-          {user && (
-            <Button variant="secondary" size="sm" onClick={() => { supabase.auth.signOut(); navigate('/'); }}>
-              Sign Out
+    <div className="min-h-screen bg-gradient-to-br from-[rgb(14,19,23)] via-[rgb(24,29,37)] to-[rgb(34,38,46)]">
+      {/* Background Elements */}
+      <div className="fixed inset-0 bg-grid-white/[0.02] opacity-30" />
+      <div className="fixed top-1/4 right-1/4 w-96 h-96 bg-gradient-radial from-[rgb(102,255,228)]/5 via-transparent to-transparent blur-3xl" />
+      
+      <div className="relative container mx-auto px-4 pt-24 pb-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-10">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate('/')} 
+              className="gap-2 text-white hover:bg-white/10 border border-white/10 rounded-full px-4"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Home
             </Button>
-          )}
+            <div>
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-1">Dashboard</h1>
+              <p className="text-white/60">Manage your generated documentation</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <Button 
+              variant="default" 
+              onClick={() => navigate('/')} 
+              className="gap-2 bg-[rgb(102,255,228)] text-[rgb(14,19,23)] hover:bg-[rgb(102,255,228)]/90 font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+            >
+              <Plus className="h-4 w-4" />
+              Generate New Doc
+            </Button>
+            {user && (
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                onClick={() => { supabase.auth.signOut(); navigate('/'); }}
+                className="bg-white/10 text-white hover:bg-white/20 border border-white/20"
+              >
+                Sign Out
+              </Button>
+            )}
+          </div>
         </div>
-      </div>
 
       {user && (
         <>
-          <Card className="mb-8">
+          {/* User Profile Card */}
+          <Card className="mb-8 bg-gradient-to-br from-white/10 to-white/5 border border-white/20 backdrop-blur-sm">
             <CardHeader>
-              <div className="flex items-center gap-4">
-                <img src="https://cdn.builder.io/api/v1/image/assets%2Fa5240755456c40cdba09a9a8d717364c%2F538d34938c2641918290a7fc5923f99d?format=webp&width=800" alt="avatar" className="h-12 w-12 rounded-full object-cover" />
-                <div className="flex-1">
-                  <CardTitle className="text-lg">Welcome back, {user.email?.split('@')[0] || 'User'}</CardTitle>
-                  <CardDescription>{user.email}</CardDescription>
+              <div className="flex items-center gap-6">
+                <div className="relative">
+                  <img 
+                    src="https://cdn.builder.io/api/v1/image/assets%2Fa5240755456c40cdba09a9a8d717364c%2F538d34938c2641918290a7fc5923f99d?format=webp&width=800" 
+                    alt="avatar" 
+                    className="h-16 w-16 rounded-full object-cover border-2 border-[rgb(102,255,228)]/40 shadow-lg" 
+                  />
+                  <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[rgb(102,255,228)] border-2 border-[rgb(14,19,23)]"></div>
                 </div>
-                <div className="flex gap-4 text-sm">
-                  <div className="text-center">
-                    <div className="flex items-center gap-1 text-muted-foreground">
-                      <FileCheck className="h-4 w-4" />
-                      <span>Docs</span>
+                <div className="flex-1">
+                  <CardTitle className="text-2xl text-white mb-1">
+                    Welcome back, {user.email?.split('@')[0] || 'User'}
+                  </CardTitle>
+                  <CardDescription className="text-white/60 text-base">{user.email}</CardDescription>
+                </div>
+                <div className="flex gap-6">
+                  <div className="text-center group">
+                    <div className="flex items-center justify-center gap-2 text-white/60 mb-1">
+                      <FileCheck className="h-5 w-5 group-hover:text-[rgb(102,255,228)] transition-colors" />
+                      <span className="text-sm font-medium">Docs</span>
                     </div>
-                    <div className="text-2xl font-bold">{docs.length}</div>
+                    <div className="text-3xl font-bold text-white group-hover:text-[rgb(102,255,228)] transition-colors">{docs.length}</div>
                   </div>
                 </div>
               </div>
@@ -177,56 +210,71 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1">
-          <Card>
+          <Card className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle>Your Documentation</CardTitle>
-              <CardDescription>View and manage your generated docs</CardDescription>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[rgb(102,255,228)]"></div>
+                <FileText className="h-5 w-5 text-[rgb(102,255,228)]" strokeWidth={1.5} />
+                <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[rgb(102,255,228)]"></div>
+              </div>
+              <CardTitle className="text-2xl text-white text-center">Your Documentation</CardTitle>
+              <CardDescription className="text-white/60 text-center">View and manage your generated docs</CardDescription>
             </CardHeader>
             <CardContent>
               {docs.length === 0 ? (
-                <div className="text-center py-8">
-                  <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-muted-foreground mb-4">No documents generated yet.</p>
-                  <Button variant="default" onClick={() => navigate('/')} className="gap-2">
+                <div className="text-center py-12">
+                  <div className="relative p-6 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 border border-white/20 mb-6 inline-block">
+                    <FileText className="h-14 w-14 text-white/50" strokeWidth={1.5} />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">No Documents Yet</h3>
+                  <p className="text-white/60 mb-6">Start by generating your first documentation</p>
+                  <Button 
+                    variant="default" 
+                    onClick={() => navigate('/')} 
+                    className="gap-2 bg-[rgb(102,255,228)] text-[rgb(14,19,23)] hover:bg-[rgb(102,255,228)]/90 font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+                  >
                     <Plus className="h-4 w-4" />
                     Create Your First Doc
                   </Button>
                 </div>
               ) : (
-                <ul className="space-y-3">
-                  {Array.isArray(docs) && docs.map((d) => (
-                    <li key={d.id} className="p-4 rounded-lg bg-[#0b0f17]/60 border border-white/6 hover:border-white/20 transition-colors">
-                      <div className="mb-3">
-                        <div className="font-semibold truncate mb-1">{d.title}</div>
-                        <div className="text-sm text-muted-foreground truncate">{d.url}</div>
+                <ul className="space-y-4">
+                  {Array.isArray(docs) && docs.map((d, idx) => (
+                    <li key={d.id} className="group relative bg-gradient-to-br from-white/10 to-white/5 border border-white/20 hover:border-[rgb(102,255,228)]/50 rounded-2xl p-5 transition-all duration-500 hover:shadow-[0_15px_40px_rgba(102,255,228,0.15)] hover:scale-[1.02]">
+                      {/* Decorative corner */}
+                      <div className="absolute top-0 right-0 w-16 h-16 border-t border-r border-white/10 group-hover:border-[rgb(102,255,228)]/30 rounded-tr-2xl transition-colors"></div>
+                      
+                      <div className="mb-4 relative z-10">
+                        <div className="font-bold text-white text-lg truncate mb-2 group-hover:text-[rgb(102,255,228)] transition-colors">{d.title}</div>
+                        <div className="text-sm text-white/60 truncate mb-2">{d.url}</div>
                         {d.generatedAt && (
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-                            <Clock className="h-3 w-3" />
+                          <div className="flex items-center gap-2 text-xs text-white/50">
+                            <Clock className="h-3.5 w-3.5" />
                             {new Date(d.generatedAt).toLocaleString()}
                           </div>
                         )}
                       </div>
-                      <div className="flex gap-2 flex-wrap">
-                        <Button variant="default" size="sm" onClick={() => openDoc(d.id)} className="gap-1">
-                          <FileText className="h-3 w-3"/>View
+                      <div className="flex gap-2 flex-wrap relative z-10">
+                        <Button variant="default" size="sm" onClick={() => openDoc(d.id)} className="gap-1 bg-[rgb(102,255,228)] text-[rgb(14,19,23)] hover:bg-[rgb(102,255,228)]/90 font-semibold">
+                          <FileText className="h-3.5 w-3.5"/>View
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => downloadBlob(`/api/export/html/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.html`)} className="gap-1">
-                          <ExternalLink className="h-3 w-3"/>HTML
+                        <Button variant="outline" size="sm" onClick={() => downloadBlob(`/api/export/html/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.html`)} className="gap-1 border-white/30 text-white hover:bg-white/10">
+                          <ExternalLink className="h-3.5 w-3.5"/>HTML
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => downloadBlob(`/api/export/pdf/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.pdf`)} className="gap-1">
-                          <Download className="h-3 w-3"/>PDF
+                        <Button variant="outline" size="sm" onClick={() => downloadBlob(`/api/export/pdf/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.pdf`)} className="gap-1 border-white/30 text-white hover:bg-white/10">
+                          <Download className="h-3.5 w-3.5"/>PDF
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => downloadBlob(`/api/export/markdown/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.md`)}>
+                        <Button variant="ghost" size="sm" onClick={() => downloadBlob(`/api/export/markdown/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.md`)} className="text-white/70 hover:text-white hover:bg-white/10">
                           MD
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => downloadBlob(`/api/export/docx/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.docx`)}>
+                        <Button variant="ghost" size="sm" onClick={() => downloadBlob(`/api/export/docx/${d.id}`, `${(d.title || 'documentation').replace(/[^a-z0-9]/gi, '_')}.docx`)} className="text-white/70 hover:text-white hover:bg-white/10">
                           DOCX
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => createCustomDomain(d.id)} className="gap-1">
-                          <Globe className="h-3 w-3"/>Domain
+                        <Button variant="outline" size="sm" onClick={() => createCustomDomain(d.id)} className="gap-1 border-white/30 text-white hover:bg-white/10">
+                          <Globe className="h-3.5 w-3.5"/>Domain
                         </Button>
-                        <Button variant="destructive" size="sm" onClick={() => deleteDoc(d.id)} className="gap-1 ml-auto">
-                          <Trash2 className="h-3 w-3"/>
+                        <Button variant="destructive" size="sm" onClick={() => deleteDoc(d.id)} className="gap-1 ml-auto bg-red-500/20 text-red-300 hover:bg-red-500/30 border-red-500/30">
+                          <Trash2 className="h-3.5 w-3.5"/>
                         </Button>
                       </div>
                     </li>
@@ -239,18 +287,23 @@ export default function Dashboard() {
 
         <div className="lg:col-span-2">
           {selectedDoc ? (
-            <Card>
+            <Card className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 backdrop-blur-sm">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>{selectedDoc.title}</CardTitle>
+                    <CardTitle className="text-2xl text-white mb-2">{selectedDoc.title}</CardTitle>
                     {selectedDoc.parsedContent?.description && (
-                      <CardDescription>{selectedDoc.parsedContent.description}</CardDescription>
+                      <CardDescription className="text-white/60 text-base">{selectedDoc.parsedContent.description}</CardDescription>
                     )}
                   </div>
                   <div className="flex items-center gap-2">
                     <BrandKitExtractor onThemeGenerated={(theme) => setViewerTheme(theme)} />
-                    <Button variant="outline" size="sm" onClick={() => setSelectedDoc(null)}>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setSelectedDoc(null)}
+                      className="border-white/30 text-white hover:bg-white/10"
+                    >
                       Close Preview
                     </Button>
                   </div>
@@ -266,13 +319,19 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           ) : (
-            <Card>
-              <CardContent className="py-16 text-center">
-                <FileText className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-                <h3 className="text-lg font-semibold mb-2">No Document Selected</h3>
-                <p className="text-muted-foreground mb-6">Select a document from the list to preview its contents</p>
+            <Card className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 backdrop-blur-sm">
+              <CardContent className="py-20 text-center">
+                <div className="relative p-8 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 border border-white/20 mb-8 inline-block">
+                  <FileText className="h-20 w-20 text-white/40" strokeWidth={1.5} />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-3">No Document Selected</h3>
+                <p className="text-white/60 text-base mb-8 max-w-md mx-auto">Select a document from the list to preview its contents and manage exports</p>
                 {docs.length === 0 && (
-                  <Button variant="default" onClick={() => navigate('/')} className="gap-2">
+                  <Button 
+                    variant="default" 
+                    onClick={() => navigate('/')} 
+                    className="gap-2 bg-[rgb(102,255,228)] text-[rgb(14,19,23)] hover:bg-[rgb(102,255,228)]/90 font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+                  >
                     <Home className="h-4 w-4" />
                     Go to Home & Generate
                   </Button>
@@ -281,6 +340,7 @@ export default function Dashboard() {
             </Card>
           )}
         </div>
+      </div>
       </div>
     </div>
   );
