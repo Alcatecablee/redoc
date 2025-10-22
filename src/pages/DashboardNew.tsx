@@ -321,7 +321,7 @@ export default function DashboardNew() {
             ) : (
               <div className="space-y-4">
                 {overview.recentDocs.map((doc) => (
-                  <div key={doc.id} className="p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
+                  <div key={doc.id} className="p-4 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <h3 className="font-semibold text-lg mb-1">{doc.title}</h3>
