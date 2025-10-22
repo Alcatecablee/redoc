@@ -282,7 +282,7 @@ export default function DashboardNew() {
           >
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={overview.usageTrend}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <CartesianGrid strokeDasharray="3 3" className="stroke-white/10" />
                 <XAxis 
                   dataKey="date" 
                   className="text-xs"
