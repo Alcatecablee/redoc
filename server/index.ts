@@ -165,15 +165,28 @@ const server = createServer(app);
 // Initialize background job queue (unified: BullMQ or in-memory)
 import { initUnifiedQueue } from './queue/unified-queue';
 import { generateDocumentationPipeline } from './generator';
+import { createDocumentationWithTransaction } from './utils/documentation-transaction';
 
 // Initialize with 5 concurrent workers for production
 initUnifiedQueue(async (job: any) => {
   try {
     console.log('Processing job', job.id, job.name);
-    const { url, userId, sessionId, userPlan } = job.payload || {};
+    const { url, userId, sessionId, userPlan, userEmail } = job.payload || {};
     if (job.name === 'generate-docs' && url) {
       const result = await generateDocumentationPipeline(url, userId || null, sessionId, userPlan || 'free');
-      job.result = { documentationId: result.documentation.id };
+      
+      // Save documentation and update user count atomically in transaction
+      const { documentation } = await createDocumentationWithTransaction({
+        documentationData: result.documentationData as any,
+        userEmail: userEmail || null,
+        metadata: {
+          url,
+          sessionId: sessionId || null,
+          userPlan: userPlan || 'free',
+        }
+      });
+      
+      job.result = { documentationId: documentation.id };
       console.log('Job completed', job.id, job.result);
     } else {
       throw new Error('Unknown job or missing payload');

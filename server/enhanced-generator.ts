@@ -39,6 +39,7 @@ import {
   validateWrittenDocs,
   validateMetadata
 } from './utils/ai-validation';
+import { withPipelineTimeout, withStageTimeout, checkAbortSignal, TimeoutError } from './utils/pipeline-timeout';
 
 // Utility: attempt HEAD then GET to verify URL exists
 async function headOrGet(url: string): Promise<Response | null> {
@@ -77,21 +78,31 @@ async function fetchSitemaps(baseUrl: string, extraHosts: string[] = []): Promis
     return `${b.protocol}//${host}`;
   })];
   const paths = ['/sitemap.xml', '/sitemap_index.xml'];
-  const urls: string[] = [];
-  for (const root of roots) {
-    for (const p of paths) {
-      const target = new URL(p, root).href;
+  
+  // Parallelize sitemap fetching
+  const { processConcurrently } = await import('./utils/concurrent-fetch');
+  const sitemapCombos = roots.flatMap(root => paths.map(p => ({ root, path: p })));
+  
+  const results = await processConcurrently(
+    sitemapCombos,
+    async (combo, _index, signal) => {
+      const target = new URL(combo.path, combo.root).href;
       try {
-        const resp = await fetch(target);
+        const resp = await fetch(target, { signal });
         if (resp.ok) {
           const xml = await resp.text();
-          // If this is an index, it may contain sitemap <loc> entries too
-          const extracted = extractUrlsFromSitemap(xml, root);
-          urls.push(...extracted);
+          return extractUrlsFromSitemap(xml, combo.root);
         }
       } catch {}
-    }
-  }
+      return [];
+    },
+    { concurrency: 10, timeoutMs: 5000 }
+  );
+  
+  const urls = results
+    .filter((r): r is PromiseFulfilledResult<string[]> => r.status === 'fulfilled')
+    .flatMap(r => r.value);
+  
   return Array.from(new Set(urls));
 }
 
@@ -124,30 +135,58 @@ export async function discoverSiteStructure(baseUrl: string) {
       '/integrations', '/pricing', '/security', '/status', '/release-notes', '/roadmap'
     ];
 
-    // Probe common subdomains for docs/help content
+    // Probe common subdomains for docs/help content (PARALLELIZED)
     const base = new URL(baseUrl);
     const baseHost = base.hostname.replace(/^www\./, '');
     const subdomains = ['docs','help','support','developer','dev','community','forum','status','api','blog'];
-    const discoveredHosts: string[] = [];
-    for (const sub of subdomains) {
-      const host = `${sub}.${baseHost}`;
-      const testUrl = `${base.protocol}//${host}/`;
-      const resp = await headOrGet(testUrl);
-      if (resp) discoveredHosts.push(host);
-    }
     
-    // Find valid documentation URLs on base and discovered subdomains
-    const validUrls: string[] = [];
+    console.log(`🔍 Probing ${subdomains.length} subdomains in parallel...`);
+    const { processConcurrently } = await import('./utils/concurrent-fetch');
+    
+    const subdomainResults = await processConcurrently(
+      subdomains,
+      async (sub, _index, signal) => {
+        const host = `${sub}.${baseHost}`;
+        const testUrl = `${base.protocol}//${host}/`;
+        const resp = await headOrGet(testUrl);
+        return resp ? host : null;
+      },
+      { concurrency: 10, timeoutMs: 3000 }
+    );
+    
+    const discoveredHosts = subdomainResults
+      .filter((r): r is PromiseFulfilledResult<string> => r.status === 'fulfilled' && r.value !== null)
+      .map(r => r.value);
+    
+    console.log(`✅ Discovered ${discoveredHosts.length} subdomains`);
+    
+    // Find valid documentation URLs on base and discovered subdomains (PARALLELIZED)
     const rootsToTest = [baseUrl, ...discoveredHosts.map(h => `${base.protocol}//${h}`)];
-    for (const root of rootsToTest) {
-      for (const path of docPaths) {
+    const pathTestCombos = rootsToTest.flatMap(root => 
+      docPaths.map(path => ({ root, path }))
+    );
+    
+    console.log(`🔍 Testing ${pathTestCombos.length} documentation paths in parallel...`);
+    
+    const pathResults = await processConcurrently(
+      pathTestCombos,
+      async (combo, _index, signal) => {
         try {
-          const testUrl = new URL(path, root).href;
+          const testUrl = new URL(combo.path, combo.root).href;
           const response = await headOrGet(testUrl);
-          if (response) validUrls.push(testUrl);
-        } catch {}
-      }
-    }
+          return response ? testUrl : null;
+        } catch {
+          return null;
+        }
+      },
+      { concurrency: 10, timeoutMs: 3000 }
+    );
+    
+    const validUrls = pathResults
+      .filter((r): r is PromiseFulfilledResult<string> => r.status === 'fulfilled' && r.value !== null)
+      .map(r => r.value);
+    
+    console.log(`✅ Found ${validUrls.length} valid documentation paths`);
     
     // Extract links from navigation menu
     const navLinks = [];
@@ -446,7 +485,8 @@ export async function generateEnhancedDocumentation(
   url: string, 
   userId: string | null, 
   sessionId?: string,
-  userPlan: string = 'free'
+  userPlan: string = 'free',
+  abortSignal?: AbortSignal
 ) {
   const aiProvider = createAIProvider();
   // Allow any configured provider via provider rotation

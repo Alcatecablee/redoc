@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import { withTimeout, retryWithFallback } from './utils/retry-with-fallback';
+import { withCircuitBreaker } from './utils/circuit-breaker';
 
 export interface AIMessage {
   role: 'system' | 'user' | 'assistant';
@@ -47,16 +48,36 @@ export class AIProvider {
 
     for (const p of order) {
       if (p === 'groq' && this.config.groqApiKey) {
-        providers.push(() => withTimeout(this.callGroq(messages, jsonMode), timeoutMs, 'groq timed out'));
+        providers.push(() => 
+          withCircuitBreaker(
+            'ai-provider-groq',
+            () => withTimeout(this.callGroq(messages, jsonMode), timeoutMs, 'groq timed out')
+          )
+        );
       }
       if (p === 'openai' && this.config.openaiApiKey) {
-        providers.push(() => withTimeout(this.callOpenAI(messages, jsonMode), timeoutMs, 'openai timed out'));
+        providers.push(() => 
+          withCircuitBreaker(
+            'ai-provider-openai',
+            () => withTimeout(this.callOpenAI(messages, jsonMode), timeoutMs, 'openai timed out')
+          )
+        );
       }
       if (p === 'deepseek' && this.config.deepseekApiKey) {
-        providers.push(() => withTimeout(this.callDeepSeek(messages, jsonMode), timeoutMs, 'deepseek timed out'));
+        providers.push(() => 
+          withCircuitBreaker(
+            'ai-provider-deepseek',
+            () => withTimeout(this.callDeepSeek(messages, jsonMode), timeoutMs, 'deepseek timed out')
+          )
+        );
       }
       if (p === 'ollama' && (this.config.ollamaBaseUrl || process.env.OLLAMA_BASE_URL)) {
-        providers.push(() => withTimeout(this.callOllama(messages, jsonMode), timeoutMs, 'ollama timed out'));
+        providers.push(() => 
+          withCircuitBreaker(
+            'ai-provider-ollama',
+            () => withTimeout(this.callOllama(messages, jsonMode), timeoutMs, 'ollama timed out')
+          )
+        );
       }
     }
 

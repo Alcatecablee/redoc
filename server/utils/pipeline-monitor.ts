@@ -37,6 +37,7 @@ export interface PipelineReport {
   sessionId: string;
   stages: PipelineStage[];
   overallQuality: number;
+  pipelineStatus?: 'running' | 'completed' | 'failed';
   startTime: number;
   endTime?: number;
   totalDuration?: number;
@@ -62,6 +63,7 @@ class PipelineMonitor {
       sessionId,
       stages: this.initializeStages(),
       overallQuality: 0,
+      pipelineStatus: 'running',
       startTime: Date.now(),
       sourcesUsed: 0,
       sourcesMissing: [],
@@ -230,6 +232,7 @@ class PipelineMonitor {
     
     report.endTime = Date.now();
     report.totalDuration = report.endTime - report.startTime;
+    report.pipelineStatus = 'completed';
     
     // Calculate overall quality based on stage completion
     const completedStages = report.stages.filter(s => s.status === 'completed').length;
@@ -246,6 +249,35 @@ class PipelineMonitor {
     console.log(`✅ Pipeline completed: ${sessionId} - Quality: ${report.overallQuality}%`);
     console.log(`⏱️  Duration: ${(report.totalDuration / 1000).toFixed(2)}s`);
     console.log(`📚 Sources used: ${report.sourcesUsed}`);
+    
+    return report;
+  }
+  
+  /**
+   * Mark pipeline as failed (for timeouts, crashes, critical errors)
+   */
+  failPipeline(sessionId: string, errorMessage: string): PipelineReport | undefined {
+    const report = this.reports.get(sessionId);
+    if (!report) return undefined;
+    
+    report.endTime = Date.now();
+    report.totalDuration = report.endTime - report.startTime;
+    report.pipelineStatus = 'failed';
+    report.overallQuality = 0;
+    
+    // Add failure recommendation
+    report.recommendations.push(`Pipeline failed: ${errorMessage}`);
+    
+    // Count failed stages for additional context
+    const failedStages = report.stages.filter(s => s.status === 'failed').length;
+    if (failedStages > 0) {
+      report.recommendations.push(
+        `${failedStages} stage(s) failed. Consider re-running with different API providers.`
+      );
+    }
+    
+    console.log(`❌ Pipeline failed: ${sessionId} - ${errorMessage}`);
+    console.log(`⏱️  Duration: ${(report.totalDuration / 1000).toFixed(2)}s`);
     
     return report;
   }
