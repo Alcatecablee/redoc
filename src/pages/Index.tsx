@@ -248,7 +248,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[rgb(14,19,23)]">
       <Header />
       <SignInDialog open={showSignIn} onOpenChange={setShowSignIn} />
 
