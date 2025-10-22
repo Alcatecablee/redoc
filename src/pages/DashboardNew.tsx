@@ -129,7 +129,7 @@ export default function DashboardNew() {
       <DashboardLayout title="Dashboard" description="Loading your analytics...">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map(i => (
-            <Card key={i} className="animate-pulse">
+            <Card key={i} className="animate-pulse bg-white/5 border border-white/10 text-white">
               <CardHeader className="pb-2">
                 <div className="h-4 w-24 bg-muted rounded" />
               </CardHeader>
