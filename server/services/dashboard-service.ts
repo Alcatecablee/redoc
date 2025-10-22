@@ -547,23 +547,32 @@ export class DashboardService {
 
     const memberIds = members.map(m => m.user_id);
 
-    const totalDocsResult = await db
-      .select({ count: count() })
-      .from(documentations)
-      .where(sql`${documentations.user_id} = ANY(${memberIds.length > 0 ? memberIds : [-1]})`);
+    let totalDocsCount = 0;
+    let docsThisMonthCount = 0;
 
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    if (memberIds.length > 0) {
+      const totalDocsResult = await db
+        .select({ count: count() })
+        .from(documentations)
+        .where(sql`${documentations.user_id} = ANY(${memberIds})`);
 
-    const docsThisMonthResult = await db
-      .select({ count: count() })
-      .from(documentations)
-      .where(
-        and(
-          sql`${documentations.user_id} = ANY(${memberIds.length > 0 ? memberIds : [-1]})`,
-          gte(documentations.generatedAt, thirtyDaysAgo)
-        )
-      );
+      totalDocsCount = totalDocsResult[0]?.count || 0;
+
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      const docsThisMonthResult = await db
+        .select({ count: count() })
+        .from(documentations)
+        .where(
+          and(
+            sql`${documentations.user_id} = ANY(${memberIds})`,
+            gte(documentations.generatedAt, thirtyDaysAgo)
+          )
+        );
+
+      docsThisMonthCount = docsThisMonthResult[0]?.count || 0;
+    }
 
     const topContributors = await Promise.all(
       members.map(async (member) => {
