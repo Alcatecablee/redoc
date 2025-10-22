@@ -1,7 +1,3 @@
-import React from 'react';
-
-import React from 'react';
-
 const SOURCES = [
   { key: 'stack', label: 'Stack Overflow', subtitle: 'Q&A' },
   { key: 'github', label: 'GitHub Issues', subtitle: 'Code' },
