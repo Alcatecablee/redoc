@@ -649,10 +649,10 @@ export class DashboardService {
         memberCount: members.length,
       },
       teamStats: {
-        totalDocs: totalDocsResult[0]?.count || 0,
+        totalDocs: totalDocsCount,
         totalViews: 0,
         activeMembers: members.length,
-        docsThisMonth: docsThisMonthResult[0]?.count || 0,
+        docsThisMonth: docsThisMonthCount,
       },
       topContributors: topContributors.slice(0, 10),
       recentActivity: activityWithUsers,
