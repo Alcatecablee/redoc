@@ -313,35 +313,43 @@ export class DashboardService {
           )
         );
 
-      const viewsResult = await database
-        .select({ count: count() })
-        .from(analyticsEvents)
-        .where(
-          and(
-            sql`${analyticsEvents.documentation_id} = ANY(${docIds.length > 0 ? docIds : [-1]})`,
-            eq(analyticsEvents.event_type, 'view'),
-            gte(analyticsEvents.created_at, dayStart),
-            lte(analyticsEvents.created_at, dayEnd)
-          )
-        );
+      let viewsCount = 0;
+      let exportsCount = 0;
 
-      const exportsResult = await database
-        .select({ count: count() })
-        .from(analyticsEvents)
-        .where(
-          and(
-            sql`${analyticsEvents.documentation_id} = ANY(${docIds.length > 0 ? docIds : [-1]})`,
-            eq(analyticsEvents.event_type, 'export'),
-            gte(analyticsEvents.created_at, dayStart),
-            lte(analyticsEvents.created_at, dayEnd)
-          )
-        );
+      if (docIds.length > 0) {
+        const viewsResult = await database
+          .select({ count: count() })
+          .from(analyticsEvents)
+          .where(
+            and(
+              sql`${analyticsEvents.documentation_id} = ANY(${docIds})`,
+              eq(analyticsEvents.event_type, 'view'),
+              gte(analyticsEvents.created_at, dayStart),
+              lte(analyticsEvents.created_at, dayEnd)
+            )
+          );
+
+        const exportsResult = await database
+          .select({ count: count() })
+          .from(analyticsEvents)
+          .where(
+            and(
+              sql`${analyticsEvents.documentation_id} = ANY(${docIds})`,
+              eq(analyticsEvents.event_type, 'export'),
+              gte(analyticsEvents.created_at, dayStart),
+              lte(analyticsEvents.created_at, dayEnd)
+            )
+          );
+
+        viewsCount = viewsResult[0]?.count || 0;
+        exportsCount = exportsResult[0]?.count || 0;
+      }
 
       usageTrendData.push({
         date: dateStr,
         generations: generationsResult[0]?.count || 0,
-        views: viewsResult[0]?.count || 0,
-        exports: exportsResult[0]?.count || 0,
+        views: viewsCount,
+        exports: exportsCount,
       });
     }
 
