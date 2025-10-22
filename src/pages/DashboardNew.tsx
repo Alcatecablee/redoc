@@ -146,7 +146,7 @@ export default function DashboardNew() {
   if (error || !overview) {
     return (
       <DashboardLayout title="Dashboard" description="Your documentation analytics">
-        <Card>
+        <Card className="bg-white/5 border border-white/10 text-white">
           <CardContent className="py-12">
             <EmptyState
               icon={BarChart3}
