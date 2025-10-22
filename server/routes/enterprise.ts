@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { storage } from '../storage';
 import { ThemeOrchestrator } from '../services/theme-orchestrator';
-import { verifySupabaseAuth } from '../routes';
+import { verifySupabaseAuth } from '../middleware/auth';
 
 let sharp: any = null;
 try {

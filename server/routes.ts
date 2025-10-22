@@ -18,6 +18,7 @@ import activityRouter from './routes/activity';
 import enterpriseRouter from './routes/enterprise';
 import jobsRouter from './routes/jobs';
 import healthRouter from './routes/health';
+import versionsRouter from './routes/versions';
 import { fetchImagesForExport, limitImagesForExport } from './image-utils';
 import { db } from './db';
 import { users } from '../shared/schema';
@@ -26,6 +27,7 @@ import { canGenerateDocumentation, calculateSmartScaling, enforceTierLimits } fr
 import { idempotencyMiddleware, generateIdempotencyKey } from './middleware/idempotency';
 import { validate } from './middleware/validation';
 import { generateDocsSchema } from './validation/schemas';
+import { verifySupabaseAuth, verifyApiKey } from './middleware/auth';
 
 // Guard against undefined db
 function ensureDb() {
@@ -40,44 +42,10 @@ const router = Router();
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 
-export async function verifySupabaseAuth(req: any, res: any, next: any) {
-  try {
-    const auth = req.headers.authorization || req.headers.Authorization;
-    const token = auth && typeof auth === 'string' ? auth.split(' ')[1] : null;
-    if (!token) {
-      return res.status(401).json({ error: 'Unauthorized: missing access token' });
-    }
+// Auth functions moved to ./middleware/auth.ts to avoid circular dependencies
 
-    if (!SUPABASE_URL) {
-      return res.status(500).json({ error: 'SUPABASE_URL not configured on server' });
-    }
-
-    const userResp = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        apikey: SUPABASE_ANON_KEY || '',
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!userResp.ok) {
-      const text = await userResp.text();
-      console.warn('Supabase auth verify failed:', userResp.status, text);
-      return res.status(401).json({ error: 'Unauthorized', details: text });
-    }
-
-    const userData = await userResp.json();
-    req.user = userData;
-    return next();
-  } catch (err: any) {
-    console.error('Error verifying supabase token', err);
-    return res.status(500).json({ error: 'Auth verification failed' });
-  }
-}
-
-// API Key Authentication for Enterprise API Access
-async function verifyApiKey(req: any, res: any, next: any) {
+// Legacy API Key Authentication for backward compatibility
+async function legacyVerifyApiKey(req: any, res: any, next: any) {
   try {
     const apiKey = req.headers['x-api-key'] || req.headers['X-API-Key'];
     
@@ -2154,6 +2122,9 @@ router.post("/api/export/subdomain/:id", verifySupabaseAuth, async (req, res) =>
 
 // Mount health monitoring router
 router.use('/api/health', healthRouter);
+
+// Mount version management router
+router.use(versionsRouter);
 
 // Mount themes router
 router.use('/api/themes', themesRouter);

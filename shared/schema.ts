@@ -53,7 +53,26 @@ export const documentations = pgTable("documentations", {
   user_id: text("user_id"),
   subdomain: text("subdomain").unique(),
   theme_id: integer("theme_id"),
+  current_version: integer("current_version").notNull().default(1), // Track current version number
   generatedAt: timestamp("generated_at").notNull().defaultNow(),
+});
+
+// Documentation versions for version history and rollback
+export const documentationVersions = pgTable("documentation_versions", {
+  id: serial("id").primaryKey(),
+  documentation_id: integer("documentation_id").notNull(), // Reference to main documentation
+  version: integer("version").notNull(), // Version number (1, 2, 3, etc.)
+  url: text("url").notNull(),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  user_id: text("user_id"),
+  theme_id: integer("theme_id"),
+  subdomain: text("subdomain"),
+  version_notes: text("version_notes"), // What changed in this version
+  content_hash: text("content_hash"), // SHA-256 hash for change detection
+  is_latest: boolean("is_latest").notNull().default(false),
+  created_at: timestamp("created_at").notNull().defaultNow(),
+  created_by: text("created_by"), // Who created this version
 });
 
 export const themes = pgTable("themes", {
@@ -88,9 +107,21 @@ export const subscriptionEventsRelations = relations(subscriptionEvents, ({ one 
   }),
 }));
 
-export const documentationsRelations = relations(documentations, ({ one }) => ({
+export const documentationsRelations = relations(documentations, ({ one, many }) => ({
   theme: one(themes, {
     fields: [documentations.theme_id],
+    references: [themes.id],
+  }),
+  versions: many(documentationVersions),
+}));
+
+export const documentationVersionsRelations = relations(documentationVersions, ({ one }) => ({
+  documentation: one(documentations, {
+    fields: [documentationVersions.documentation_id],
+    references: [documentations.id],
+  }),
+  theme: one(themes, {
+    fields: [documentationVersions.theme_id],
     references: [themes.id],
   }),
 }));

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { apiKeyService } from '../services/api-key-service';
-import { verifySupabaseAuth } from '../routes';
+import { verifySupabaseAuth } from '../middleware/auth';
 
 const router = Router();
 

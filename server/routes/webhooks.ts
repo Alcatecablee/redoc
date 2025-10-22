@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { webhookService } from '../services/webhook-service';
-import { verifySupabaseAuth } from '../routes';
+import { verifySupabaseAuth } from '../middleware/auth';
 
 const router = Router();
 

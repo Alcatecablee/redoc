@@ -7,7 +7,7 @@
 
 import { Router } from 'express';
 import { getUnifiedQueue } from '../queue/unified-queue';
-import { verifySupabaseAuth } from '../routes';
+import { verifySupabaseAuth } from '../middleware/auth';
 
 const router = Router();
 
