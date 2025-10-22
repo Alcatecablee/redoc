@@ -195,7 +195,7 @@ export default function DashboardNew() {
     >
       <div className="grid gap-6">
         {/* Account & Plan Status */}
-        <Card>
+        <Card className="bg-white/5 border border-white/10 text-white">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
