@@ -344,7 +344,7 @@ export default function DashboardNew() {
                         size="sm"
                         variant="outline"
                         onClick={() => setSelectedDocId(doc.id === selectedDocId ? null : doc.id)}
-                        className="gap-2"
+                        className="gap-2 border-white/30 text-white hover:bg-white/10"
                       >
                         <BarChart3 className="h-4 w-4" />
                         {selectedDocId === doc.id ? 'Hide' : 'Analytics'}
