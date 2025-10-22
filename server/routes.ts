@@ -17,6 +17,7 @@ import billingRouter from './routes/billing';
 import activityRouter from './routes/activity';
 import enterpriseRouter from './routes/enterprise';
 import jobsRouter from './routes/jobs';
+import healthRouter from './routes/health';
 import { fetchImagesForExport, limitImagesForExport } from './image-utils';
 import { db } from './db';
 import { users } from '../shared/schema';
@@ -2150,6 +2151,9 @@ router.post("/api/export/subdomain/:id", verifySupabaseAuth, async (req, res) =>
     });
   }
 });
+
+// Mount health monitoring router
+router.use('/api/health', healthRouter);
 
 // Mount themes router
 router.use('/api/themes', themesRouter);

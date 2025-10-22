@@ -148,10 +148,23 @@ export function resetCircuit(serviceKey: string): void {
 /**
  * Get all circuit states (for monitoring)
  */
-export function getAllCircuitStates(): Map<string, CircuitStats> {
-  const states = new Map<string, CircuitStats>();
+export function getAllCircuitStates(): Record<string, CircuitStats> {
+  const states: Record<string, CircuitStats> = {};
   
-  // LRU cache doesn't have entries() method, so we track manually
-  // For now, return empty - production would use a different data structure
+  // Common service keys to check
+  const serviceKeys = [
+    'ai-provider-groq',
+    'ai-provider-openai',
+    'ai-provider-deepseek',
+    'ai-provider-ollama',
+  ];
+  
+  for (const key of serviceKeys) {
+    const state = circuits.get(key);
+    if (state) {
+      states[key] = state;
+    }
+  }
+  
   return states;
 }

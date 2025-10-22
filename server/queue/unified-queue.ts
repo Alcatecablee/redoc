@@ -123,3 +123,28 @@ export function getUnifiedQueue(): UnifiedQueue {
 }
 
 export type { JobPayload, JobRecord, QueueProcessor } from './types';
+
+/**
+ * Get queue statistics (for health monitoring)
+ */
+export async function getQueueStats() {
+  try {
+    if (!unifiedQueueInstance) {
+      return {
+        mode: 'not-initialized',
+        message: 'Queue not initialized yet',
+      };
+    }
+    
+    const stats = await unifiedQueueInstance.getStats();
+    return {
+      mode: unifiedQueueInstance.getMode(),
+      ...stats,
+    };
+  } catch (error: any) {
+    return {
+      mode: 'error',
+      message: error.message,
+    };
+  }
+}
