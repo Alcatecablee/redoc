@@ -8,6 +8,7 @@ import SkipNavigation from "./components/SkipNavigation";
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import Dashboard from "./pages/Dashboard";
+import DashboardNew from "./pages/DashboardNew";
 import EnterpriseSettings from "./pages/EnterpriseSettings";
 import SubscriptionPricing from "./pages/SubscriptionPricing";
 import TeamManagement from "./pages/TeamManagement";
@@ -27,7 +28,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<DashboardNew />} />
+          <Route path="/dashboard/old" element={<Dashboard />} />
           <Route path="/settings" element={<EnterpriseSettings />} />
           <Route path="/pricing" element={<SubscriptionPricing />} />
           <Route path="/team" element={<TeamManagement />} />
