@@ -283,19 +283,19 @@ export default function DashboardNew() {
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={overview.usageTrend}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-white/10" />
-                <XAxis 
-                  dataKey="date" 
-                  className="text-xs"
+                <XAxis
+                  dataKey="date"
+                  className="text-xs fill-white"
                   tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                 />
-                <YAxis className="text-xs" />
+                <YAxis className="text-xs fill-white" />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
+                  contentStyle={{ backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff' }}
                   labelFormatter={(value) => new Date(value).toLocaleDateString()}
                 />
-                <Area type="monotone" dataKey="generations" stackId="1" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.6} name="Generations" />
-                <Area type="monotone" dataKey="views" stackId="2" stroke="#10b981" fill="#10b981" fillOpacity={0.6} name="Views" />
-                <Area type="monotone" dataKey="exports" stackId="3" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.6} name="Exports" />
+                <Area type="monotone" dataKey="generations" stackId="1" stroke="#66ffe4" fill="#66ffe4" fillOpacity={0.3} name="Generations" />
+                <Area type="monotone" dataKey="views" stackId="2" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.3} name="Views" />
+                <Area type="monotone" dataKey="exports" stackId="3" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.3} name="Exports" />
               </AreaChart>
             </ResponsiveContainer>
           </ChartContainer>
