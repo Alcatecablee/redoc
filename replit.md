@@ -36,9 +36,10 @@ Design preferences: Clean cyan-blue color scheme like Replit (no purple), solid 
 - **Resource Cleanup**: All exit paths properly clean up resources.
 
 ### Data Storage
-**Database**: PostgreSQL via Neon serverless.
+**Database**: PostgreSQL via Supabase (configured October 22, 2025).
 **ORM**: Drizzle ORM for type-safe operations.
-**Data Model**: Includes `documentations`, `users`, `paymentHistory`, and `subscriptionEvents` tables.
+**Data Model**: Complete enterprise schema with 20 tables including `users`, `documentations`, `payment_history`, `subscription_events`, `api_keys`, `organizations`, `webhooks`, `support_tickets`, `branding_settings`, `activity_logs`, `idempotency_keys`, `documentation_versions`, `documentation_pages`, `page_change_log`, `analytics_events`, `analytics_summary`, and more.
+**Status**: ✅ All tables deployed and verified in Supabase.
 
 ### AI Integration
 **Provider**: Groq API (llama-3.3-70b-versatile model).
@@ -66,11 +67,10 @@ Design preferences: Clean cyan-blue color scheme like Replit (no purple), solid 
 
 **Core Services**:
 *   **Groq API**: AI model access.
-*   **Neon Database**: Serverless PostgreSQL hosting.
+*   **Supabase**: PostgreSQL database hosting and user authentication.
 *   **PayPal**: Recurring subscription billing.
-*   **Supabase**: User authentication and session management.
 *   **BullMQ**: Job queue system.
-*   **Redis**: BullMQ job persistence.
+*   **Redis**: BullMQ job persistence (optional, for production scale).
 
 **Third-party Libraries**:
 *   **UI Components**: Radix UI primitives, Shadcn/ui.
