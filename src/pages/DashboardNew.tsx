@@ -217,7 +217,7 @@ export default function DashboardNew() {
                 </div>
               </div>
               {overview.user.plan === 'free' && (
-                <Button onClick={() => navigate('/pricing')} variant="default" className="gap-2">
+                <Button onClick={() => navigate('/pricing')} variant="default" className="gap-2 px-5 py-2 text-xs font-bold text-[rgb(14,19,23)] bg-[rgb(102,255,228)] hover:bg-white rounded-full uppercase tracking-widest">
                   <Zap className="h-4 w-4" />
                   Upgrade
                 </Button>
