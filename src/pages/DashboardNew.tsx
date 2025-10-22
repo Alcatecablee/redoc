@@ -275,9 +275,10 @@ export default function DashboardNew() {
 
         {/* Usage Trend Chart */}
         {overview.usageTrend.length > 0 && (
-          <ChartContainer 
-            title="30-Day Activity" 
+          <ChartContainer
+            title="30-Day Activity"
             description="Your generation, views, and export activity over the last month"
+            className="bg-white/5 border border-white/10 text-white"
           >
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={overview.usageTrend}>
