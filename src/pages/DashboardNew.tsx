@@ -71,7 +71,7 @@ export default function DashboardNew() {
   if (isAuthenticated === false) {
     return (
       <DashboardLayout title="Dashboard" description="Authentication required">
-        <Card>
+        <Card className="bg-white/5 border border-white/10 text-white">
           <CardContent className="py-12">
             <EmptyState
               icon={LogIn}
