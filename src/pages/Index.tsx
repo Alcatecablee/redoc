@@ -331,6 +331,24 @@ const Index = () => {
         </div>
       </section>
 
+      <section id="how-it-works" className="container mx-auto px-4 py-20">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <div className="text-left md:pr-8">
+            <h3 className="text-3xl font-bold text-white mb-3">How it works</h3>
+            <p className="text-lg text-white/80 mb-6">Paste your website URL and we run a multi-source research pipeline to synthesize professional documentation. The diagram shows discovery, research, synthesis, SEO optimization, and export stages.</p>
+            <ol className="text-white/70 list-decimal list-inside space-y-2">
+              <li>Site Discovery & Crawling</li>
+              <li>Multi-Source Research Engine</li>
+              <li>AI Content Synthesis</li>
+              <li>SEO Optimization & Export</li>
+            </ol>
+          </div>
+
+          <div className="flex justify-center">
+            <PipelineVisualization />
+          </div>
+        </div>
+      </section>
 
       {/* Results Section */}
       {generatedDoc && (
