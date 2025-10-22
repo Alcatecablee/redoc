@@ -331,21 +331,241 @@ const Index = () => {
         </div>
       </section>
 
-      <section id="how-it-works" className="container mx-auto px-4 py-20">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-          <div className="text-left md:pr-8">
-            <h3 className="text-3xl font-bold text-white mb-3">How it works</h3>
-            <p className="text-lg text-white/80 mb-6">Paste your website URL and we run a multi-source research pipeline to synthesize professional documentation. The diagram shows discovery, research, synthesis, SEO optimization, and export stages.</p>
-            <ol className="text-white/70 list-decimal list-inside space-y-2">
-              <li>Site Discovery & Crawling</li>
-              <li>Multi-Source Research Engine</li>
-              <li>AI Content Synthesis</li>
-              <li>SEO Optimization & Export</li>
-            </ol>
+      {/* How It Works Section - Comprehensive Process Flow */}
+      <section id="how-it-works" className="relative overflow-hidden bg-gradient-to-br from-[rgb(14,19,23)] via-[rgb(24,29,37)] to-[rgb(34,38,46)] py-32 lg:py-40">
+        {/* Background Elements */}
+        <div className="absolute inset-0 bg-grid-white/[0.02] opacity-30" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-96 bg-gradient-radial from-[rgb(102,255,228)]/5 via-transparent to-transparent blur-3xl" />
+
+        <div className="relative container mx-auto px-6 max-w-7xl">
+          {/* Header */}
+          <div className="text-center mb-24">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm mb-6">
+              <ArrowPathIcon className="h-4 w-4 text-[rgb(102,255,228)]" />
+              <span className="text-sm font-semibold text-white/90 uppercase tracking-wide">The Process</span>
+            </div>
+            <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight tracking-tight">
+              How It Works
+            </h2>
+            <p className="text-lg md:text-xl text-white/70 max-w-3xl mx-auto font-light">
+              From URL to professional documentation in minutes. A fully automated pipeline that researches, synthesizes, and exports beautiful docs.
+            </p>
           </div>
 
-          <div className="flex justify-center">
-            <PipelineVisualization />
+          {/* Process Flow */}
+          <div className="max-w-5xl mx-auto space-y-6">
+            {/* Step 1: URL Input */}
+            <div className="group relative">
+              <div className="relative bg-gradient-to-br from-white/10 to-white/5 border border-white/20 hover:border-[rgb(102,255,228)]/50 rounded-3xl p-8 md:p-10 transition-all duration-500 backdrop-blur-sm hover:shadow-[0_20px_50px_rgba(102,255,228,0.1)]">
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+                  <div className="flex-shrink-0">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[rgb(102,255,228)]/20 to-[rgb(102,255,228)]/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <GlobeAltIcon className="h-8 w-8 text-[rgb(102,255,228)]" strokeWidth={1.5} />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-sm font-bold text-[rgb(102,255,228)] uppercase tracking-wider">Step 1</span>
+                      <div className="h-px flex-1 bg-gradient-to-r from-[rgb(102,255,228)]/50 to-transparent"></div>
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">Website URL Input</h3>
+                    <p className="text-white/70 text-base leading-relaxed">
+                      Simply paste your website URL and we'll handle the rest. Our system automatically discovers your entire product ecosystem.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              {/* Connector Arrow */}
+              <div className="flex justify-center py-4">
+                <div className="w-px h-8 bg-gradient-to-b from-[rgb(102,255,228)]/50 to-[rgb(102,255,228)]/20"></div>
+              </div>
+            </div>
+
+            {/* Step 2: Site Discovery & Crawling */}
+            <div className="group relative">
+              <div className="relative bg-gradient-to-br from-white/10 to-white/5 border border-white/20 hover:border-[rgb(102,255,228)]/50 rounded-3xl p-8 md:p-10 transition-all duration-500 backdrop-blur-sm hover:shadow-[0_20px_50px_rgba(102,255,228,0.1)]">
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+                  <div className="flex-shrink-0">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[rgb(102,255,228)]/20 to-[rgb(102,255,228)]/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <MagnifyingGlassIcon className="h-8 w-8 text-[rgb(102,255,228)]" strokeWidth={1.5} />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-sm font-bold text-[rgb(102,255,228)] uppercase tracking-wider">Step 2</span>
+                      <div className="h-px flex-1 bg-gradient-to-r from-[rgb(102,255,228)]/50 to-transparent"></div>
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">Site Discovery & Crawling</h3>
+                    <p className="text-white/70 text-base leading-relaxed">
+                      Multi-domain crawling, sitemap parsing, subdomain enumeration, and intelligent link-graph analysis to prioritize high-value pages and extract all product information.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              {/* Connector Arrow */}
+              <div className="flex justify-center py-4">
+                <div className="w-px h-8 bg-gradient-to-b from-[rgb(102,255,228)]/50 to-[rgb(102,255,228)]/20"></div>
+              </div>
+            </div>
+
+            {/* Step 3: Multi-Source Research Engine */}
+            <div className="group relative">
+              <div className="relative bg-gradient-to-br from-white/10 to-white/5 border border-white/20 hover:border-[rgb(102,255,228)]/50 rounded-3xl p-8 md:p-10 transition-all duration-500 backdrop-blur-sm hover:shadow-[0_20px_50px_rgba(102,255,228,0.1)]">
+                <div className="flex flex-col md:flex-row items-start gap-6">
+                  <div className="flex-shrink-0">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[rgb(102,255,228)]/20 to-[rgb(102,255,228)]/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <Square3Stack3DIcon className="h-8 w-8 text-[rgb(102,255,228)]" strokeWidth={1.5} />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-sm font-bold text-[rgb(102,255,228)] uppercase tracking-wider">Step 3</span>
+                      <div className="h-px flex-1 bg-gradient-to-r from-[rgb(102,255,228)]/50 to-transparent"></div>
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">Multi-Source Research Engine</h3>
+                    <p className="text-white/70 text-base leading-relaxed mb-6">
+                      We aggregate community knowledge across 10+ authoritative sources to capture how developers actually use your product.
+                    </p>
+                    {/* Research Sources Grid */}
+                    <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
+                      {[
+                        { icon: CodeBracketIcon, label: "Stack Overflow" },
+                        { icon: CodeBracketIcon, label: "GitHub Issues" },
+                        { icon: VideoCameraIcon, label: "YouTube" },
+                        { icon: ChatBubbleLeftRightIcon, label: "Reddit" },
+                        { icon: DocumentTextIcon, label: "DEV.to" },
+                        { icon: CodeBracketIcon, label: "CodeProject" },
+                        { icon: AcademicCapIcon, label: "Stack Exchange" },
+                        { icon: QuestionMarkCircleIcon, label: "Quora" },
+                        { icon: BuildingOfficeIcon, label: "Forums" },
+                      ].map((source) => (
+                        <div key={source.label} className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/10 hover:border-[rgb(102,255,228)]/30 transition-all">
+                          <source.icon className="h-5 w-5 text-white/60" strokeWidth={1.5} />
+                          <span className="text-xs text-white/60 text-center leading-tight">{source.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* Connector Arrow */}
+              <div className="flex justify-center py-4">
+                <div className="w-px h-8 bg-gradient-to-b from-[rgb(102,255,228)]/50 to-[rgb(102,255,228)]/20"></div>
+              </div>
+            </div>
+
+            {/* Step 4: AI Content Synthesis */}
+            <div className="group relative">
+              <div className="relative bg-gradient-to-br from-white/10 to-white/5 border border-white/20 hover:border-[rgb(102,255,228)]/50 rounded-3xl p-8 md:p-10 transition-all duration-500 backdrop-blur-sm hover:shadow-[0_20px_50px_rgba(102,255,228,0.1)]">
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+                  <div className="flex-shrink-0">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[rgb(102,255,228)]/20 to-[rgb(102,255,228)]/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <BoltIcon className="h-8 w-8 text-[rgb(102,255,228)]" strokeWidth={1.5} />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-sm font-bold text-[rgb(102,255,228)] uppercase tracking-wider">Step 4</span>
+                      <div className="h-px flex-1 bg-gradient-to-r from-[rgb(102,255,228)]/50 to-transparent"></div>
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">AI Content Synthesis (GPT-4o)</h3>
+                    <p className="text-white/70 text-base leading-relaxed">
+                      Advanced AI transforms scattered research into coherent, comprehensive documentation with proper structure, code examples, and source citations.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              {/* Connector Arrow */}
+              <div className="flex justify-center py-4">
+                <div className="w-px h-8 bg-gradient-to-b from-[rgb(102,255,228)]/50 to-[rgb(102,255,228)]/20"></div>
+              </div>
+            </div>
+
+            {/* Step 5: SEO Optimization */}
+            <div className="group relative">
+              <div className="relative bg-gradient-to-br from-white/10 to-white/5 border border-white/20 hover:border-[rgb(102,255,228)]/50 rounded-3xl p-8 md:p-10 transition-all duration-500 backdrop-blur-sm hover:shadow-[0_20px_50px_rgba(102,255,228,0.1)]">
+                <div className="flex flex-col md:flex-row items-start gap-6">
+                  <div className="flex-shrink-0">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[rgb(102,255,228)]/20 to-[rgb(102,255,228)]/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <RocketLaunchIcon className="h-8 w-8 text-[rgb(102,255,228)]" strokeWidth={1.5} />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-sm font-bold text-[rgb(102,255,228)] uppercase tracking-wider">Step 5</span>
+                      <div className="h-px flex-1 bg-gradient-to-r from-[rgb(102,255,228)]/50 to-transparent"></div>
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">SEO Optimization</h3>
+                    <p className="text-white/70 text-base leading-relaxed mb-4">
+                      Pro and Enterprise plans include comprehensive SEO optimization to ensure your documentation ranks well and drives organic traffic.
+                    </p>
+                    <div className="grid grid-cols-2 gap-3">
+                      {[
+                        "Metadata Generation",
+                        "Schema Markup",
+                        "Sitemap Creation",
+                        "Keyword Optimization",
+                      ].map((feature) => (
+                        <div key={feature} className="flex items-center gap-2 text-white/60">
+                          <CheckBadgeIcon className="h-5 w-5 text-[rgb(102,255,228)]/70 flex-shrink-0" />
+                          <span className="text-sm">{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* Connector Arrow */}
+              <div className="flex justify-center py-4">
+                <div className="w-px h-8 bg-gradient-to-b from-[rgb(102,255,228)]/50 to-[rgb(102,255,228)]/20"></div>
+              </div>
+            </div>
+
+            {/* Step 6: Professional Output */}
+            <div className="group relative">
+              <div className="relative bg-gradient-to-br from-[rgb(102,255,228)]/15 to-[rgb(102,255,228)]/5 border-2 border-[rgb(102,255,228)]/40 rounded-3xl p-8 md:p-10 transition-all duration-500 backdrop-blur-sm shadow-[0_20px_50px_rgba(102,255,228,0.15)]">
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+                  <div className="flex-shrink-0">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[rgb(102,255,228)]/30 to-[rgb(102,255,228)]/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <DocumentTextIcon className="h-8 w-8 text-[rgb(102,255,228)]" strokeWidth={1.5} />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-sm font-bold text-[rgb(102,255,228)] uppercase tracking-wider">Final Output</span>
+                      <div className="h-px flex-1 bg-gradient-to-r from-[rgb(102,255,228)]/50 to-transparent"></div>
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">Professional Documentation Output</h3>
+                    <p className="text-white/70 text-base leading-relaxed mb-4">
+                      Export your documentation in multiple formats, all matching your brand identity and ready for immediate deployment.
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {["PDF", "DOCX", "HTML", "Markdown", "JSON"].map((format) => (
+                        <div key={format} className="px-4 py-2 rounded-lg bg-white/10 border border-[rgb(102,255,228)]/30 text-white/80 text-sm font-semibold hover:bg-white/15 transition-all">
+                          {format}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom CTA */}
+          <div className="text-center mt-20">
+            <div className="inline-flex flex-col items-center gap-4 px-8 py-6 rounded-3xl bg-gradient-to-br from-white/10 to-white/5 border border-white/20 backdrop-blur-sm">
+              <p className="text-white/80 text-lg font-light">
+                <span className="font-bold text-[rgb(102,255,228)]">Average build time:</span> 5 minutes
+              </p>
+              <Button
+                size="lg"
+                asChild
+                className="h-12 px-8 bg-[rgb(102,255,228)] text-[rgb(14,19,23)] hover:bg-[rgb(102,255,228)]/90 font-bold text-base rounded-full uppercase tracking-wider transition-all duration-200 shadow-xl hover:shadow-2xl hover:scale-105"
+              >
+                <a href="#hero">Get Started Now</a>
+              </Button>
+            </div>
           </div>
         </div>
       </section>
