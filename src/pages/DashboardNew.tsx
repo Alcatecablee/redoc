@@ -354,7 +354,7 @@ export default function DashboardNew() {
 
                     {/* Document Actions */}
                     <div className="flex gap-2 flex-wrap">
-                      <Button variant="default" size="sm" onClick={() => navigate(`/dashboard?doc=${doc.id}`)}>
+                      <Button variant="default" size="sm" onClick={() => navigate(`/dashboard?doc=${doc.id}`)} className="px-4 py-1 text-xs font-bold text-[rgb(14,19,23)] bg-[rgb(102,255,228)] hover:bg-white rounded-full uppercase tracking-widest">
                         View
                       </Button>
                       <Button variant="outline" size="sm" onClick={() => downloadBlob(`/api/export/pdf/${doc.id}`, `${doc.title.replace(/[^a-z0-9]/gi, '_')}.pdf`)}>
