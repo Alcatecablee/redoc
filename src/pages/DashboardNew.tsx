@@ -301,7 +301,7 @@ export default function DashboardNew() {
         )}
 
         {/* Recent Documents */}
-        <Card>
+        <Card className="bg-white/5 border border-white/10 text-white">
           <CardHeader>
             <CardTitle>Recent Documentation</CardTitle>
             <CardDescription>Your latest generated documents with performance metrics</CardDescription>
