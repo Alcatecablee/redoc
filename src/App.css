@@ -1,4 +1,6 @@
-#root {
+/* Existing app styles (kept) */
+
+:root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
@@ -39,4 +41,37 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* Pipeline visualization styles */
+.pipeline-visual {
+  color: rgba(255,255,255,0.85);
+}
+
+.pulse-path {
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  opacity: 0.95;
+}
+
+@keyframes dash-forward {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes dash-back {
+  to { stroke-dashoffset: -400; }
+}
+
+.pulse-fast { animation: dash-forward 1.6s linear infinite; }
+.pulse-medium { animation: dash-forward 2.6s linear infinite; }
+.pulse-slow { animation: dash-forward 4s linear infinite; }
+
+/* subtle glow on the CPU core */
+.cpu-core rect {
+  filter: drop-shadow(0 6px 18px rgba(34,197,94,0.06)) drop-shadow(0 0 8px rgba(102,255,228,0.06));
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .pulse-path { animation: none !important; }
 }
