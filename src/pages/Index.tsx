@@ -869,93 +869,139 @@ const Index = () => {
 
       {/* Features Section - Capability Showcase */}
       {!generatedDoc && (
-        <section id="features" className="relative overflow-hidden bg-gradient-to-br from-[rgb(36,77,91)] via-[rgb(40,85,100)] to-[rgb(36,77,91)] py-32 lg:py-40">
+        <section id="features" className="relative overflow-hidden bg-gradient-to-br from-[rgb(14,19,23)] via-[rgb(24,29,37)] to-[rgb(34,38,46)] py-32 lg:py-40">
+          {/* Background Elements */}
           <div className="absolute inset-0 bg-grid-white/[0.02] opacity-30" />
+          <div className="absolute top-1/3 left-1/4 w-96 h-96 bg-gradient-radial from-[rgb(102,255,228)]/10 via-transparent to-transparent blur-3xl" />
+          <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-gradient-radial from-[rgb(102,255,228)]/5 via-transparent to-transparent blur-3xl" />
 
           <div className="relative container mx-auto px-6 max-w-7xl">
             {/* Header */}
-            <div className="text-center mb-28">
-              <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-8 leading-tight tracking-tight">
+            <div className="text-center mb-24">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm mb-6">
+                <Square3Stack3DIcon className="h-4 w-4 text-[rgb(102,255,228)]" />
+                <span className="text-sm font-semibold text-white/90 uppercase tracking-wide">Research Engine</span>
+              </div>
+              <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight tracking-tight">
                 Built on Real User Knowledge
               </h2>
               <p className="text-lg md:text-xl text-white/70 max-w-3xl mx-auto mb-12 font-light">
-                No guessing. We research how developers actually use your product across 10+ sources.
+                No guessing. We research how developers actually use your product across 10+ authoritative sources and synthesize comprehensive documentation.
               </p>
 
-              {/* Multi-Source Research Engine */}
-              <div className="bg-gradient-to-br from-white/15 to-white/5 border border-[rgb(102,255,228)]/30 rounded-3xl p-10 md:p-12 max-w-3xl mx-auto backdrop-blur-sm shadow-2xl hover:shadow-[0_20px_50px_rgba(102,255,228,0.15)] transition-all duration-500 hover:border-[rgb(102,255,228)]/50">
-                <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">Multi-Source Research Engine</h3>
-                <p className="text-white/80 text-lg leading-relaxed">
-                  We analyze your website, then research across Stack Overflow, GitHub, YouTube, Reddit, DEV.to, CodeProject, Stack Exchange, Quora, and official forums. Every insight is quality-scored and source-attributed.
-                </p>
+              {/* Stats Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-16">
+                {[
+                  { metric: "10+", label: "Research Sources", icon: MagnifyingGlassIcon },
+                  { metric: "100%", label: "Source Attribution", icon: CheckBadgeIcon },
+                  { metric: "AI-Powered", label: "Quality Scoring", icon: BoltIcon },
+                ].map((stat, idx) => (
+                  <div key={idx} className="group relative">
+                    <div className="relative bg-gradient-to-br from-white/10 to-white/5 border border-white/20 hover:border-[rgb(102,255,228)]/50 rounded-2xl p-6 transition-all duration-500 backdrop-blur-sm hover:shadow-[0_10px_30px_rgba(102,255,228,0.15)]">
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[rgb(102,255,228)]/20 to-[rgb(102,255,228)]/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                          <stat.icon className="h-6 w-6 text-[rgb(102,255,228)]" strokeWidth={1.5} />
+                        </div>
+                        <div className="text-center">
+                          <div className="text-3xl font-bold text-white mb-1 group-hover:text-[rgb(102,255,228)] transition-colors">{stat.metric}</div>
+                          <p className="text-sm text-white/70 leading-tight">{stat.label}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Multi-Source Research Engine - Enhanced */}
+              <div className="relative bg-gradient-to-br from-[rgb(102,255,228)]/15 to-[rgb(102,255,228)]/5 border-2 border-[rgb(102,255,228)]/40 rounded-3xl p-10 md:p-12 max-w-4xl mx-auto backdrop-blur-sm shadow-[0_20px_50px_rgba(102,255,228,0.2)] hover:shadow-[0_30px_70px_rgba(102,255,228,0.25)] transition-all duration-500">
+                {/* Decorative corner accents */}
+                <div className="absolute top-0 left-0 w-20 h-20 border-t-2 border-l-2 border-[rgb(102,255,228)]/60 rounded-tl-3xl"></div>
+                <div className="absolute bottom-0 right-0 w-20 h-20 border-b-2 border-r-2 border-[rgb(102,255,228)]/60 rounded-br-3xl"></div>
+                
+                <div className="relative z-10">
+                  <div className="flex items-center justify-center gap-3 mb-5">
+                    <div className="h-px w-16 bg-gradient-to-r from-transparent via-[rgb(102,255,228)]/50 to-[rgb(102,255,228)]"></div>
+                    <Square3Stack3DIcon className="h-8 w-8 text-[rgb(102,255,228)]" strokeWidth={1.5} />
+                    <div className="h-px w-16 bg-gradient-to-l from-transparent via-[rgb(102,255,228)]/50 to-[rgb(102,255,228)]"></div>
+                  </div>
+                  <h3 className="text-3xl md:text-4xl font-bold text-white mb-5">Multi-Source Research Engine</h3>
+                  <p className="text-white/90 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto">
+                    We analyze your website, then research across <strong className="text-white">Stack Overflow</strong>, <strong className="text-white">GitHub</strong>, <strong className="text-white">YouTube</strong>, <strong className="text-white">Reddit</strong>, <strong className="text-white">DEV.to</strong>, <strong className="text-white">CodeProject</strong>, <strong className="text-white">Stack Exchange</strong>, <strong className="text-white">Quora</strong>, and official forums. Every insight is quality-scored and source-attributed for maximum reliability.
+                  </p>
+                </div>
               </div>
             </div>
             
             {/* Capability Grid */}
-            <div className="grid gap-20">
+            <div className="space-y-24">
               {/* Research Sources */}
               <div>
-                <div className="flex items-center gap-4 mb-10">
-                  <div className="h-1 w-12 bg-gradient-to-r from-[rgb(102,255,228)] to-transparent"></div>
-                  <h3 className="text-2xl md:text-3xl font-bold text-white tracking-tight">Research Sources</h3>
+                <div className="flex flex-col items-center text-center mb-12">
+                  <div className="inline-flex items-center gap-3 mb-4">
+                    <div className="h-px w-12 bg-gradient-to-r from-transparent to-[rgb(102,255,228)]"></div>
+                    <MagnifyingGlassIcon className="h-6 w-6 text-[rgb(102,255,228)]" strokeWidth={1.5} />
+                    <div className="h-px w-12 bg-gradient-to-l from-transparent to-[rgb(102,255,228)]"></div>
+                  </div>
+                  <h3 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-3">Research Sources</h3>
+                  <p className="text-white/70 text-lg max-w-2xl">
+                    Real insights from where developers actually learn and troubleshoot
+                  </p>
                 </div>
+                
                 <div className="relative">
-                  {/* SVG Animated connecting lines - inspired by Next.js CPU animation */}
-                  <svg className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1200 400" style={{opacity: 0.3}}>
+                  {/* Enhanced animated background */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-[rgb(102,255,228)]/5 via-transparent to-[rgb(102,255,228)]/5 rounded-3xl blur-xl"></div>
+                  
+                  {/* SVG Animated connecting lines */}
+                  <svg className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1200 400" style={{opacity: 0.2}}>
                     <defs>
                       <linearGradient id="cyanPulse" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" stopColor="rgb(102,255,228)" stopOpacity="0" />
-                        <stop offset="50%" stopColor="rgb(102,255,228)" stopOpacity="0.8" />
+                        <stop offset="50%" stopColor="rgb(102,255,228)" stopOpacity="1" />
                         <stop offset="100%" stopColor="rgb(102,255,228)" stopOpacity="0" />
                       </linearGradient>
-                      <linearGradient id="purplePulse" x1="0%" y1="100%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="rgb(147,112,219)" stopOpacity="0" />
-                        <stop offset="50%" stopColor="rgb(147,112,219)" stopOpacity="0.8" />
-                        <stop offset="100%" stopColor="rgb(147,112,219)" stopOpacity="0" />
-                      </linearGradient>
-                      <linearGradient id="orangePulse" x1="100%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="rgb(255,140,60)" stopOpacity="0" />
-                        <stop offset="50%" stopColor="rgb(255,140,60)" stopOpacity="0.8" />
-                        <stop offset="100%" stopColor="rgb(255,140,60)" stopOpacity="0" />
-                      </linearGradient>
                     </defs>
-                    {/* Animated flowing lines connecting across the sources */}
-                    <g strokeLinecap="round" strokeWidth="2" fill="none">
-                      <path d="M50 200 Q300 100, 550 200" stroke="url(#cyanPulse)" strokeDasharray="100" strokeDashoffset="0" style={{animation: 'flowCyan 4s linear infinite'}} />
-                      <path d="M550 200 Q800 300, 1050 200" stroke="url(#purplePulse)" strokeDasharray="100" strokeDashoffset="0" style={{animation: 'flowPurple 4s linear infinite 1s'}} />
-                      <path d="M300 300 Q600 400, 900 300" stroke="url(#orangePulse)" strokeDasharray="100" strokeDashoffset="0" style={{animation: 'flowOrange 4s linear infinite 2s'}} />
+                    <g strokeLinecap="round" strokeWidth="1.5" fill="none">
+                      <path d="M50 200 Q300 100, 550 200 T1050 200" stroke="url(#cyanPulse)" strokeDasharray="8 4" strokeDashoffset="0" style={{animation: 'flowCyan 8s linear infinite'}} />
+                      <path d="M100 250 Q400 350, 700 250 T1200 250" stroke="url(#cyanPulse)" strokeDasharray="8 4" strokeDashoffset="0" style={{animation: 'flowCyan 10s linear infinite 2s'}} />
                     </g>
                   </svg>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5 relative z-10">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-5 relative z-10">
                     {[
-                      { image: "/attached_assets/images/Stack-Overflow-Logo-emblem-of-the-programming-community-transparent-png-image.png", name: "Stack Overflow" },
-                      { image: "/attached_assets/images/toppng.com-github-logo-524x512.png", name: "GitHub Issues" },
-                      { image: "/attached_assets/images/toppng.com-youtube-icon-1024x1024.png", name: "YouTube Videos" },
-                      { image: "/attached_assets/images/toppng.com-reddit-logo-reddit-icon-698x698.png", name: "Reddit Posts" },
-                      { image: "/attached_assets/images/dev-rainbow.png", name: "DEV.to Articles" },
-                      { image: "/attached_assets/images/toppng.com-custom-software-development-web-application-development-451x333.png", name: "CodeProject" },
-                      { icon: DocumentTextIcon, name: "Stack Exchange" },
-                      { icon: ChatBubbleLeftRightIcon, name: "Quora Answers" },
-                      { icon: GlobeAltIcon, name: "Official Forums" },
-                      { icon: MagnifyingGlassIcon, name: "Web Search" },
-                      { icon: DocumentMagnifyingGlassIcon, name: "Internal Search" }
-                    ].map((item) => (
-                      <div key={item.name} className="group">
-                        <div className="relative bg-gradient-to-br from-white/10 to-white/5 hover:from-white/15 hover:to-white/10 border border-white/20 hover:border-[rgb(102,255,228)]/40 rounded-2xl p-7 transition-all duration-400 h-full backdrop-blur-sm hover:shadow-[0_10px_30px_rgba(102,255,228,0.1)]">
-                          <div className="flex flex-col items-center text-center gap-4 h-full relative z-10">
-                            <div className="w-14 h-14 rounded-xl bg-white/15 group-hover:bg-[rgb(102,255,228)]/20 flex items-center justify-center transition-all duration-300 group-hover:scale-110 overflow-hidden">
+                      { image: "/attached_assets/images/Stack-Overflow-Logo-emblem-of-the-programming-community-transparent-png-image.png", name: "Stack Overflow", desc: "Q&A Solutions" },
+                      { image: "/attached_assets/images/toppng.com-github-logo-524x512.png", name: "GitHub Issues", desc: "Real Bugs" },
+                      { image: "/attached_assets/images/toppng.com-youtube-icon-1024x1024.png", name: "YouTube", desc: "Video Tutorials" },
+                      { image: "/attached_assets/images/toppng.com-reddit-logo-reddit-icon-698x698.png", name: "Reddit", desc: "Community Posts" },
+                      { image: "/attached_assets/images/dev-rainbow.png", name: "DEV.to", desc: "Best Practices" },
+                      { image: "/attached_assets/images/toppng.com-custom-software-development-web-application-development-451x333.png", name: "CodeProject", desc: "Code Examples" },
+                      { icon: DocumentTextIcon, name: "Stack Exchange", desc: "Expert Knowledge" },
+                      { icon: ChatBubbleLeftRightIcon, name: "Quora", desc: "Expert Insights" },
+                      { icon: GlobeAltIcon, name: "Official Forums", desc: "Product-Specific" },
+                      { icon: MagnifyingGlassIcon, name: "Web Search", desc: "Comprehensive" },
+                      { icon: DocumentMagnifyingGlassIcon, name: "Internal Docs", desc: "Official Guides" }
+                    ].map((item, idx) => (
+                      <div key={item.name} className="group" style={{animationDelay: `${idx * 50}ms`}}>
+                        <div className="relative bg-gradient-to-br from-white/10 to-white/5 hover:from-white/15 hover:to-white/10 border border-white/20 hover:border-[rgb(102,255,228)]/50 rounded-2xl p-5 md:p-6 transition-all duration-400 h-full backdrop-blur-sm hover:shadow-[0_15px_40px_rgba(102,255,228,0.15)] hover:scale-105">
+                          {/* Glow effect on hover */}
+                          <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[rgb(102,255,228)]/0 to-[rgb(102,255,228)]/0 group-hover:from-[rgb(102,255,228)]/5 group-hover:to-transparent transition-all duration-400"></div>
+                          
+                          <div className="flex flex-col items-center text-center gap-3 h-full relative z-10">
+                            <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-white/15 group-hover:bg-[rgb(102,255,228)]/25 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 overflow-hidden shadow-lg">
                               {item.image ? (
                                 <img
                                   src={item.image}
                                   alt={item.name}
-                                  className="h-8 w-8 object-contain group-hover:brightness-125 transition-all"
+                                  className="h-6 w-6 md:h-8 md:w-8 object-contain group-hover:brightness-125 transition-all"
                                 />
                               ) : (
-                                <item.icon className="h-6 w-6 text-white/80 group-hover:text-[rgb(102,255,228)] transition-colors" strokeWidth={1.5} />
+                                <item.icon className="h-5 w-5 md:h-6 md:w-6 text-white/80 group-hover:text-[rgb(102,255,228)] transition-colors" strokeWidth={1.5} />
                               )}
                             </div>
-                            <p className="text-sm font-semibold text-white/90 leading-snug">{item.name}</p>
+                            <div>
+                              <p className="text-sm font-bold text-white/95 leading-snug mb-1">{item.name}</p>
+                              <p className="text-xs text-white/60 leading-tight">{item.desc}</p>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -965,44 +1011,50 @@ const Index = () => {
 
                 <style>{`
                   @keyframes flowCyan {
-                    from { stroke-dashoffset: 100; }
-                    to { stroke-dashoffset: 0; }
-                  }
-                  @keyframes flowPurple {
-                    from { stroke-dashoffset: 100; }
-                    to { stroke-dashoffset: 0; }
-                  }
-                  @keyframes flowOrange {
-                    from { stroke-dashoffset: 100; }
-                    to { stroke-dashoffset: 0; }
+                    0% { stroke-dashoffset: 0; }
+                    100% { stroke-dashoffset: 100; }
                   }
                 `}</style>
               </div>
 
-              {/* Documentation Generation */}
+              {/* Documentation Types */}
               <div>
-                <div className="flex items-center gap-4 mb-10">
-                  <div className="h-1 w-12 bg-gradient-to-r from-[rgb(102,255,228)] to-transparent"></div>
-                  <h3 className="text-2xl md:text-3xl font-bold text-white tracking-tight">Documentation Types</h3>
+                <div className="flex flex-col items-center text-center mb-12">
+                  <div className="inline-flex items-center gap-3 mb-4">
+                    <div className="h-px w-12 bg-gradient-to-r from-transparent to-[rgb(102,255,228)]"></div>
+                    <DocumentTextIcon className="h-6 w-6 text-[rgb(102,255,228)]" strokeWidth={1.5} />
+                    <div className="h-px w-12 bg-gradient-to-l from-transparent to-[rgb(102,255,228)]"></div>
+                  </div>
+                  <h3 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-3">Documentation Types</h3>
+                  <p className="text-white/70 text-lg max-w-2xl">
+                    Comprehensive coverage for every stage of the developer journey
+                  </p>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+                
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
                   {[
-                    { icon: DocumentTextIcon, name: "Getting Started" },
-                    { icon: AcademicCapIcon, name: "Tutorials" },
-                    { icon: QuestionMarkCircleIcon, name: "FAQs" },
-                    { icon: BoltIcon, name: "Troubleshooting" },
-                    { icon: CodeBracketIcon, name: "API Docs" },
-                    { icon: CheckBadgeIcon, name: "Best Practices" },
-                    { icon: Square3Stack3DIcon, name: "Examples" },
-                    { icon: ShieldCheckIcon, name: "Security" }
-                  ].map((item) => (
-                    <div key={item.name} className="group">
-                      <div className="relative bg-gradient-to-br from-white/10 to-white/5 hover:from-white/15 hover:to-white/10 border border-white/20 hover:border-[rgb(102,255,228)]/40 rounded-2xl p-7 transition-all duration-400 h-full backdrop-blur-sm hover:shadow-[0_10px_30px_rgba(102,255,228,0.1)]">
-                        <div className="flex flex-col items-center text-center gap-4 h-full">
-                          <div className="w-14 h-14 rounded-xl bg-white/15 group-hover:bg-[rgb(102,255,228)]/20 flex items-center justify-center transition-all duration-300 group-hover:scale-110">
+                    { icon: DocumentTextIcon, name: "Getting Started", desc: "Quick Setup Guides" },
+                    { icon: AcademicCapIcon, name: "Tutorials", desc: "Step-by-Step" },
+                    { icon: QuestionMarkCircleIcon, name: "FAQs", desc: "Common Questions" },
+                    { icon: BoltIcon, name: "Troubleshooting", desc: "Error Solutions" },
+                    { icon: CodeBracketIcon, name: "API Docs", desc: "Technical Reference" },
+                    { icon: CheckBadgeIcon, name: "Best Practices", desc: "Expert Tips" },
+                    { icon: Square3Stack3DIcon, name: "Examples", desc: "Code Samples" },
+                    { icon: ShieldCheckIcon, name: "Security", desc: "Safety Guidelines" }
+                  ].map((item, idx) => (
+                    <div key={item.name} className="group" style={{animationDelay: `${idx * 40}ms`}}>
+                      <div className="relative bg-gradient-to-br from-white/10 to-white/5 hover:from-white/15 hover:to-white/10 border border-white/20 hover:border-[rgb(102,255,228)]/50 rounded-2xl p-6 md:p-7 transition-all duration-400 h-full backdrop-blur-sm hover:shadow-[0_15px_40px_rgba(102,255,228,0.15)] hover:scale-105">
+                        {/* Glow effect */}
+                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[rgb(102,255,228)]/0 to-[rgb(102,255,228)]/0 group-hover:from-[rgb(102,255,228)]/5 group-hover:to-transparent transition-all duration-400"></div>
+                        
+                        <div className="flex flex-col items-center text-center gap-3 h-full relative z-10">
+                          <div className="w-14 h-14 rounded-xl bg-white/15 group-hover:bg-[rgb(102,255,228)]/25 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 shadow-lg">
                             <item.icon className="h-6 w-6 text-white/80 group-hover:text-[rgb(102,255,228)] transition-colors" strokeWidth={1.5} />
                           </div>
-                          <p className="text-sm font-semibold text-white/90 leading-snug">{item.name}</p>
+                          <div>
+                            <p className="text-sm font-bold text-white/95 leading-snug mb-1">{item.name}</p>
+                            <p className="text-xs text-white/60 leading-tight">{item.desc}</p>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1012,29 +1064,43 @@ const Index = () => {
 
               {/* Export Formats */}
               <div>
-                <div className="flex items-center gap-4 mb-10">
-                  <div className="h-1 w-12 bg-gradient-to-r from-[rgb(102,255,228)] to-transparent"></div>
-                  <h3 className="text-2xl md:text-3xl font-bold text-white tracking-tight">Export & Publishing</h3>
+                <div className="flex flex-col items-center text-center mb-12">
+                  <div className="inline-flex items-center gap-3 mb-4">
+                    <div className="h-px w-12 bg-gradient-to-r from-transparent to-[rgb(102,255,228)]"></div>
+                    <ArrowDownTrayIcon className="h-6 w-6 text-[rgb(102,255,228)]" strokeWidth={1.5} />
+                    <div className="h-px w-12 bg-gradient-to-l from-transparent to-[rgb(102,255,228)]"></div>
+                  </div>
+                  <h3 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-3">Export & Publishing</h3>
+                  <p className="text-white/70 text-lg max-w-2xl">
+                    Download in any format or publish to your custom subdomain
+                  </p>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
+                
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5">
                   {[
-                    { image: "/attached_assets/images/toppng.com-exporter-pdf-en-450x423.png", name: "PDF" },
-                    { image: "/attached_assets/images/toppng.com-shadow-microsoft-icons-by-blackvariant-microsoft-office-2013-899x899.png", name: "DOCX" },
-                    { image: "/attached_assets/images/toppng.com-custom-software-development-web-application-development-451x333.png", name: "HTML" },
-                    { image: "/attached_assets/images/toppng.com-markdown-logo-830x512.png", name: "Markdown" },
-                    { image: "/attached_assets/images/json-file-document-icon-png-image_927931.jpg", name: "JSON" }
-                  ].map((item) => (
-                    <div key={item.name} className="group">
-                      <div className="relative bg-gradient-to-br from-white/10 to-white/5 hover:from-white/15 hover:to-white/10 border border-white/20 hover:border-[rgb(102,255,228)]/40 rounded-2xl p-7 transition-all duration-400 h-full backdrop-blur-sm hover:shadow-[0_10px_30px_rgba(102,255,228,0.1)]">
-                        <div className="flex flex-col items-center text-center gap-4 h-full">
-                          <div className="w-14 h-14 rounded-xl bg-white/15 group-hover:bg-[rgb(102,255,228)]/20 flex items-center justify-center transition-all duration-300 group-hover:scale-110 overflow-hidden">
+                    { image: "/attached_assets/images/toppng.com-exporter-pdf-en-450x423.png", name: "PDF", desc: "Print-Ready" },
+                    { image: "/attached_assets/images/toppng.com-shadow-microsoft-icons-by-blackvariant-microsoft-office-2013-899x899.png", name: "DOCX", desc: "Editable Docs" },
+                    { image: "/attached_assets/images/toppng.com-custom-software-development-web-application-development-451x333.png", name: "HTML", desc: "Web Pages" },
+                    { image: "/attached_assets/images/toppng.com-markdown-logo-830x512.png", name: "Markdown", desc: "Developer Format" },
+                    { image: "/attached_assets/images/json-file-document-icon-png-image_927931.jpg", name: "JSON", desc: "Structured Data" }
+                  ].map((item, idx) => (
+                    <div key={item.name} className="group" style={{animationDelay: `${idx * 40}ms`}}>
+                      <div className="relative bg-gradient-to-br from-white/10 to-white/5 hover:from-white/15 hover:to-white/10 border border-white/20 hover:border-[rgb(102,255,228)]/50 rounded-2xl p-6 md:p-7 transition-all duration-400 h-full backdrop-blur-sm hover:shadow-[0_15px_40px_rgba(102,255,228,0.15)] hover:scale-105">
+                        {/* Glow effect */}
+                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[rgb(102,255,228)]/0 to-[rgb(102,255,228)]/0 group-hover:from-[rgb(102,255,228)]/5 group-hover:to-transparent transition-all duration-400"></div>
+                        
+                        <div className="flex flex-col items-center text-center gap-3 h-full relative z-10">
+                          <div className="w-14 h-14 rounded-xl bg-white/15 group-hover:bg-[rgb(102,255,228)]/25 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 overflow-hidden shadow-lg">
                             <img
                               src={item.image}
                               alt={item.name}
                               className="h-8 w-8 object-contain group-hover:brightness-125 transition-all"
                             />
                           </div>
-                          <p className="text-sm font-semibold text-white/90 leading-snug">{item.name}</p>
+                          <div>
+                            <p className="text-sm font-bold text-white/95 leading-snug mb-1">{item.name}</p>
+                            <p className="text-xs text-white/60 leading-tight">{item.desc}</p>
+                          </div>
                         </div>
                       </div>
                     </div>
