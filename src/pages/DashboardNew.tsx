@@ -183,7 +183,7 @@ export default function DashboardNew() {
       backLabel="Home"
       actions={
         <>
-          <Button variant="default" onClick={() => navigate('/')} className="gap-2">
+          <Button variant="default" onClick={() => navigate('/')} className="gap-2 px-5 py-2 text-xs font-bold text-[rgb(14,19,23)] bg-[rgb(102,255,228)] hover:bg-white rounded-full uppercase tracking-widest">
             <Plus className="h-4 w-4" />
             New Doc
           </Button>
