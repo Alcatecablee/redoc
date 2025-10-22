@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabaseClient';
 import { useDashboardOverview, useDocumentAnalytics } from '@/hooks/use-dashboard';
@@ -23,7 +23,8 @@ import {
   BarChart3,
   Users,
   Globe,
-  Trash2
+  Trash2,
+  LogIn
 } from 'lucide-react';
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { apiRequest, apiRequestBlob } from '@/lib/queryClient';
@@ -32,14 +33,60 @@ import { useToast } from '@/hooks/use-toast';
 export default function DashboardNew() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const { data: overview, isLoading, error } = useDashboardOverview();
   const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
   const { data: analytics } = useDocumentAnalytics(selectedDocId);
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    const { data } = await supabase.auth.getSession();
+    if (!data?.session) {
+      setIsAuthenticated(false);
+    } else {
+      setIsAuthenticated(true);
+    }
+  };
 
   const signOut = async () => {
     await supabase.auth.signOut();
     navigate('/');
   };
+
+  // Show auth check loading state
+  if (isAuthenticated === null) {
+    return (
+      <DashboardLayout title="Dashboard" description="Loading...">
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Redirect if not authenticated
+  if (isAuthenticated === false) {
+    return (
+      <DashboardLayout title="Dashboard" description="Authentication required">
+        <Card>
+          <CardContent className="py-12">
+            <EmptyState
+              icon={LogIn}
+              title="Please sign in"
+              description="You need to be signed in to access the dashboard. Sign in to view your analytics and documentation."
+              action={{
+                label: 'Go to Home',
+                onClick: () => navigate('/')
+              }}
+            />
+          </CardContent>
+        </Card>
+      </DashboardLayout>
+    );
+  }
 
   const downloadBlob = async (path: string, filename: string) => {
     try {
