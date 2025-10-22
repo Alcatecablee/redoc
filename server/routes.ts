@@ -23,6 +23,7 @@ import incrementalUpdatesRouter from './routes/incremental-updates';
 import searchRouter from './routes/search';
 import analyticsRouter from './routes/analytics';
 import auditRouter from './routes/audit';
+import dashboardRouter from './routes/dashboard';
 import { fetchImagesForExport, limitImagesForExport } from './image-utils';
 import { db } from './db';
 import { users } from '../shared/schema';
@@ -2142,6 +2143,9 @@ router.use(analyticsRouter);
 
 // Mount audit logs router (3.5)
 router.use(auditRouter);
+
+// Mount dashboard router
+router.use('/api/dashboard', dashboardRouter);
 
 // Mount themes router
 router.use('/api/themes', themesRouter);
