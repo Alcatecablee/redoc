@@ -19,6 +19,10 @@ import enterpriseRouter from './routes/enterprise';
 import jobsRouter from './routes/jobs';
 import healthRouter from './routes/health';
 import versionsRouter from './routes/versions';
+import incrementalUpdatesRouter from './routes/incremental-updates';
+import searchRouter from './routes/search';
+import analyticsRouter from './routes/analytics';
+import auditRouter from './routes/audit';
 import { fetchImagesForExport, limitImagesForExport } from './image-utils';
 import { db } from './db';
 import { users } from '../shared/schema';
@@ -2125,6 +2129,19 @@ router.use('/api/health', healthRouter);
 
 // Mount version management router
 router.use(versionsRouter);
+
+// TIER 3: Competitive Features
+// Mount incremental updates router (3.2)
+router.use(incrementalUpdatesRouter);
+
+// Mount search router (3.3)
+router.use(searchRouter);
+
+// Mount analytics router (3.4)
+router.use(analyticsRouter);
+
+// Mount audit logs router (3.5)
+router.use(auditRouter);
 
 // Mount themes router
 router.use('/api/themes', themesRouter);

@@ -1,7 +1,14 @@
-import { pgTable, serial, text, timestamp, jsonb, integer, decimal, boolean } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, timestamp, jsonb, integer, decimal, boolean, customType } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
+
+// Custom type for PostgreSQL tsvector (full-text search)
+const tsvector = customType<{ data: string }>({
+  dataType() {
+    return 'tsvector';
+  },
+});
 
 // Users table for subscription management
 export const users = pgTable("users", {
@@ -54,6 +61,7 @@ export const documentations = pgTable("documentations", {
   subdomain: text("subdomain").unique(),
   theme_id: integer("theme_id"),
   current_version: integer("current_version").notNull().default(1), // Track current version number
+  search_vector: tsvector("search_vector"), // TIER 3.3: Full-text search vector
   generatedAt: timestamp("generated_at").notNull().defaultNow(),
 });
 
@@ -263,6 +271,67 @@ export const idempotencyKeys = pgTable("idempotency_keys", {
   expires_at: timestamp("expires_at").notNull(),
 });
 
+// TIER 3.2: Documentation pages for incremental updates
+export const documentationPages = pgTable("documentation_pages", {
+  id: serial("id").primaryKey(),
+  documentation_id: integer("documentation_id").notNull(),
+  url: text("url").notNull(),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  content_hash: text("content_hash").notNull(), // SHA-256 for change detection
+  section_type: text("section_type"), // 'overview', 'api', 'tutorial', 'faq', etc.
+  metadata: jsonb("metadata"), // Additional page data
+  search_vector: tsvector("search_vector"), // TIER 3.3: Full-text search vector
+  last_checked_at: timestamp("last_checked_at").notNull().defaultNow(),
+  last_modified_at: timestamp("last_modified_at").notNull().defaultNow(),
+  created_at: timestamp("created_at").notNull().defaultNow(),
+});
+
+// TIER 3.2: Page change tracking for incremental updates
+export const pageChangeLog = pgTable("page_change_log", {
+  id: serial("id").primaryKey(),
+  page_id: integer("page_id").notNull(),
+  documentation_id: integer("documentation_id").notNull(),
+  old_hash: text("old_hash"),
+  new_hash: text("new_hash").notNull(),
+  change_type: text("change_type").notNull(), // 'added', 'modified', 'deleted'
+  diff_summary: text("diff_summary"), // Brief description of changes
+  regenerated: boolean("regenerated").notNull().default(false),
+  detected_at: timestamp("detected_at").notNull().defaultNow(),
+});
+
+// TIER 3.4: Analytics events for tracking
+export const analyticsEvents = pgTable("analytics_events", {
+  id: serial("id").primaryKey(),
+  documentation_id: integer("documentation_id").notNull(),
+  event_type: text("event_type").notNull(), // 'view', 'export', 'search', 'share'
+  page_url: text("page_url"),
+  section_id: text("section_id"),
+  user_id: text("user_id"),
+  session_id: text("session_id"),
+  ip_address: text("ip_address"),
+  user_agent: text("user_agent"),
+  referrer: text("referrer"),
+  metadata: jsonb("metadata"), // Additional event data
+  created_at: timestamp("created_at").notNull().defaultNow(),
+});
+
+// TIER 3.4: Analytics summary (aggregated data)
+export const analyticsSummary = pgTable("analytics_summary", {
+  id: serial("id").primaryKey(),
+  documentation_id: integer("documentation_id").notNull(),
+  period_start: timestamp("period_start").notNull(),
+  period_end: timestamp("period_end").notNull(),
+  total_views: integer("total_views").notNull().default(0),
+  unique_visitors: integer("unique_visitors").notNull().default(0),
+  total_exports: integer("total_exports").notNull().default(0),
+  total_searches: integer("total_searches").notNull().default(0),
+  avg_time_on_page: integer("avg_time_on_page"), // in seconds
+  popular_pages: jsonb("popular_pages"), // Array of {url, views}
+  popular_sections: jsonb("popular_sections"), // Array of {section, views}
+  created_at: timestamp("created_at").notNull().defaultNow(),
+});
+
 // Relations for new tables
 export const apiKeysRelations = relations(apiKeys, ({ one }) => ({
   user: one(users, {
@@ -338,6 +407,39 @@ export const brandingSettingsRelations = relations(brandingSettings, ({ one }) =
   organization: one(organizations, {
     fields: [brandingSettings.organization_id],
     references: [organizations.id],
+  }),
+}));
+
+export const documentationPagesRelations = relations(documentationPages, ({ one, many }) => ({
+  documentation: one(documentations, {
+    fields: [documentationPages.documentation_id],
+    references: [documentations.id],
+  }),
+  changeLogs: many(pageChangeLog),
+}));
+
+export const pageChangeLogRelations = relations(pageChangeLog, ({ one }) => ({
+  page: one(documentationPages, {
+    fields: [pageChangeLog.page_id],
+    references: [documentationPages.id],
+  }),
+  documentation: one(documentations, {
+    fields: [pageChangeLog.documentation_id],
+    references: [documentations.id],
+  }),
+}));
+
+export const analyticsEventsRelations = relations(analyticsEvents, ({ one }) => ({
+  documentation: one(documentations, {
+    fields: [analyticsEvents.documentation_id],
+    references: [documentations.id],
+  }),
+}));
+
+export const analyticsSummaryRelations = relations(analyticsSummary, ({ one }) => ({
+  documentation: one(documentations, {
+    fields: [analyticsSummary.documentation_id],
+    references: [documentations.id],
   }),
 }));
 
@@ -417,6 +519,26 @@ export const insertActivityLogSchema = createInsertSchema(activityLogs).omit({
   created_at: true,
 }) as any;
 
+export const insertDocumentationPageSchema = createInsertSchema(documentationPages).omit({
+  id: true,
+  created_at: true,
+}) as any;
+
+export const insertPageChangeLogSchema = createInsertSchema(pageChangeLog).omit({
+  id: true,
+  detected_at: true,
+}) as any;
+
+export const insertAnalyticsEventSchema = createInsertSchema(analyticsEvents).omit({
+  id: true,
+  created_at: true,
+}) as any;
+
+export const insertAnalyticsSummarySchema = createInsertSchema(analyticsSummary).omit({
+  id: true,
+  created_at: true,
+}) as any;
+
 // Type exports
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -447,3 +569,12 @@ export type InsertBrandingSettings = z.infer<typeof insertBrandingSettingsSchema
 export type BrandingSettings = typeof brandingSettings.$inferSelect;
 export type InsertActivityLog = z.infer<typeof insertActivityLogSchema>;
 export type ActivityLog = typeof activityLogs.$inferSelect;
+
+export type InsertDocumentationPage = z.infer<typeof insertDocumentationPageSchema>;
+export type DocumentationPage = typeof documentationPages.$inferSelect;
+export type InsertPageChangeLog = z.infer<typeof insertPageChangeLogSchema>;
+export type PageChangeLog = typeof pageChangeLog.$inferSelect;
+export type InsertAnalyticsEvent = z.infer<typeof insertAnalyticsEventSchema>;
+export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
+export type InsertAnalyticsSummary = z.infer<typeof insertAnalyticsSummarySchema>;
+export type AnalyticsSummary = typeof analyticsSummary.$inferSelect;
