@@ -915,7 +915,7 @@ router.post("/api/generate-docs-enqueue",
 // Get all documentations
 router.get("/api/documentations", verifySupabaseAuth, async (req, res) => {
   try {
-    const userId = req.user?.id || null;
+    const userId = req.user?.databaseId || null;
     const docs = await storage.getAllDocumentations(userId);
     res.json(docs);
   } catch (error) {
