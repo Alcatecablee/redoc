@@ -43,7 +43,40 @@ export async function verifySupabaseAuth(req: any, res: any, next: any) {
     }
 
     const userData = await userResp.json();
-    req.user = userData;
+    const email = userData.email;
+
+    if (!email || !db) {
+      req.user = userData;
+      return next();
+    }
+
+    try {
+      const existingUsers = await db.select().from(users).where(eq(users.email, email)).limit(1);
+
+      if (existingUsers.length > 0) {
+        req.user = {
+          ...userData,
+          databaseId: existingUsers[0].id,
+          email: email,
+        };
+      } else {
+        const newUsers = await db.insert(users).values({
+          email: email,
+          plan: 'free',
+          generation_count: 0,
+        }).returning();
+
+        req.user = {
+          ...userData,
+          databaseId: newUsers[0].id,
+          email: email,
+        };
+      }
+    } catch (dbErr: any) {
+      console.warn('Failed to sync Supabase user with database:', dbErr?.message);
+      req.user = userData;
+    }
+
     return next();
   } catch (err: any) {
     console.error('Error verifying supabase token', err);
