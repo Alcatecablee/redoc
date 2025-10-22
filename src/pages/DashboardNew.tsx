@@ -360,7 +360,7 @@ export default function DashboardNew() {
                       <Button variant="outline" size="sm" onClick={() => downloadBlob(`/api/export/pdf/${doc.id}`, `${doc.title.replace(/[^a-z0-9]/gi, '_')}.pdf`)} className="px-4 py-1 text-xs font-bold text-white border-2 border-[rgb(102,255,228)] hover:bg-[rgb(102,255,228)] hover:text-[rgb(14,19,23)] rounded-full uppercase tracking-widest">
                         PDF
                       </Button>
-                      <Button variant="outline" size="sm" onClick={() => downloadBlob(`/api/export/docx/${doc.id}`, `${doc.title.replace(/[^a-z0-9]/gi, '_')}.docx`)}>
+                      <Button variant="outline" size="sm" onClick={() => downloadBlob(`/api/export/docx/${doc.id}`, `${doc.title.replace(/[^a-z0-9]/gi, '_')}.docx`)} className="px-4 py-1 text-xs font-bold text-white border-2 border-[rgb(102,255,228)] hover:bg-[rgb(102,255,228)] hover:text-[rgb(14,19,23)] rounded-full uppercase tracking-widest">
                         DOCX
                       </Button>
                       <Button variant="ghost" size="sm" onClick={() => deleteDoc(doc.id)} className="text-destructive ml-auto">
