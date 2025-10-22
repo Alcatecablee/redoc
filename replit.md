@@ -63,6 +63,52 @@ Design preferences: Clean cyan-blue color scheme like Replit (no purple), solid 
 **Security Features**: Fail-closed webhook verification, subscriber email validation, comprehensive audit trails, and secure API key management.
 **White-Label Customization**: Complete system for white-labeling, including custom branding, logo upload, and email template customization.
 
+### Comprehensive Dashboard System
+**Three-Tier Dashboard Architecture**: Role-based analytics dashboards for different user personas:
+
+1. **Creator Hub** (`/dashboard`) - Individual Users (Free/Pro):
+   - Personal overview with account status and subscription tier
+   - Key metrics: Total docs, views, exports, generation quota
+   - 30-day activity trends (generations, views, exports)
+   - Recent documentation with inline analytics drill-down
+   - Document-level analytics: views, visitors, exports, searches, device breakdown, popular pages
+   - Usage limit warnings with contextual upgrade prompts
+   - One-click export (PDF, DOCX) and document management
+
+2. **Team Command Center** (`/dashboard/team`) - Organization Admins:
+   - Organization overview and member count
+   - Team metrics: active members, total docs, views, avg per member
+   - Top contributors chart with documentation output
+   - Team member directory with contribution stats
+   - Integration health dashboard (API keys, webhooks)
+   - API usage monitoring with rate limits
+   - Webhook status and delivery monitoring
+   - Team activity feed with recent actions
+
+3. **Enterprise Insights** (`/dashboard/enterprise`) - Business Executives:
+   - Executive KPIs: MRR, ARR, active subscriptions, churn rate
+   - Revenue trend analysis with monthly breakdown
+   - Customer distribution by plan (Free/Pro/Enterprise)
+   - Platform-wide analytics (total docs, views, exports)
+   - Recent payment transactions
+   - Customer segmentation and conversion metrics
+   - Quick access to white-label settings and team management
+
+**Shared UI Components**:
+- `MetricCard`: KPI display with trend indicators
+- `ChartContainer`: Responsive chart wrapper with Recharts integration
+- `UpgradePrompt`: Contextual upgrade CTAs for free users
+- `EmptyState`: Consistent empty data messaging
+- `DashboardLayout`: Unified layout with navigation and actions
+
+**Backend Infrastructure**:
+- Dashboard service with data aggregation (`server/services/dashboard-service.ts`)
+- RESTful API endpoints: `/api/dashboard/overview`, `/analytics/:id`, `/team`, `/revenue`, `/integrations`
+- React Query hooks for data fetching with caching (`src/hooks/use-dashboard.ts`)
+- Server-side caching for performance optimization
+
+**Implementation Date**: October 22, 2025
+
 ## External Dependencies
 
 **Core Services**:
