@@ -304,8 +304,8 @@ export default function DashboardNew() {
         {/* Recent Documents */}
         <Card className="bg-white/5 border border-white/10 text-white">
           <CardHeader>
-            <CardTitle>Recent Documentation</CardTitle>
-            <CardDescription>Your latest generated documents with performance metrics</CardDescription>
+            <CardTitle className="text-white">Recent Documentation</CardTitle>
+            <CardDescription className="text-white/70">Your latest generated documents with performance metrics</CardDescription>
           </CardHeader>
           <CardContent>
             {overview.recentDocs.length === 0 ? (
