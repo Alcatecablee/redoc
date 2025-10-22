@@ -57,7 +57,7 @@ export const documentations = pgTable("documentations", {
   url: text("url").notNull(),
   title: text("title").notNull(),
   content: text("content").notNull(),
-  user_id: text("user_id"),
+  user_id: integer("user_id"),
   subdomain: text("subdomain").unique(),
   theme_id: integer("theme_id"),
   current_version: integer("current_version").notNull().default(1), // Track current version number
@@ -73,7 +73,7 @@ export const documentationVersions = pgTable("documentation_versions", {
   url: text("url").notNull(),
   title: text("title").notNull(),
   content: text("content").notNull(),
-  user_id: text("user_id"),
+  user_id: integer("user_id"),
   theme_id: integer("theme_id"),
   subdomain: text("subdomain"),
   version_notes: text("version_notes"), // What changed in this version
@@ -86,7 +86,7 @@ export const documentationVersions = pgTable("documentation_versions", {
 export const themes = pgTable("themes", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  user_id: text("user_id").notNull(),
+  user_id: integer("user_id").notNull(),
   tokens: jsonb("tokens").notNull(),
   is_default: text("is_default").default("false"),
   source_url: text("source_url"),
@@ -307,7 +307,7 @@ export const analyticsEvents = pgTable("analytics_events", {
   event_type: text("event_type").notNull(), // 'view', 'export', 'search', 'share'
   page_url: text("page_url"),
   section_id: text("section_id"),
-  user_id: text("user_id"),
+  user_id: integer("user_id"),
   session_id: text("session_id"),
   ip_address: text("ip_address"),
   user_agent: text("user_agent"),
