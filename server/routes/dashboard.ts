@@ -58,17 +58,10 @@ router.get('/analytics/:docId', verifySupabaseAuth, async (req: any, res) => {
 
 router.get('/team', verifySupabaseAuth, async (req: any, res) => {
   try {
-    const userEmail = req.user?.email;
-    if (!userEmail) {
+    const userId = req.user?.databaseId;
+    if (!userId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-
-    const userResults = await ensureDb().select().from(users).where(eq(users.email, userEmail)).limit(1);
-    if (!userResults || userResults.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    const userId = userResults[0].id;
 
     const orgMembership = await ensureDb()
       .select({ organizationId: organizationMembers.organization_id })
@@ -92,17 +85,11 @@ router.get('/team', verifySupabaseAuth, async (req: any, res) => {
 
 router.get('/integrations', verifySupabaseAuth, async (req: any, res) => {
   try {
-    const userEmail = req.user?.email;
-    if (!userEmail) {
+    const userId = req.user?.databaseId;
+    if (!userId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const userResults = await ensureDb().select().from(users).where(eq(users.email, userEmail)).limit(1);
-    if (!userResults || userResults.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    const userId = userResults[0].id;
     const integrationHealth = await DashboardService.getIntegrationHealth(userId);
 
     return res.json(integrationHealth);
@@ -114,12 +101,12 @@ router.get('/integrations', verifySupabaseAuth, async (req: any, res) => {
 
 router.get('/revenue', verifySupabaseAuth, async (req: any, res) => {
   try {
-    const userEmail = req.user?.email;
-    if (!userEmail) {
+    const userId = req.user?.databaseId;
+    if (!userId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const userResults = await ensureDb().select().from(users).where(eq(users.email, userEmail)).limit(1);
+    const userResults = await ensureDb().select().from(users).where(eq(users.id, userId)).limit(1);
     if (!userResults || userResults.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
