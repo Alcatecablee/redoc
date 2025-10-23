@@ -4,11 +4,14 @@ import path from 'node:path';
 
 // Make sharp optional - gracefully degrade if not available
 let sharp: any = null;
-try {
-  sharp = (await import('sharp')).default;
-} catch (error) {
-  console.warn('Sharp module not available in image-proxy - image optimization disabled.');
-}
+(async () => {
+  try {
+    sharp = (await import('sharp')).default;
+    console.log('✓ Sharp module loaded successfully for image optimization');
+  } catch (error: any) {
+    console.warn('⚠️ Sharp module not available in image-proxy - image optimization disabled:', error.message);
+  }
+})();
 
 export interface ProxyConfig {
   cacheDir: string;

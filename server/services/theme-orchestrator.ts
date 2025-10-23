@@ -5,11 +5,17 @@ import { getDefaultTheme } from '../../shared/themes';
 import fetch from 'node-fetch';
 
 let sharp: any = null;
-try {
-  sharp = require('sharp');
-} catch (error) {
-  console.warn('Sharp module not available for theme extraction');
-}
+let sharpLoaded = false;
+(async () => {
+  try {
+    const sharpModule = await import('sharp');
+    sharp = sharpModule.default;
+    sharpLoaded = true;
+    console.log('✓ Sharp module loaded successfully for theme extraction');
+  } catch (error: any) {
+    console.warn('⚠️ Sharp module not available for theme extraction:', error.message);
+  }
+})();
 
 export interface ThemeExtractionOptions {
   url: string;
@@ -226,8 +232,12 @@ export class ThemeOrchestrator {
       console.log(`✅ Extracted ${filteredColors.length} colors from logo`);
       return filteredColors.slice(0, 6); // Return top 6 colors
       
-    } catch (error) {
-      console.error('Logo color extraction error:', error);
+    } catch (error: any) {
+      console.error('❌ Logo color extraction failed:', {
+        logoUrl,
+        error: error.message,
+        stack: error.stack
+      });
       return [];
     }
   }

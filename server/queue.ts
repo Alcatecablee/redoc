@@ -51,16 +51,23 @@ class InMemoryQueue {
         job.status = 'running';
         job.updatedAt = new Date().toISOString();
         this.records.set(job.id, job);
+        console.log(`📋 Processing job ${job.id} (${job.name})`);
         try {
           await this.processor(job);
           job.status = 'completed';
           job.updatedAt = new Date().toISOString();
           this.records.set(job.id, job);
+          console.log(`✅ Job ${job.id} (${job.name}) completed successfully`);
         } catch (err: any) {
           job.status = 'failed';
           job.error = (err && err.message) || String(err);
           job.updatedAt = new Date().toISOString();
           this.records.set(job.id, job);
+          console.error(`❌ Job ${job.id} (${job.name}) failed:`, {
+            error: job.error,
+            stack: err?.stack,
+            payload: job.payload
+          });
         }
       }
     } finally {
