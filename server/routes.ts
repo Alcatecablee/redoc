@@ -2187,7 +2187,11 @@ router.get('/api/idempotency/stats', verifySupabaseAuth, async (req, res) => {
   }
 });
 
-// Pricing calculation endpoint
+// Custom Orders Routes (Phase 1 Enhanced)
+const customOrdersRouter = (await import('./routes/custom-orders')).default;
+router.use('/api/custom-orders', customOrdersRouter);
+
+// Legacy pricing calculation endpoint (keep for backward compatibility)
 router.post('/api/pricing/calculate', async (req, res) => {
   try {
     const { calculatePrice } = await import('./pricing');

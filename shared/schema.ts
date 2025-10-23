@@ -52,6 +52,87 @@ export const subscriptionEvents = pgTable("subscription_events", {
   created_at: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Custom orders for Configure Your Project feature
+export const customOrders = pgTable("custom_orders", {
+  id: serial("id").primaryKey(),
+  order_number: text("order_number").notNull().unique(), // Human-friendly: ORD-2025-001234
+  
+  // Customer Information
+  user_id: integer("user_id"), // References users(id), nullable for guest orders
+  email: text("email").notNull(),
+  
+  // Project Details
+  url: text("url").notNull(),
+  github_repo: text("github_repo"),
+  
+  // Configuration
+  tier: text("tier").notNull(), // 'custom', 'standard', 'professional', 'enterprise'
+  sections: text("sections").notNull(), // '8-12', '13-20', '20+'
+  source_depth: text("source_depth").notNull(), // 'basic', 'standard', 'deep'
+  delivery: text("delivery").notNull(), // 'standard', 'rush', 'same-day'
+  formats: jsonb("formats").notNull(), // Array of format strings
+  branding: text("branding").notNull(), // 'basic', 'advanced'
+  youtube_options: jsonb("youtube_options"), // Array of YouTube feature strings
+  seo_options: jsonb("seo_options"), // Array of SEO feature strings
+  enterprise_features: jsonb("enterprise_features"), // Array of enterprise feature strings
+  
+  // Custom Requirements
+  custom_requirements: text("custom_requirements"),
+  requirements_parsed: jsonb("requirements_parsed"), // Parsed/categorized requirements
+  requirements_complexity_score: integer("requirements_complexity_score"),
+  
+  // Pricing
+  pricing_breakdown: jsonb("pricing_breakdown").notNull(), // Full breakdown object
+  subtotal: decimal("subtotal", { precision: 10, scale: 2 }).notNull(),
+  discount_amount: decimal("discount_amount", { precision: 10, scale: 2 }).default("0.00"),
+  tax_amount: decimal("tax_amount", { precision: 10, scale: 2 }).default("0.00"),
+  total_amount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
+  currency: text("currency").notNull().default("USD"),
+  discount_code: text("discount_code"),
+  
+  // Payment
+  payment_id: text("payment_id"), // PayPal order/payment ID
+  payment_status: text("payment_status").default("pending"), // 'pending', 'paid', 'failed', 'refunded'
+  
+  // Order Status
+  status: text("status").default("quote"), // 'quote', 'pending_payment', 'processing', 'completed', 'cancelled'
+  fulfillment_status: text("fulfillment_status"), // 'not_started', 'in_progress', 'delivered'
+  
+  // Delivery
+  estimated_delivery_date: timestamp("estimated_delivery_date"),
+  actual_delivery_date: timestamp("actual_delivery_date"),
+  delivery_url: text("delivery_url"), // Link to completed documentation
+  
+  // Metadata
+  ip_address: text("ip_address"),
+  user_agent: text("user_agent"),
+  referral_source: text("referral_source"),
+  session_data: jsonb("session_data"),
+  admin_notes: text("admin_notes"),
+  
+  // Timestamps
+  created_at: timestamp("created_at").notNull().defaultNow(),
+  updated_at: timestamp("updated_at").notNull().defaultNow(),
+  paid_at: timestamp("paid_at"),
+  completed_at: timestamp("completed_at"),
+});
+
+// Discount codes for promotional campaigns
+export const discountCodes = pgTable("discount_codes", {
+  id: serial("id").primaryKey(),
+  code: text("code").notNull().unique(),
+  description: text("description"),
+  discount_type: text("discount_type").notNull(), // 'percentage', 'fixed'
+  discount_value: decimal("discount_value", { precision: 10, scale: 2 }).notNull(),
+  min_order_amount: decimal("min_order_amount", { precision: 10, scale: 2 }),
+  max_uses: integer("max_uses"),
+  current_uses: integer("current_uses").notNull().default(0),
+  valid_from: timestamp("valid_from").defaultNow(),
+  valid_until: timestamp("valid_until"),
+  is_active: boolean("is_active").notNull().default(true),
+  created_at: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const documentations = pgTable("documentations", {
   id: serial("id").primaryKey(),
   url: text("url").notNull(),
@@ -99,6 +180,7 @@ export const themes = pgTable("themes", {
 export const usersRelations = relations(users, ({ many }) => ({
   paymentHistory: many(paymentHistory),
   subscriptionEvents: many(subscriptionEvents),
+  customOrders: many(customOrders),
 }));
 
 export const paymentHistoryRelations = relations(paymentHistory, ({ one }) => ({
@@ -111,6 +193,13 @@ export const paymentHistoryRelations = relations(paymentHistory, ({ one }) => ({
 export const subscriptionEventsRelations = relations(subscriptionEvents, ({ one }) => ({
   user: one(users, {
     fields: [subscriptionEvents.user_id],
+    references: [users.id],
+  }),
+}));
+
+export const customOrdersRelations = relations(customOrders, ({ one }) => ({
+  user: one(users, {
+    fields: [customOrders.user_id],
     references: [users.id],
   }),
 }));
@@ -470,6 +559,17 @@ export const insertSubscriptionEventSchema = createInsertSchema(subscriptionEven
   created_at: true,
 }) as any;
 
+export const insertCustomOrderSchema = createInsertSchema(customOrders).omit({
+  id: true,
+  created_at: true,
+  updated_at: true,
+}) as any;
+
+export const insertDiscountCodeSchema = createInsertSchema(discountCodes).omit({
+  id: true,
+  created_at: true,
+}) as any;
+
 // Insert schemas for new tables
 export const insertApiKeySchema = createInsertSchema(apiKeys).omit({
   id: true,
@@ -550,6 +650,10 @@ export type InsertPaymentHistory = z.infer<typeof insertPaymentHistorySchema>;
 export type PaymentHistory = typeof paymentHistory.$inferSelect;
 export type InsertSubscriptionEvent = z.infer<typeof insertSubscriptionEventSchema>;
 export type SubscriptionEvent = typeof subscriptionEvents.$inferSelect;
+export type InsertCustomOrder = z.infer<typeof insertCustomOrderSchema>;
+export type CustomOrder = typeof customOrders.$inferSelect;
+export type InsertDiscountCode = z.infer<typeof insertDiscountCodeSchema>;
+export type DiscountCode = typeof discountCodes.$inferSelect;
 
 export type InsertApiKey = z.infer<typeof insertApiKeySchema>;
 export type ApiKey = typeof apiKeys.$inferSelect;

@@ -227,3 +227,320 @@ export const isValidUrl = (url: string): boolean => {
     return false;
   }
 };
+
+/**
+ * Custom Orders Validation Schemas
+ * For Configure Your Project feature
+ */
+
+// URL validation with additional checks
+const urlValidation = z.string()
+  .min(10, 'URL is too short')
+  .max(2000, 'URL is too long')
+  .refine(isValidUrl, 'Invalid URL format - must start with http:// or https://')
+  .refine(
+    (url) => !url.includes('localhost') && !url.includes('127.0.0.1'),
+    'Cannot use localhost URLs for custom orders'
+  )
+  .refine(
+    (url) => {
+      try {
+        const parsed = new URL(url);
+        return parsed.hostname.includes('.') || parsed.hostname === 'localhost';
+      } catch {
+        return false;
+      }
+    },
+    'URL must have a valid domain name'
+  );
+
+// GitHub repo validation
+const githubRepoValidation = z.string()
+  .regex(/^[a-zA-Z0-9_-]+\/[a-zA-Z0-9_.-]+$/, 
+    'GitHub repo must be in format: username/repository'
+  )
+  .optional();
+
+// Custom requirements validation with length limits
+const customRequirementsValidation = z.string()
+  .max(2000, 'Custom requirements must be under 2000 characters')
+  .optional();
+
+// Email validation
+const emailValidation = z.string()
+  .email('Invalid email address')
+  .min(5, 'Email is too short')
+  .max(255, 'Email is too long');
+
+// Shared validation components
+const tierValidation = z.enum(['custom', 'standard', 'professional', 'enterprise'], {
+  errorMap: () => ({ message: 'Invalid tier selection' })
+});
+
+const sectionsValidation = z.enum(['8-12', '13-20', '20+'], {
+  errorMap: () => ({ message: 'Invalid section count selection' })
+});
+
+const sourceDepthValidation = z.enum(['basic', 'standard', 'deep'], {
+  errorMap: () => ({ message: 'Invalid research depth selection' })
+});
+
+const deliveryValidation = z.enum(['standard', 'rush', 'same-day'], {
+  errorMap: () => ({ message: 'Invalid delivery speed selection' })
+});
+
+const formatsValidation = z.array(z.enum(['pdf', 'markdown', 'html', 'docx', 'json']))
+  .min(1, 'At least one export format is required')
+  .max(5, 'Maximum 5 export formats allowed');
+
+const brandingValidation = z.enum(['basic', 'advanced'], {
+  errorMap: () => ({ message: 'Invalid branding level selection' })
+});
+
+const youtubeOptionsValidation = z.array(z.enum(['youtubeSearch', 'youtubeApi', 'youtubeTranscripts']))
+  .max(3, 'Maximum 3 YouTube options allowed')
+  .optional();
+
+const seoOptionsValidation = z.array(z.enum([
+  'seoMetadata', 
+  'schemaMarkup', 
+  'keywordTargeting', 
+  'sitemapIndexing', 
+  'contentRefresh'
+]))
+  .max(5, 'Maximum 5 SEO options allowed')
+  .optional();
+
+const enterpriseFeaturesValidation = z.array(z.enum([
+  'multiRegion',
+  'prioritySupport',
+  'customIntegrations',
+  'dedicatedAccount',
+  'slaGuarantee'
+]))
+  .max(5, 'Maximum 5 enterprise features allowed')
+  .optional();
+
+// Quote request schema (email optional - just for pricing calculation)
+export const quoteRequestSchema = z.object({
+  // Project Details
+  url: urlValidation,
+  githubRepo: githubRepoValidation,
+  
+  // Configuration
+  tier: tierValidation,
+  sections: sectionsValidation,
+  sourceDepth: sourceDepthValidation,
+  delivery: deliveryValidation,
+  formats: formatsValidation,
+  branding: brandingValidation,
+  youtubeOptions: youtubeOptionsValidation,
+  seoOptions: seoOptionsValidation,
+  enterpriseFeatures: enterpriseFeaturesValidation,
+  customRequirements: customRequirementsValidation,
+  
+  // Currency
+  currency: z.enum(['USD', 'ZAR']).default('USD'),
+  
+  // Optional discount code
+  discountCode: z.string()
+    .min(3, 'Discount code must be at least 3 characters')
+    .max(50, 'Discount code is too long')
+    .transform((v) => v.toUpperCase())
+    .optional(),
+  
+  // Email is optional for quotes
+  email: emailValidation.optional(),
+});
+
+// Create custom order schema (for actual order creation - email required)
+export const createCustomOrderSchema = z.object({
+  // Customer Info
+  email: emailValidation, // Required for orders
+  
+  // Project Details
+  url: urlValidation,
+  githubRepo: githubRepoValidation,
+  
+  // Configuration
+  tier: z.enum(['custom', 'standard', 'professional', 'enterprise'], {
+    errorMap: () => ({ message: 'Invalid tier selection' })
+  }),
+  sections: z.enum(['8-12', '13-20', '20+'], {
+    errorMap: () => ({ message: 'Invalid section count selection' })
+  }),
+  sourceDepth: z.enum(['basic', 'standard', 'deep'], {
+    errorMap: () => ({ message: 'Invalid research depth selection' })
+  }),
+  delivery: z.enum(['standard', 'rush', 'same-day'], {
+    errorMap: () => ({ message: 'Invalid delivery speed selection' })
+  }),
+  formats: z.array(z.enum(['pdf', 'markdown', 'html', 'docx', 'json']))
+    .min(1, 'At least one export format is required')
+    .max(5, 'Maximum 5 export formats allowed'),
+  branding: z.enum(['basic', 'advanced'], {
+    errorMap: () => ({ message: 'Invalid branding level selection' })
+  }),
+  youtubeOptions: z.array(z.enum(['youtubeSearch', 'youtubeApi', 'youtubeTranscripts']))
+    .max(3, 'Maximum 3 YouTube options allowed')
+    .optional(),
+  seoOptions: z.array(z.enum([
+    'seoMetadata', 
+    'schemaMarkup', 
+    'keywordTargeting', 
+    'sitemapIndexing', 
+    'contentRefresh'
+  ]))
+    .max(5, 'Maximum 5 SEO options allowed')
+    .optional(),
+  enterpriseFeatures: z.array(z.enum([
+    'accountManager', 
+    'revisions', 
+    'apiPriority', 
+    'compliance'
+  ]))
+    .max(4, 'Maximum 4 enterprise features allowed')
+    .optional(),
+  
+  // Custom Requirements
+  customRequirements: customRequirementsValidation,
+  
+  // Currency
+  currency: z.enum(['USD', 'ZAR']).default('USD'),
+  
+  // Optional discount code
+  discountCode: z.string()
+    .min(3, 'Discount code must be at least 3 characters')
+    .max(50, 'Discount code is too long')
+    .transform((v) => v.toUpperCase())
+    .optional(),
+})
+// Business rule validations
+.refine(
+  (data) => {
+    // Same-day delivery not available for 20+ sections
+    if (data.delivery === 'same-day' && data.sections === '20+') {
+      return false;
+    }
+    return true;
+  },
+  {
+    message: 'Same-day delivery is not available for 20+ sections. Please select rush (24 hours) or standard delivery.',
+    path: ['delivery']
+  }
+)
+.refine(
+  (data) => {
+    // Enterprise features only available for professional and enterprise tiers
+    if (data.enterpriseFeatures && data.enterpriseFeatures.length > 0) {
+      if (data.tier !== 'professional' && data.tier !== 'enterprise' && data.tier !== 'custom') {
+        return false;
+      }
+    }
+    return true;
+  },
+  {
+    message: 'Enterprise features are only available for Professional, Enterprise, or Custom tiers',
+    path: ['enterpriseFeatures']
+  }
+);
+
+// Pricing calculation schema
+export const calculatePricingSchema = z.object({
+  tier: z.enum(['custom', 'standard', 'professional', 'enterprise']).optional(),
+  sections: z.enum(['8-12', '13-20', '20+']),
+  sourceDepth: z.enum(['basic', 'standard', 'deep']),
+  delivery: z.enum(['standard', 'rush', 'same-day']),
+  formats: z.array(z.string()),
+  branding: z.enum(['basic', 'advanced']),
+  customRequirements: z.string().optional(),
+  currency: z.enum(['USD', 'ZAR']).default('USD'),
+  youtubeOptions: z.array(z.string()).optional(),
+  seoOptions: z.array(z.string()).optional(),
+  enterpriseFeatures: z.array(z.string()).optional(),
+  discountCode: z.string().optional(),
+});
+
+// Discount code validation schema
+export const validateDiscountCodeSchema = z.object({
+  code: z.string()
+    .min(3, 'Discount code must be at least 3 characters')
+    .max(50, 'Discount code is too long')
+    .transform((v) => v.toUpperCase()),
+  orderAmount: z.number()
+    .min(0, 'Order amount must be positive')
+    .optional(),
+});
+
+// Create discount code schema (admin only)
+export const createDiscountCodeSchema = z.object({
+  code: z.string()
+    .min(3, 'Code must be at least 3 characters')
+    .max(50, 'Code is too long')
+    .regex(/^[A-Z0-9_-]+$/, 'Code must contain only uppercase letters, numbers, hyphens, and underscores')
+    .transform((v) => v.toUpperCase()),
+  description: z.string()
+    .max(500, 'Description is too long')
+    .optional(),
+  discountType: z.enum(['percentage', 'fixed'], {
+    errorMap: () => ({ message: 'Discount type must be percentage or fixed' })
+  }),
+  discountValue: z.number()
+    .min(0.01, 'Discount value must be greater than 0')
+    .max(10000, 'Discount value is too high')
+    .refine(
+      (val, ctx) => {
+        // If percentage, must be between 0-100
+        const discountType = (ctx as any).parent?.discountType;
+        if (discountType === 'percentage') {
+          return val <= 100;
+        }
+        return true;
+      },
+      'Percentage discount must be between 0 and 100'
+    ),
+  minOrderAmount: z.number()
+    .min(0, 'Minimum order amount cannot be negative')
+    .optional(),
+  maxUses: z.number()
+    .int('Maximum uses must be a whole number')
+    .min(1, 'Maximum uses must be at least 1')
+    .optional(),
+  validFrom: z.string().datetime().optional(),
+  validUntil: z.string().datetime().optional(),
+  isActive: z.boolean().default(true),
+});
+
+// Update order status schema (admin only)
+export const updateOrderStatusSchema = z.object({
+  status: z.enum(['quote', 'pending_payment', 'processing', 'completed', 'cancelled'], {
+    errorMap: () => ({ message: 'Invalid order status' })
+  }).optional(),
+  fulfillmentStatus: z.enum(['not_started', 'in_progress', 'delivered'], {
+    errorMap: () => ({ message: 'Invalid fulfillment status' })
+  }).optional(),
+  paymentStatus: z.enum(['pending', 'paid', 'failed', 'refunded'], {
+    errorMap: () => ({ message: 'Invalid payment status' })
+  }).optional(),
+  adminNotes: z.string().max(2000, 'Admin notes too long').optional(),
+  deliveryUrl: z.string().url('Invalid delivery URL').optional(),
+});
+
+// Order query/filter schema
+export const orderQuerySchema = z.object({
+  status: z.enum(['quote', 'pending_payment', 'processing', 'completed', 'cancelled']).optional(),
+  paymentStatus: z.enum(['pending', 'paid', 'failed', 'refunded']).optional(),
+  fromDate: z.string().datetime().optional(),
+  toDate: z.string().datetime().optional(),
+  minAmount: z.coerce.number().min(0).optional(),
+  maxAmount: z.coerce.number().min(0).optional(),
+  tier: z.enum(['custom', 'standard', 'professional', 'enterprise']).optional(),
+}).merge(paginationSchema);
+
+// Type exports
+export type CreateCustomOrderInput = z.infer<typeof createCustomOrderSchema>;
+export type CalculatePricingInput = z.infer<typeof calculatePricingSchema>;
+export type ValidateDiscountCodeInput = z.infer<typeof validateDiscountCodeSchema>;
+export type CreateDiscountCodeInput = z.infer<typeof createDiscountCodeSchema>;
+export type UpdateOrderStatusInput = z.infer<typeof updateOrderStatusSchema>;
+export type OrderQueryInput = z.infer<typeof orderQuerySchema>;
