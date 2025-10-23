@@ -1,8 +1,8 @@
-# DocSnap - AI-Powered Documentation Generator
+# Viberdoc - AI-Powered Documentation Generator
 
 ## Overview
 
-DocSnap is an AI-powered web application that generates professional, Apple-style documentation from any website. Users provide a URL, and the system employs a 3-stage AI pipeline to analyze the site, extract content, and produce enterprise-quality documentation in various formats (PDF, DOCX, web). The project aims to deliver clear, professional help center documentation, addressing business vision, market potential, and project ambitions.
+Viberdoc is an AI-powered web application that generates professional, Apple-style documentation from any website. Users provide a URL, and the system employs a 3-stage AI pipeline to analyze the site, extract content, and produce enterprise-quality documentation in various formats (PDF, DOCX, web). The project aims to deliver clear, professional help center documentation, addressing business vision, market potential, and project ambitions.
 
 ## User Preferences
 
@@ -208,7 +208,7 @@ Design preferences: Clean cyan-blue color scheme like Replit (no purple), solid 
 - `CustomPricingFormWizard.tsx`: Main form component integrating all Phase 2 features
 - Combines multi-step wizard, auto-save, validation, delivery calculator, and pricing breakdown
 - Smooth UX with error handling and loading states
-- Mobile-responsive design matching DocSnap's cyan-blue theme
+- Mobile-responsive design matching Viberdoc's cyan-blue theme
 
 **Files Created/Modified**:
 - `src/components/ConfigurationWizard.tsx` - Wizard framework

@@ -26,7 +26,7 @@ export default function WhiteLabelSettings() {
   const [initialLoad, setInitialLoad] = useState(true);
   const [config, setConfig] = useState<WhiteLabelConfig>({
     removeBranding: false,
-    customProductName: 'DocSnap',
+    customProductName: 'Viberdoc',
     customSupportEmail: '',
     emailTemplateCustomization: {
       headerText: 'Documentation Platform',
@@ -109,10 +109,10 @@ export default function WhiteLabelSettings() {
             <div className="flex-1">
               <h3 className="font-semibold mb-1 flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-primary" />
-                Remove DocSnap Branding
+                Remove Viberdoc Branding
               </h3>
               <p className="text-sm text-muted-foreground">
-                Remove "Powered by DocSnap" from all generated documentation
+                Remove "Powered by Viberdoc" from all generated documentation
               </p>
             </div>
             <Switch
@@ -134,7 +134,7 @@ export default function WhiteLabelSettings() {
               placeholder="Your Product Name"
             />
             <p className="text-xs text-muted-foreground">
-              This will replace "DocSnap" in all user-facing areas
+              This will replace "Viberdoc" in all user-facing areas
             </p>
           </div>
 

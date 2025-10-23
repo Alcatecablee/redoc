@@ -67,7 +67,7 @@ export default function SignInDialog({ open, onOpenChange }: { open: boolean; on
       <DialogContent className="max-w-md overflow-hidden rounded-2xl bg-gradient-to-b from-[rgb(14,19,23)] via-[rgb(24,29,37)] to-[rgb(34,38,46)] border-2 border-[rgb(102,255,228)]/30 text-white shadow-2xl">
         <div className="absolute inset-0 bg-grid-white/[0.04] pointer-events-none" />
         <DialogHeader>
-          <DialogTitle className="text-2xl font-black tracking-tight text-white">Sign in to DocSnap</DialogTitle>
+          <DialogTitle className="text-2xl font-black tracking-tight text-white">Sign in to Viberdoc</DialogTitle>
         </DialogHeader>
 
         <div className="relative grid gap-4 py-4">

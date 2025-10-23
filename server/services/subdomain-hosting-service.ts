@@ -193,7 +193,7 @@ export class SubdomainHostingService {
     ${doc.content || ''}
   </main>
   <footer style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid #e2e8f0; color: #718096;">
-    <p>Generated with DocSnap &bull; <a href="https://${this.baseUrl}">Create your own documentation</a></p>
+    <p>Generated with Viberdoc &bull; <a href="https://${this.baseUrl}">Create your own documentation</a></p>
   </footer>
 </body>
 </html>`;

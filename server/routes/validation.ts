@@ -107,7 +107,7 @@ router.post('/github-repo', async (req, res) => {
       const apiUrl = `https://api.github.com/repos/${repoPath}`;
       const response = await fetch(apiUrl, {
         headers: {
-          'User-Agent': 'DocSnap-GitHubValidator/1.0',
+          'User-Agent': 'Viberdoc-GitHubValidator/1.0',
           'Accept': 'application/vnd.github.v3+json'
         }
       });

@@ -91,7 +91,7 @@ router.post('/api/enterprise/white-label', verifySupabaseAuth, async (req, res) 
     const config: WhiteLabelConfig = {
       userId,
       removeBranding: !!removeBranding,
-      customProductName: customProductName || 'DocSnap',
+      customProductName: customProductName || 'Viberdoc',
       customSupportEmail: customSupportEmail || '',
       emailTemplateCustomization: {
         headerText: emailTemplateCustomization?.headerText || '',

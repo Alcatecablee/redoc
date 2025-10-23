@@ -101,7 +101,7 @@ export class WebhookService {
         headers: {
           'Content-Type': 'application/json',
           'X-Webhook-Signature': signature,
-          'User-Agent': 'DocSnap-Webhooks/1.0',
+          'User-Agent': 'Viberdoc-Webhooks/1.0',
         },
         body: JSON.stringify(payload),
       });

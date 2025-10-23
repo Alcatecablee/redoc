@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { FileText, Menu, X, LogIn, LogOut } from "lucide-react";
+import { Menu, X, LogIn, LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/lib/supabaseClient";
@@ -56,14 +56,13 @@ const Header = () => {
         <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="flex h-16 md:h-18 items-center justify-between">
             {/* Logo */}
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-white/20 backdrop-blur-sm border border-white/20 flex items-center justify-center shadow-lg">
-                <FileText className="h-6 w-6 text-white" />
-              </div>
-              <span className="text-2xl font-bold text-white">
-                DocSnap
-              </span>
-            </div>
+            <a href="/" className="flex items-center gap-3">
+              <img 
+                src="/viberdoc-logo.png" 
+                alt="Viberdoc" 
+                className="h-8 md:h-10"
+              />
+            </a>
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-1">
