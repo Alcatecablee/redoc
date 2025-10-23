@@ -5,6 +5,7 @@ integrations = ["javascript_database:1.0.0"]
 
 [nix]
 channel = "stable-25_05"
+packages = ["gcc-unwrapped"]
 
 [deployment]
 deploymentTarget = "autoscale"
@@ -54,10 +55,6 @@ externalPort = 3002
 [[ports]]
 localPort = 39533
 externalPort = 3001
-
-[[ports]]
-localPort = 44145
-externalPort = 5173
 
 [[ports]]
 localPort = 45541
