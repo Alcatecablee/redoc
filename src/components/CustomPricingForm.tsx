@@ -17,7 +17,7 @@ import { Card } from '@/components/ui/card';
 import { DollarSign, FileText, Zap, Globe, Palette, Clock, Search, CheckCircle2, ArrowRight, Star, Building2, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
-type PricingTier = 'custom' | 'standard' | 'professional' | 'enterprise';
+type PricingTier = 'custom' | 'basic' | 'plus' | 'premium';
 
 interface PricingFormData {
   tier?: PricingTier;
@@ -82,8 +82,8 @@ const enterpriseFeatureOptions = [
 
 const tierPackages = [
   {
-    id: 'standard' as PricingTier,
-    name: 'Standard',
+    id: 'basic' as PricingTier,
+    name: 'Project Basic',
     price: 500,
     description: 'Perfect for basic documentation needs',
     icon: FileText,
@@ -108,8 +108,8 @@ const tierPackages = [
     }
   },
   {
-    id: 'professional' as PricingTier,
-    name: 'Professional',
+    id: 'plus' as PricingTier,
+    name: 'Project Plus',
     price: 1200,
     description: 'Comprehensive documentation with multimedia',
     icon: Sparkles,
@@ -136,8 +136,8 @@ const tierPackages = [
     }
   },
   {
-    id: 'enterprise' as PricingTier,
-    name: 'Enterprise',
+    id: 'premium' as PricingTier,
+    name: 'Project Premium',
     price: 2500,
     description: 'Premium service with dedicated support',
     icon: Building2,
