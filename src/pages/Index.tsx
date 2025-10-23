@@ -148,6 +148,13 @@ const Index = () => {
     // Generate a unique session ID
     const sessionId = crypto.randomUUID();
 
+    // Persist generation data in localStorage for refresh resilience
+    localStorage.setItem(`generation_${sessionId}`, JSON.stringify({
+      url,
+      subdomain: subdomain || undefined,
+      timestamp: Date.now(),
+    }));
+
     // Navigate to generation progress page with URL and session data
     navigate(`/generate/${sessionId}`, {
       state: {

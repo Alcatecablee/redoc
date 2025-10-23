@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -67,6 +67,9 @@ export default function GenerationProgress() {
   const [hasError, setHasError] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [documentationId, setDocumentationId] = useState<string>("");
+  
+  // Track completion status for cleanup without re-running effect
+  const runFinishedRef = useRef<boolean>(false);
 
   useEffect(() => {
     if (!sessionId) {
@@ -74,8 +77,30 @@ export default function GenerationProgress() {
       return;
     }
 
-    // Get URL from navigation state
-    const { url, subdomain } = (location.state as any) || {};
+    // Get URL from navigation state or localStorage (for refresh resilience)
+    let url: string | undefined;
+    let subdomain: string | undefined;
+
+    // Try navigation state first
+    const navState = (location.state as any) || {};
+    url = navState.url;
+    subdomain = navState.subdomain;
+
+    // Fallback to localStorage if state is missing (e.g., after refresh)
+    if (!url) {
+      const storedData = localStorage.getItem(`generation_${sessionId}`);
+      if (storedData) {
+        try {
+          const parsed = JSON.parse(storedData);
+          url = parsed.url;
+          subdomain = parsed.subdomain;
+        } catch (e) {
+          console.error("Failed to parse stored generation data:", e);
+        }
+      }
+    }
+
+    // If still no URL, redirect to home
     if (!url) {
       toast({
         title: "Missing URL",
@@ -103,6 +128,8 @@ export default function GenerationProgress() {
         if (progressData.complete) {
           setIsComplete(true);
           setDocumentationId(progressData.documentationId || "");
+          runFinishedRef.current = true;
+          localStorage.removeItem(`generation_${sessionId}`);
           eventSource.close();
         }
         
@@ -110,6 +137,8 @@ export default function GenerationProgress() {
         if (progressData.error) {
           setHasError(true);
           setErrorMessage(progressData.error);
+          runFinishedRef.current = true;
+          localStorage.removeItem(`generation_${sessionId}`);
           eventSource.close();
         }
       } catch (e) {
@@ -121,6 +150,8 @@ export default function GenerationProgress() {
       console.error("SSE error:", error);
       setHasError(true);
       setErrorMessage("Connection lost. Please try again.");
+      runFinishedRef.current = true;
+      localStorage.removeItem(`generation_${sessionId}`);
       eventSource.close();
     };
 
@@ -134,11 +165,19 @@ export default function GenerationProgress() {
         
         console.log("Generation completed:", result);
         setDocumentationId(result.id);
+        runFinishedRef.current = true;
+        
+        // Clean up localStorage on successful completion
+        localStorage.removeItem(`generation_${sessionId}`);
       } catch (error: any) {
         console.error("Generation failed:", error);
         setHasError(true);
         setErrorMessage(error.message || "Failed to generate documentation");
+        runFinishedRef.current = true;
         eventSource.close();
+        
+        // Clean up localStorage on error
+        localStorage.removeItem(`generation_${sessionId}`);
       }
     };
 
@@ -146,6 +185,12 @@ export default function GenerationProgress() {
 
     return () => {
       eventSource.close();
+      
+      // Clean up localStorage on unmount if generation has finished
+      // (This handles cases where user navigates away after completion/error)
+      if (runFinishedRef.current) {
+        localStorage.removeItem(`generation_${sessionId}`);
+      }
     };
   }, [sessionId, navigate, location.state, toast]);
 
