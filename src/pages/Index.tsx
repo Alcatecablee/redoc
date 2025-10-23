@@ -1284,26 +1284,64 @@ const Index = () => {
 
       {/* Custom Documentation Pricing Section */}
       {!generatedDoc && (
-        <section id="custom-pricing" className="relative overflow-hidden bg-gradient-to-br from-[rgb(24,29,37)] via-[rgb(34,38,46)] to-[rgb(14,19,23)] py-20 md:py-32">
-          <div className="absolute inset-0 bg-grid-white/[0.02] opacity-30" />
-          <div className="relative container mx-auto px-6 max-w-6xl">
+        <section id="custom-pricing" className="relative overflow-hidden bg-gradient-to-br from-[rgb(36,77,91)] via-[rgb(40,85,100)] to-[rgb(36,77,91)] py-32 lg:py-40">
+          {/* Background Elements */}
+          <div className="absolute inset-0 bg-grid-white/[0.02] opacity-50" />
+          <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gradient-radial from-[rgb(102,255,228)]/10 via-transparent to-transparent blur-3xl" />
+          <div className="absolute bottom-1/3 left-1/3 w-96 h-96 bg-gradient-radial from-[rgb(102,255,228)]/5 via-transparent to-transparent blur-3xl" />
+          
+          <div className="relative container mx-auto px-6 max-w-7xl">
             {/* Header */}
-            <div className="text-center mb-16">
+            <div className="text-center mb-20">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm mb-6">
-                <DollarSign className="h-4 w-4 text-[rgb(102,255,228)]" />
-                <span className="text-sm font-semibold text-white/90 uppercase tracking-wide">Custom Pricing</span>
+                <DollarSign className="h-4 w-4 text-[rgb(102,255,228)]" strokeWidth={2} />
+                <span className="text-sm font-semibold text-white/90 uppercase tracking-wide">Custom Orders</span>
               </div>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-                Configure Your Custom Documentation
+              <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight tracking-tight">
+                Configure Your Project
               </h2>
-              <p className="text-lg md:text-xl text-white/70 max-w-3xl mx-auto">
-                Get a tailored quote for your project with our interactive pricing wizard
+              <p className="text-lg md:text-xl text-white/70 max-w-3xl mx-auto font-light">
+                Need something beyond our standard plans? Get a custom quote tailored to your exact requirements with our interactive pricing configurator.
               </p>
             </div>
 
-            {/* Wizard Component */}
-            <div className="bg-gradient-to-br from-white/5 to-white/10 rounded-3xl border border-white/20 backdrop-blur-sm p-8 md:p-12 shadow-2xl">
-              <CustomPricingFormWizard />
+            {/* Wizard Container - Enhanced */}
+            <div className="max-w-6xl mx-auto">
+              <div className="relative bg-gradient-to-br from-white/10 to-white/5 border-2 border-white/25 hover:border-[rgb(102,255,228)]/50 rounded-3xl p-8 md:p-12 lg:p-16 transition-all duration-500 backdrop-blur-sm shadow-[0_25px_60px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_80px_rgba(102,255,228,0.2)]">
+                {/* Decorative corner accents */}
+                <div className="absolute top-0 left-0 w-20 h-20 border-t-2 border-l-2 border-white/30 rounded-tl-3xl"></div>
+                <div className="absolute bottom-0 right-0 w-20 h-20 border-b-2 border-r-2 border-white/30 rounded-br-3xl"></div>
+                
+                {/* Wizard Component */}
+                <div className="relative z-10">
+                  <CustomPricingFormWizard />
+                </div>
+              </div>
+            </div>
+
+            {/* Trust Indicators */}
+            <div className="mt-20 max-w-4xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[
+                  { icon: CheckBadgeIcon, title: "Transparent Pricing", desc: "See exactly what you're paying for" },
+                  { icon: ShieldCheckIcon, title: "No Hidden Fees", desc: "What you see is what you get" },
+                  { icon: BoltIcon, title: "Fast Turnaround", desc: "Same-day to 5-day delivery" },
+                ].map((item, idx) => (
+                  <div key={idx} className="group relative">
+                    <div className="relative bg-gradient-to-br from-white/10 to-white/5 border border-white/20 hover:border-[rgb(102,255,228)]/50 rounded-2xl p-6 transition-all duration-500 backdrop-blur-sm hover:shadow-[0_10px_30px_rgba(102,255,228,0.15)]">
+                      <div className="flex flex-col items-center text-center gap-3">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[rgb(102,255,228)]/20 to-[rgb(102,255,228)]/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                          <item.icon className="h-6 w-6 text-[rgb(102,255,228)]" strokeWidth={1.5} />
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-bold text-white mb-1">{item.title}</h4>
+                          <p className="text-sm text-white/70 leading-tight">{item.desc}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
