@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -75,6 +76,7 @@ function convertToViewerTheme(theme: Theme) {
 }
 
 const Index = () => {
+  const navigate = useNavigate();
   const [url, setUrl] = useState("");
   const [subdomain, setSubdomain] = useState("");
   const [customDomain, setCustomDomain] = useState("");
@@ -143,38 +145,16 @@ const Index = () => {
       return;
     }
 
-    setProgress(0);
-    setCurrentStage(0);
-
     // Generate a unique session ID
     const sessionId = crypto.randomUUID();
 
-    // Connect to SSE endpoint for real-time progress
-    const eventSource = new EventSource(`/api/progress/${sessionId}`);
-
-    eventSource.onmessage = (event) => {
-      try {
-        const progressData = JSON.parse(event.data);
-        console.log('Progress update:', progressData);
-        setCurrentStage(progressData.stage);
-        setProgress(progressData.progress);
-        setCurrentStageName(progressData.stageName || "");
-        setCurrentStageDesc(progressData.description || "");
-      } catch (e) {
-        console.error('Failed to parse progress event:', e);
-      }
-    };
-
-    eventSource.onerror = (error) => {
-      console.error('SSE error:', error);
-      eventSource.close();
-    };
-
-    try {
-      await generateMutation.mutateAsync({ url, sessionId, subdomain: subdomain || undefined });
-    } finally {
-      eventSource.close();
-    }
+    // Navigate to generation progress page with URL and session data
+    navigate(`/generate/${sessionId}`, {
+      state: {
+        url,
+        subdomain: subdomain || undefined,
+      },
+    });
   };
 
   const downloadBlob = async (path: string, filename: string) => {
