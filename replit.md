@@ -219,7 +219,11 @@ Design preferences: Clean cyan-blue color scheme like Replit (no purple), solid 
 - `src/components/CustomPricingFormWizard.tsx` - Integrated wizard form
 - `server/routes/validation.ts` - Validation API endpoint
 
+**Integration**: Custom pricing wizard now displayed on home page (Index.tsx) in dedicated "Configure Your Custom Documentation" section with ID `#custom-pricing`
+
 **Status**: Production-ready with acknowledged limitation on URL reachability checking (security-first approach for MVP)
+
+**Note**: The `/pricing` route displays subscription pricing (Free, Pro, Enterprise monthly plans). The custom pricing wizard (for one-time custom documentation orders) is accessible on the home page.
 
 ## External Dependencies
 

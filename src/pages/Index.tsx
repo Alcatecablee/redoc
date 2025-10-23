@@ -41,7 +41,7 @@ import { BrandKitExtractor } from "@/components/BrandKitExtractor";
 import { getDefaultTheme, Theme } from "../../shared/themes";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { TypewriterText } from "@/components/TypewriterText";
-import CustomPricingForm from "@/components/CustomPricingForm";
+import CustomPricingFormWizard from "@/components/CustomPricingFormWizard";
 import PipelineVisualization from "@/components/PipelineVisualization";
 
 function convertToViewerTheme(theme: Theme) {
@@ -1277,6 +1277,33 @@ const Index = () => {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Custom Documentation Pricing Section */}
+      {!generatedDoc && (
+        <section id="custom-pricing" className="relative overflow-hidden bg-gradient-to-br from-[rgb(24,29,37)] via-[rgb(34,38,46)] to-[rgb(14,19,23)] py-20 md:py-32">
+          <div className="absolute inset-0 bg-grid-white/[0.02] opacity-30" />
+          <div className="relative container mx-auto px-6 max-w-6xl">
+            {/* Header */}
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm mb-6">
+                <DollarSign className="h-4 w-4 text-[rgb(102,255,228)]" />
+                <span className="text-sm font-semibold text-white/90 uppercase tracking-wide">Custom Pricing</span>
+              </div>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+                Configure Your Custom Documentation
+              </h2>
+              <p className="text-lg md:text-xl text-white/70 max-w-3xl mx-auto">
+                Get a tailored quote for your project with our interactive pricing wizard
+              </p>
+            </div>
+
+            {/* Wizard Component */}
+            <div className="bg-gradient-to-br from-white/5 to-white/10 rounded-3xl border border-white/20 backdrop-blur-sm p-8 md:p-12 shadow-2xl">
+              <CustomPricingFormWizard />
             </div>
           </div>
         </section>
