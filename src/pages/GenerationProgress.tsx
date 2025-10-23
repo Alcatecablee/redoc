@@ -23,6 +23,8 @@ import {
   SignalSlashIcon,
   DocumentDuplicateIcon,
   ArrowDownTrayIcon,
+  HomeIcon,
+  ArrowLeftIcon,
 } from "@heroicons/react/24/outline";
 import { CheckIcon } from "@heroicons/react/24/solid";
 import { useToast } from "@/hooks/use-toast";
@@ -405,13 +407,74 @@ export default function GenerationProgress() {
     navigate("/");
   };
 
+  const handleGoBack = () => {
+    if (isComplete || hasError) {
+      navigate("/dashboard");
+    } else {
+      const confirmLeave = window.confirm(
+        "Documentation generation is in progress. Are you sure you want to leave?"
+      );
+      if (confirmLeave) {
+        navigate("/dashboard");
+      }
+    }
+  };
+
   return (
-    <div className="h-screen bg-gradient-to-br from-[rgb(14,19,23)] via-[rgb(24,29,37)] to-[rgb(34,38,46)] flex flex-col overflow-hidden relative">
-      <div className="absolute inset-0 bg-grid-white/[0.02] opacity-30" />
-      <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gradient-radial from-[rgb(102,255,228)]/10 via-transparent to-transparent blur-3xl" />
-      
-      <div className="flex-1 flex flex-col relative z-10">
-        <ResizablePanelGroup direction="horizontal" className="flex-1">
+    <div className="h-screen bg-gradient-to-br from-[rgb(14,19,23)] via-[rgb(24,29,37)] to-[rgb(34,38,46)] flex flex-col overflow-hidden">
+      {/* Header Navigation */}
+      <div className="bg-gradient-to-r from-[rgb(14,19,23)] via-[rgb(20,25,30)] to-[rgb(24,29,35)] border-b border-white/10 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between z-20">
+        <div className="flex items-center gap-3 md:gap-4">
+          <Button
+            onClick={handleGoBack}
+            variant="ghost"
+            size="sm"
+            className="text-white/70 hover:text-white hover:bg-white/10 transition-all"
+          >
+            <ArrowLeftIcon className="h-4 w-4 mr-2" />
+            <span className="hidden sm:inline">Back to Dashboard</span>
+            <span className="sm:hidden">Back</span>
+          </Button>
+          <div className="h-6 w-px bg-white/20 hidden md:block" />
+          <Button
+            onClick={() => navigate("/")}
+            variant="ghost"
+            size="sm"
+            className="text-white/70 hover:text-white hover:bg-white/10 transition-all hidden md:flex"
+          >
+            <HomeIcon className="h-4 w-4 mr-2" />
+            Home
+          </Button>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
+            {connectionStatus.connected ? (
+              <>
+                <SignalIcon className="h-4 w-4 text-[rgb(102,255,228)] animate-pulse" />
+                <span className="text-xs text-white/70 hidden sm:inline">Connected</span>
+              </>
+            ) : connectionStatus.reconnecting ? (
+              <>
+                <ArrowPathIcon className="h-4 w-4 text-yellow-400 animate-spin" />
+                <span className="text-xs text-white/70 hidden sm:inline">Reconnecting...</span>
+              </>
+            ) : (
+              <>
+                <SignalSlashIcon className="h-4 w-4 text-red-400" />
+                <span className="text-xs text-white/70 hidden sm:inline">Disconnected</span>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-white/[0.02] opacity-30" />
+        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gradient-radial from-[rgb(102,255,228)]/10 via-transparent to-transparent blur-3xl" />
+        
+        <ResizablePanelGroup direction="horizontal" className="flex-1 relative z-10">
           <ResizablePanel defaultSize={45} minSize={30} maxSize={70} collapsible onCollapse={() => setLeftPanelCollapsed(true)} onExpand={() => setLeftPanelCollapsed(false)}>
             <div className="h-full overflow-y-auto bg-gradient-to-br from-[rgb(14,19,23)] via-[rgb(24,29,37)] to-[rgb(34,38,46)]">
               <div className="p-4 md:p-6 space-y-4 md:space-y-6">
@@ -436,15 +499,6 @@ export default function GenerationProgress() {
                         ? "⚠️ Generation Failed"
                         : "✨ Generating Documentation"}
                     </h1>
-                    <div className="flex items-center gap-2">
-                      {connectionStatus.connected ? (
-                        <SignalIcon className="h-4 w-4 text-[rgb(102,255,228)] animate-pulse" title="Connected" />
-                      ) : connectionStatus.reconnecting ? (
-                        <ArrowPathIcon className="h-4 w-4 text-yellow-400 animate-spin" title="Reconnecting..." />
-                      ) : (
-                        <SignalSlashIcon className="h-4 w-4 text-red-400" title="Disconnected" />
-                      )}
-                    </div>
                   </div>
                   <p className="text-xs md:text-sm text-white/60">
                     {isComplete
@@ -468,6 +522,9 @@ export default function GenerationProgress() {
                       <Button onClick={handleStartNew} size="sm" className="bg-[rgb(102,255,228)] hover:bg-white text-[rgb(14,19,23)] transition-all">
                         Try Again
                       </Button>
+                      <Button onClick={handleGoBack} size="sm" variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                        Back to Dashboard
+                      </Button>
                     </div>
                   </Card>
                 )}
@@ -481,7 +538,7 @@ export default function GenerationProgress() {
                         <p className="text-xs text-white/80">Your documentation is ready to view and download</p>
                       </div>
                     </div>
-                    <div className="mt-4 flex gap-2">
+                    <div className="mt-4 flex gap-2 flex-wrap">
                       <Button onClick={handleViewDocumentation} size="sm" className="bg-[rgb(102,255,228)] hover:bg-white text-[rgb(14,19,23)] transition-all">
                         View Documentation
                         <ArrowRightIcon className="ml-2 h-3 w-3" />
@@ -726,7 +783,7 @@ export default function GenerationProgress() {
                 ) : (
                   <div className="flex items-center justify-center h-full bg-gradient-to-br from-[rgb(20,25,30)] via-[rgb(30,35,40)] to-[rgb(36,40,45)]">
                     <div className="text-center space-y-2">
-                      <GlobeAltIcon className="h-10 w-10 md:h-12 md:w-12 text-white/20 mx-auto" />
+                      <DocumentTextIcon className="h-10 w-10 md:h-12 md:w-12 text-white/20 mx-auto" />
                       <p className="text-xs md:text-sm text-white/40">Preview will appear here</p>
                     </div>
                   </div>
