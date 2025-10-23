@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Check, Zap, Crown, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Check, Zap, Crown, Sparkles, CheckCircle2, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
-import CustomPricingForm from '@/components/CustomPricingForm';
 
 interface PricingTier {
   name: string;
@@ -255,52 +254,32 @@ export default function SubscriptionPricing() {
         </div>
       </section>
 
-      {/* Enterprise Custom Documentation Section */}
+      {/* Custom Projects CTA */}
       <section className="relative overflow-hidden py-20 bg-white/5 border-t border-white/10">
         <div className="absolute inset-0 bg-grid-white/[0.02]" />
         
-        <div className="relative container mx-auto px-6 max-w-7xl">
-          <div className="text-center mb-12">
+        <div className="relative container mx-auto px-6 max-w-4xl">
+          <div className="bg-gradient-to-br from-[rgb(142,209,198)]/15 to-[rgb(142,209,198)]/5 border-2 border-[rgb(142,209,198)]/40 rounded-3xl p-10 md:p-14 text-center backdrop-blur-sm shadow-[0_25px_60px_rgba(142,209,198,0.25)]">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[rgb(142,209,198)]/20 border border-[rgb(142,209,198)]/30 backdrop-blur-sm mb-6">
               <Crown className="h-4 w-4 text-[rgb(142,209,198)]" />
-              <span className="text-sm font-medium text-white/90">Enterprise Solutions</span>
+              <span className="text-sm font-medium text-white/90">One-Time Projects</span>
             </div>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
-              Custom Documentation Projects
+              Need Custom Documentation?
             </h2>
-            <p className="text-lg lg:text-xl text-white/70 leading-relaxed max-w-3xl mx-auto">
-              Need bespoke documentation for your SaaS, API, or complex platform? Get enterprise-grade custom documentation with deep research, YouTube integration, SEO optimization, and professional delivery.
+            <p className="text-lg text-white/80 leading-relaxed mb-8 max-w-2xl mx-auto">
+              Beyond subscriptions? Configure a bespoke documentation project with our interactive pricing wizard. From $500 with fast delivery and custom branding.
             </p>
-          </div>
-
-          {/* Feature Highlights */}
-          <div className="grid md:grid-cols-3 gap-6 mb-12 max-w-5xl mx-auto">
-            <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-6 text-center hover:bg-white/[0.12] transition-all">
-              <div className="w-12 h-12 rounded-xl bg-[rgb(142,209,198)]/20 flex items-center justify-center mx-auto mb-4">
-                <Zap className="h-6 w-6 text-[rgb(142,209,198)]" />
-              </div>
-              <h4 className="font-bold text-white mb-2">Flexible Pricing</h4>
-              <p className="text-sm text-white/70">From $500 based on your specific needs</p>
-            </div>
-            <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-6 text-center hover:bg-white/[0.12] transition-all">
-              <div className="w-12 h-12 rounded-xl bg-[rgb(142,209,198)]/20 flex items-center justify-center mx-auto mb-4">
-                <CheckCircle2 className="h-6 w-6 text-[rgb(142,209,198)]" />
-              </div>
-              <h4 className="font-bold text-white mb-2">Fast Delivery</h4>
-              <p className="text-sm text-white/70">Standard (3 days), Rush (1 day), or Same-Day</p>
-            </div>
-            <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-6 text-center hover:bg-white/[0.12] transition-all">
-              <div className="w-12 h-12 rounded-xl bg-[rgb(142,209,198)]/20 flex items-center justify-center mx-auto mb-4">
-                <Crown className="h-6 w-6 text-[rgb(142,209,198)]" />
-              </div>
-              <h4 className="font-bold text-white mb-2">Custom Branding</h4>
-              <p className="text-sm text-white/70">Match your brand with custom logos and tone</p>
-            </div>
-          </div>
-          
-          {/* Custom Pricing Form */}
-          <div className="max-w-5xl mx-auto">
-            <CustomPricingForm />
+            <Button
+              asChild
+              size="lg"
+              className="h-14 px-10 bg-white text-[rgb(36,77,91)] hover:bg-white/90 font-bold text-base rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-200"
+            >
+              <a href="/custom-projects">
+                Explore Custom Projects
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </a>
+            </Button>
           </div>
         </div>
       </section>

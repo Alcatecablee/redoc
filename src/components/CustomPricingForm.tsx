@@ -631,7 +631,7 @@ export default function CustomPricingForm() {
               )}
 
               {/* Enterprise Features - Show for all tiers */}
-              {(selectedTier === 'custom' || selectedTier === 'standard' || selectedTier === 'professional') && (
+              {(selectedTier === 'custom' || selectedTier === 'basic' || selectedTier === 'plus') && (
                 <>
                   <Separator className="bg-white/10" />
                   
