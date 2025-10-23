@@ -13,6 +13,7 @@ import TeamDashboard from "./pages/TeamDashboard";
 import EnterpriseDashboard from "./pages/EnterpriseDashboard";
 import EnterpriseSettings from "./pages/EnterpriseSettings";
 import SubscriptionPricing from "./pages/SubscriptionPricing";
+import CustomProjects from "./pages/CustomProjects";
 import TeamManagement from "./pages/TeamManagement";
 import Billing from "./pages/Billing";
 import Activity from "./pages/Activity";
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/dashboard/enterprise" element={<EnterpriseDashboard />} />
           <Route path="/settings" element={<EnterpriseSettings />} />
           <Route path="/pricing" element={<SubscriptionPricing />} />
+          <Route path="/custom-projects" element={<CustomProjects />} />
           <Route path="/team" element={<TeamManagement />} />
           <Route path="/billing" element={<Billing />} />
           <Route path="/activity" element={<Activity />} />

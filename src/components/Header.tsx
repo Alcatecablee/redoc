@@ -16,6 +16,7 @@ const Header = () => {
     { name: "Features", href: "#features" },
     { name: "Quality", href: "#quality-exports" },
     { name: "Pricing", href: "/pricing" },
+    { name: "Custom Projects", href: "/custom-projects" },
   ];
 
   useEffect(() => {
