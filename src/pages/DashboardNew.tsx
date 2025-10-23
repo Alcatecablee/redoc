@@ -163,7 +163,9 @@ export default function DashboardNew() {
     );
   }
 
-  const quotaPercentage = (overview.stats.generationQuota.used / overview.stats.generationQuota.limit) * 100;
+  // Safely access generationQuota with defaults
+  const generationQuota = overview?.stats?.generationQuota || { used: 0, limit: 10, resetDate: new Date() };
+  const quotaPercentage = (generationQuota.used / generationQuota.limit) * 100;
   const isNearQuota = quotaPercentage >= 80;
   const isAtQuota = quotaPercentage >= 100;
 
@@ -248,7 +250,7 @@ export default function DashboardNew() {
           />
           <MetricCard
             title="Generation Quota"
-            value={`${overview.stats.generationQuota.used}/${overview.stats.generationQuota.limit}`}
+            value={`${generationQuota.used}/${generationQuota.limit}`}
             subtitle={isAtQuota ? 'Limit reached' : isNearQuota ? 'Nearly full' : 'Available'}
             icon={Zap}
             className={isNearQuota ? 'border-yellow-500' : isAtQuota ? 'border-red-500' : ''}
@@ -262,7 +264,7 @@ export default function DashboardNew() {
             title={isAtQuota ? "You've reached your generation limit" : "You're running low on generations"}
             description={isAtQuota 
               ? "Upgrade to Pro or Enterprise to generate unlimited documentation"
-              : `You've used ${overview.stats.generationQuota.used} of ${overview.stats.generationQuota.limit} free generations. Upgrade for unlimited access.`}
+              : `You've used ${generationQuota.used} of ${generationQuota.limit} free generations. Upgrade for unlimited access.`}
             features={[
               'Unlimited documentation generation',
               'Advanced analytics and insights',
