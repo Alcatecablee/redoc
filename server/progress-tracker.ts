@@ -12,6 +12,15 @@ export type DetailedActivityLog = {
     itemsProcessed?: number;
     itemsTotal?: number;
     duration?: number;
+    qualityScore?: number;
+    qualityBreakdown?: {
+      codeExamples?: number;
+      readability?: number;
+      completeness?: number;
+      troubleshooting?: number;
+      visualAids?: number;
+      seo?: number;
+    };
   };
 };
 

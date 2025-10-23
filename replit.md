@@ -225,6 +225,42 @@ Design preferences: Clean cyan-blue color scheme like Replit (no purple), solid 
 
 **Note**: The `/pricing` route displays subscription pricing (Free, Pro, Enterprise monthly plans). The custom pricing wizard (for one-time custom documentation orders) is accessible on the home page.
 
+### Enhanced Research Feed & Quality Scoring ✅
+**Live AI Research Visibility & Documentation Quality Grading** (Implemented October 23, 2025):
+
+**Research Feed Enhancement**:
+- Detailed live feed showing AI working hard during documentation generation
+- Granular progress updates at each stage:
+  - Site Discovery: "📄 Discovered 23 documentation pages on domain"
+  - Subdomain Scanning: "✅ Found 3 active subdomains: docs, api, blog"
+  - Content Extraction: "✅ Extracted content from 40 pages • 127 code examples • 45 images"
+  - Stack Overflow: "💡 Found 18 Stack Overflow answers with solutions"
+  - GitHub Issues: "🐛 Reading GitHub issues... 12 common problems identified"
+  - YouTube Analysis: "📹 Watching YouTube tutorials... 4 videos analyzed"
+  - Research Synthesis: "✨ Synthesizing 127 sources with AI..."
+- Makes waiting exciting, shows VALUE being created in real-time
+- Builds trust by demonstrating comprehensive AI research process
+
+**Quality Scoring System**:
+- Comprehensive documentation quality grading on 0-100 scale
+- Multi-criteria evaluation:
+  - Code Examples (20% weight): Quantity and quality of code snippets
+  - Readability (15% weight): Structure, formatting, bullet points
+  - Completeness (25% weight): Coverage of essential sections
+  - Troubleshooting (15% weight): Problem-solving content with solutions
+  - Visual Aids (10% weight): Screenshots, diagrams, images
+  - SEO (15% weight): Metadata optimization
+- Real-time score display during generation
+- Gamified feedback: "🏆 Excellent quality! Comprehensive coverage of topics"
+- Detailed breakdown showing strengths and improvement areas
+
+**Files Created/Modified**:
+- `server/quality-scoring-service.ts` - Quality scoring logic
+- `server/enhanced-generator.ts` - Enhanced progress tracking integration
+- `server/progress-tracker.ts` - Extended types for quality score data
+
+**Status**: Production-ready, enhances user experience by making AI work visible and quantifiable
+
 ## External Dependencies
 
 **Core Services**:

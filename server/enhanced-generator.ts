@@ -17,6 +17,7 @@ import { schemaService } from './schema-service';
 import { sitemapService } from './sitemap-service';
 import { contentRefreshService } from './content-refresh-service';
 import { calculateSmartScaling, enforceTierLimits } from './tier-config';
+import { qualityScoringService } from './quality-scoring-service';
 import {
   shouldSkipImage,
   fetchImageMetadata,
@@ -107,7 +108,7 @@ async function fetchSitemaps(baseUrl: string, extraHosts: string[] = []): Promis
 }
 
 // Enhanced site discovery and crawling
-export async function discoverSiteStructure(baseUrl: string) {
+export async function discoverSiteStructure(baseUrl: string, sessionId?: string) {
   try {
     const homepage = await fetch(baseUrl, {
       headers: {
@@ -123,6 +124,13 @@ export async function discoverSiteStructure(baseUrl: string) {
     const productName = $('title').text().split('|')[0].trim() || 
                        $('h1').first().text().trim() || 
                        'Unknown Product';
+    
+    if (sessionId) {
+      progressTracker.emitActivity(sessionId, {
+        message: `📱 Analyzing ${productName}...`,
+        type: 'info'
+      }, 1, 'Site Discovery');
+    }
     
     // Common documentation paths to check
     const docPaths = [
@@ -141,6 +149,13 @@ export async function discoverSiteStructure(baseUrl: string) {
     const subdomains = ['docs','help','support','developer','dev','community','forum','status','api','blog'];
     
     console.log(`🔍 Probing ${subdomains.length} subdomains in parallel...`);
+    if (sessionId) {
+      progressTracker.emitActivity(sessionId, {
+        message: `🔍 Scanning ${subdomains.length} subdomains for documentation...`,
+        type: 'info'
+      }, 1, 'Site Discovery');
+    }
+    
     const { processConcurrently } = await import('./utils/concurrent-fetch');
     
     const subdomainResults = await processConcurrently(
@@ -159,6 +174,12 @@ export async function discoverSiteStructure(baseUrl: string) {
       .map(r => r.value);
     
     console.log(`✅ Discovered ${discoveredHosts.length} subdomains`);
+    if (sessionId && discoveredHosts.length > 0) {
+      progressTracker.emitActivity(sessionId, {
+        message: `✅ Found ${discoveredHosts.length} active ${discoveredHosts.length === 1 ? 'subdomain' : 'subdomains'}: ${discoveredHosts.slice(0, 3).join(', ')}${discoveredHosts.length > 3 ? '...' : ''}`,
+        type: 'success'
+      }, 1, 'Site Discovery');
+    }
     
     // Find valid documentation URLs on base and discovered subdomains (PARALLELIZED)
     const rootsToTest = [baseUrl, ...discoveredHosts.map(h => `${base.protocol}//${h}`)];
@@ -167,6 +188,12 @@ export async function discoverSiteStructure(baseUrl: string) {
     );
     
     console.log(`🔍 Testing ${pathTestCombos.length} documentation paths in parallel...`);
+    if (sessionId) {
+      progressTracker.emitActivity(sessionId, {
+        message: `🔍 Testing ${pathTestCombos.length} potential documentation paths...`,
+        type: 'info'
+      }, 1, 'Site Discovery');
+    }
     
     const pathResults = await processConcurrently(
       pathTestCombos,
@@ -187,6 +214,13 @@ export async function discoverSiteStructure(baseUrl: string) {
       .map(r => r.value);
     
     console.log(`✅ Found ${validUrls.length} valid documentation paths`);
+    if (sessionId) {
+      progressTracker.emitActivity(sessionId, {
+        message: `📄 Discovered ${validUrls.length} documentation ${validUrls.length === 1 ? 'page' : 'pages'} on domain`,
+        type: 'success',
+        data: { urlsDiscovered: validUrls.length }
+      }, 1, 'Site Discovery');
+    }
     
     // Extract links from navigation menu
     const navLinks = [];
@@ -225,6 +259,13 @@ export async function discoverSiteStructure(baseUrl: string) {
 
     // Parse sitemaps from base and discovered hosts
     const sitemapUrls = await fetchSitemaps(baseUrl, discoveredHosts);
+    
+    if (sessionId && sitemapUrls.length > 0) {
+      progressTracker.emitActivity(sessionId, {
+        message: `📑 Found sitemap with ${sitemapUrls.length} additional URLs`,
+        type: 'success'
+      }, 1, 'Site Discovery');
+    }
 
     return {
       productName,
@@ -249,10 +290,17 @@ export async function discoverSiteStructure(baseUrl: string) {
 }
 
 // Multi-page content extraction (PARALLELIZED - 10x faster!)
-export async function extractMultiPageContent(urls: string[]) {
+export async function extractMultiPageContent(urls: string[], sessionId?: string) {
   const urlsToProcess = urls.slice(0, 40); // Limit to 40 pages for broader coverage
   
   console.log(`🚀 Parallel crawling ${urlsToProcess.length} pages with 10 concurrent workers...`);
+  if (sessionId) {
+    progressTracker.emitActivity(sessionId, {
+      message: `🚀 Crawling ${urlsToProcess.length} pages in parallel...`,
+      type: 'info'
+    }, 2, 'Content Extraction');
+  }
+  
   const startTime = Date.now();
   
   // Process pages concurrently (10 at a time, 5-second timeout per page)
@@ -394,6 +442,16 @@ export async function extractMultiPageContent(urls: string[]) {
   console.log(`✅ Parallel crawling complete in ${duration}s (${extracted.length} success, ${failedCount} failed)`);
   console.log(`   ⚡ Speed improvement: ~${(urlsToProcess.length / parseFloat(duration)).toFixed(1)} pages/second`);
   
+  if (sessionId) {
+    const totalCodeBlocks = extracted.reduce((sum, page) => sum + (page.codeBlocks?.length || 0), 0);
+    const totalImages = extracted.reduce((sum, page) => sum + (page.images?.length || 0), 0);
+    progressTracker.emitActivity(sessionId, {
+      message: `✅ Extracted content from ${extracted.length} pages • ${totalCodeBlocks} code examples • ${totalImages} images`,
+      type: 'success',
+      data: { pagesProcessed: extracted.length }
+    }, 2, 'Content Extraction');
+  }
+  
   return extracted;
 }
 
@@ -403,9 +461,17 @@ export async function performExternalResearch(
   baseUrl: string, 
   crawledPageCount: number = 0,
   youtubeApiAccess: boolean = false,
-  youtubeTranscripts: boolean = false
+  youtubeTranscripts: boolean = false,
+  sessionId?: string
 ) {
   console.log(`🔬 Performing comprehensive external research for: ${productName}`);
+  
+  if (sessionId) {
+    progressTracker.emitActivity(sessionId, {
+      message: `🔬 Starting comprehensive research for ${productName}...`,
+      type: 'info'
+    }, 3, 'Research & Analysis');
+  }
   
   try {
     const research = await searchService.performComprehensiveResearch(
@@ -425,6 +491,57 @@ export async function performExternalResearch(
     - Total sources: ${research.totalSources}`);
     
     console.log(`📊 Research quality score: ${(research.qualityScore * 100).toFixed(1)}%`);
+    
+    if (sessionId) {
+      if (research.searchResults.length > 0) {
+        progressTracker.emitActivity(sessionId, {
+          message: `🔍 Analyzed ${research.searchResults.length} search results from Google...`,
+          type: 'success'
+        }, 3, 'Research & Analysis');
+      }
+      
+      if (research.stackOverflowAnswers.length > 0) {
+        progressTracker.emitActivity(sessionId, {
+          message: `💡 Found ${research.stackOverflowAnswers.length} Stack Overflow ${research.stackOverflowAnswers.length === 1 ? 'answer' : 'answers'} with solutions`,
+          type: 'success',
+          data: { sourcesFound: research.stackOverflowAnswers.length }
+        }, 3, 'Research & Analysis');
+      }
+      
+      if (research.gitHubIssues.length > 0) {
+        progressTracker.emitActivity(sessionId, {
+          message: `🐛 Reading GitHub issues... ${research.gitHubIssues.length} common ${research.gitHubIssues.length === 1 ? 'problem' : 'problems'} identified`,
+          type: 'success'
+        }, 3, 'Research & Analysis');
+      }
+      
+      if (research.youtubeVideos.length > 0) {
+        progressTracker.emitActivity(sessionId, {
+          message: `📹 Watching YouTube tutorials... ${research.youtubeVideos.length} ${research.youtubeVideos.length === 1 ? 'video' : 'videos'} analyzed`,
+          type: 'success'
+        }, 3, 'Research & Analysis');
+      }
+      
+      if (research.redditPosts && research.redditPosts.length > 0) {
+        progressTracker.emitActivity(sessionId, {
+          message: `💬 Analyzed ${research.redditPosts.length} Reddit discussions`,
+          type: 'success'
+        }, 3, 'Research & Analysis');
+      }
+      
+      if (research.devToArticles && research.devToArticles.length > 0) {
+        progressTracker.emitActivity(sessionId, {
+          message: `📝 Found ${research.devToArticles.length} DEV.to articles`,
+          type: 'success'
+        }, 3, 'Research & Analysis');
+      }
+      
+      progressTracker.emitActivity(sessionId, {
+        message: `✨ Synthesizing ${research.totalSources} sources with AI...`,
+        type: 'info',
+        data: { sourcesFound: research.totalSources }
+      }, 3, 'Research & Analysis');
+    }
     
     return {
       search_results: research.searchResults,
@@ -503,7 +620,7 @@ export async function generateEnhancedDocumentation(
       progress: 10,
     });
   }
-  const siteStructure = await discoverSiteStructure(url);
+  const siteStructure = await discoverSiteStructure(url, sessionId);
   pipelineMonitor.updateStage(pmId, 1, { status: 'completed', progress: 100, details: { itemsProcessed: siteStructure.allInternalLinks.length, itemsTotal: siteStructure.allInternalLinks.length } });
   
   console.log('Stage 2: Extracting multi-page content...');
@@ -525,7 +642,7 @@ export async function generateEnhancedDocumentation(
   ]));
 
   // First pass
-  let extractedContent = await extractMultiPageContent(candidateUrls.slice(0, 60));
+  let extractedContent = await extractMultiPageContent(candidateUrls.slice(0, 60), sessionId);
   pipelineMonitor.updateStage(pmId, 2, { status: 'partial', progress: Math.min(60, Math.round((extractedContent.length / Math.max(candidateUrls.length, 1)) * 100)), warnings: extractedContent.length < 15 ? ['Low page coverage, attempting second pass'] : [] });
   // Coverage target
   const MIN_PAGES = 15;
@@ -533,7 +650,7 @@ export async function generateEnhancedDocumentation(
     // Second pass: expand pool
     const expanded = candidateUrls.slice(60, 200);
     if (expanded.length > 0) {
-      const more = await extractMultiPageContent(expanded);
+      const more = await extractMultiPageContent(expanded, sessionId);
       extractedContent = Array.from(new Set([...extractedContent, ...more]));
     }
   }
@@ -558,7 +675,8 @@ export async function generateEnhancedDocumentation(
     url, 
     extractedContent.length,
     tierLimits.youtubeApiAccess,
-    tierLimits.youtubeTranscripts
+    tierLimits.youtubeTranscripts,
+    sessionId
   );
   // Partial success notification via progress and pipeline monitor if sources missing
   const missing: string[] = [];
@@ -913,6 +1031,50 @@ Return JSON: {metadata: {title, description, keywords}, searchability: {primary_
   };
   
   console.log(`✅ Final doc assembled: ${finalDoc.sections.length} sections, title: ${finalDoc.title}`);
+  
+  // Calculate quality score for generated documentation
+  console.log('📊 Calculating documentation quality score...');
+  const qualityScore = await qualityScoringService.scoreGeneratedDocs({
+    sections: finalDoc.sections.map((s: any) => ({
+      name: s.title || '',
+      content: JSON.stringify(s.content || ''),
+      codeBlocks: s.content?.filter((block: any) => block.type === 'code') || []
+    })),
+    images: allImages,
+    metadata: finalDoc.metadata
+  });
+  
+  console.log(`✨ Documentation Quality Score: ${qualityScore.overall}/100`);
+  console.log(`   - Code Examples: ${qualityScore.breakdown.codeExamples}/100`);
+  console.log(`   - Readability: ${qualityScore.breakdown.readability}/100`);
+  console.log(`   - Completeness: ${qualityScore.breakdown.completeness}/100`);
+  console.log(`   - Troubleshooting: ${qualityScore.breakdown.troubleshooting}/100`);
+  console.log(`   - Visual Aids: ${qualityScore.breakdown.visualAids}/100`);
+  console.log(`   - SEO: ${qualityScore.breakdown.seo}/100`);
+  
+  if (sessionId) {
+    progressTracker.emitActivity(sessionId, {
+      message: `📊 Documentation Quality Score: ${qualityScore.overall}/100`,
+      type: 'success',
+      data: {
+        qualityScore: qualityScore.overall,
+        qualityBreakdown: qualityScore.breakdown
+      }
+    }, 6, 'Documentation Writing');
+    
+    if (qualityScore.overall >= 90) {
+      progressTracker.emitActivity(sessionId, {
+        message: `🏆 Excellent quality! ${qualityScore.strengths.join(', ')}`,
+        type: 'success'
+      }, 6, 'Documentation Writing');
+    } else if (qualityScore.overall >= 70) {
+      progressTracker.emitActivity(sessionId, {
+        message: `✅ Good quality! Top strength: ${qualityScore.strengths[0] || 'Well-structured'}`,
+        type: 'success'
+      }, 6, 'Documentation Writing');
+    }
+  }
+  
   pipelineMonitor.updateStage(pmId, 6, { status: 'completed', progress: 100 });
 
   // Save to database
