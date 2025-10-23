@@ -132,7 +132,7 @@ export default function GenerationProgress() {
       `[${log.timestamp.toLocaleTimeString()}] ${log.type.toUpperCase()}: ${log.message}`
     ).join('\n');
     navigator.clipboard.writeText(logText);
-    toast({ title: "Copied!", description: "Activity log copied to clipboard" });
+    toast({ title: "Copied", description: "Activity log copied to clipboard" });
   }, [activityLogs, toast]);
 
   const downloadActivityLog = useCallback(() => {
@@ -156,18 +156,16 @@ export default function GenerationProgress() {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         if (isComplete || hasError) {
-          navigate('/');
+          navigate('/dashboard');
         }
       }
       if (e.key === 'ArrowLeft' && e.ctrlKey) {
+        e.preventDefault();
         setLeftPanelCollapsed(prev => !prev);
       }
       if (e.key === 'ArrowRight' && e.ctrlKey) {
-        setRightPanelCollapsed(prev => !prev);
-      }
-      if (e.key === 'r' && e.ctrlKey && hasError) {
         e.preventDefault();
-        navigate('/');
+        setRightPanelCollapsed(prev => !prev);
       }
     };
 
@@ -247,14 +245,7 @@ export default function GenerationProgress() {
           if (heartbeatIntervalRef.current) {
             clearInterval(heartbeatIntervalRef.current);
           }
-          addActivityLog('Documentation generation completed successfully!', 'success');
-          setTimeout(() => {
-            const confetti = document.createElement('div');
-            confetti.innerHTML = '🎉';
-            confetti.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-6xl animate-bounce';
-            document.body.appendChild(confetti);
-            setTimeout(() => confetti.remove(), 2000);
-          }, 100);
+          addActivityLog('Documentation generation completed successfully', 'success');
         }
         
         if (progressData.error || progressData.status === 'error') {
@@ -293,7 +284,7 @@ export default function GenerationProgress() {
         addActivityLog(`Connection lost (attempt ${retryCountRef.current}/5). Reconnecting in ${backoffDelay/1000}s...`, 'warning');
         
         reconnectTimeoutRef.current = setTimeout(() => {
-          addActivityLog(`Reconnecting (attempt ${retryCountRef.current}/${5})...`, 'info');
+          addActivityLog(`Reconnecting (attempt ${retryCountRef.current}/5)...`, 'info');
           connectToSSE(url, subdomain);
         }, backoffDelay);
       } else if (!runFinishedRef.current) {
@@ -421,15 +412,16 @@ export default function GenerationProgress() {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-[rgb(14,19,23)] via-[rgb(24,29,37)] to-[rgb(34,38,46)] flex flex-col overflow-hidden">
+    <div className="h-screen bg-[rgb(14,19,23)] flex flex-col overflow-hidden">
       {/* Header Navigation */}
-      <div className="bg-gradient-to-r from-[rgb(14,19,23)] via-[rgb(20,25,30)] to-[rgb(24,29,35)] border-b border-white/10 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between z-20">
+      <header className="bg-[rgb(34,38,46)] border-b border-[rgb(14,19,23)] px-4 md:px-6 py-3 md:py-4 flex items-center justify-between z-20 transition-smooth">
         <div className="flex items-center gap-3 md:gap-4">
           <Button
             onClick={handleGoBack}
             variant="ghost"
             size="sm"
-            className="text-white/70 hover:text-white hover:bg-white/10 transition-all"
+            className="text-[rgb(228,232,236)] hover:text-white hover:bg-white/10 transition-smooth focus-enhanced touch-target"
+            aria-label="Back to Dashboard"
           >
             <ArrowLeftIcon className="h-4 w-4 mr-2" />
             <span className="hidden sm:inline">Back to Dashboard</span>
@@ -440,7 +432,8 @@ export default function GenerationProgress() {
             onClick={() => navigate("/")}
             variant="ghost"
             size="sm"
-            className="text-white/70 hover:text-white hover:bg-white/10 transition-all hidden md:flex"
+            className="text-[rgb(228,232,236)] hover:text-white hover:bg-white/10 transition-smooth focus-enhanced touch-target hidden md:flex"
+            aria-label="Go to Home"
           >
             <HomeIcon className="h-4 w-4 mr-2" />
             Home
@@ -448,114 +441,142 @@ export default function GenerationProgress() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 transition-smooth">
             {connectionStatus.connected ? (
               <>
-                <SignalIcon className="h-4 w-4 text-[rgb(102,255,228)] animate-pulse" />
-                <span className="text-xs text-white/70 hidden sm:inline">Connected</span>
+                <SignalIcon className="h-4 w-4 text-[rgb(102,255,228)]" aria-hidden="true" />
+                <span className="text-xs text-[rgb(228,232,236)] hidden sm:inline">Connected</span>
+                <span className="sr-only">Connection status: Connected</span>
               </>
             ) : connectionStatus.reconnecting ? (
               <>
-                <ArrowPathIcon className="h-4 w-4 text-yellow-400 animate-spin" />
-                <span className="text-xs text-white/70 hidden sm:inline">Reconnecting...</span>
+                <ArrowPathIcon className="h-4 w-4 text-yellow-400 animate-spin" aria-hidden="true" />
+                <span className="text-xs text-[rgb(228,232,236)] hidden sm:inline">Reconnecting...</span>
+                <span className="sr-only">Connection status: Reconnecting</span>
               </>
             ) : (
               <>
-                <SignalSlashIcon className="h-4 w-4 text-red-400" />
-                <span className="text-xs text-white/70 hidden sm:inline">Disconnected</span>
+                <SignalSlashIcon className="h-4 w-4 text-red-400" aria-hidden="true" />
+                <span className="text-xs text-[rgb(228,232,236)] hidden sm:inline">Disconnected</span>
+                <span className="sr-only">Connection status: Disconnected</span>
               </>
             )}
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-white/[0.02] opacity-30" />
-        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gradient-radial from-[rgb(102,255,228)]/10 via-transparent to-transparent blur-3xl" />
-        
-        <ResizablePanelGroup direction="horizontal" className="flex-1 relative z-10">
-          <ResizablePanel defaultSize={45} minSize={30} maxSize={70} collapsible onCollapse={() => setLeftPanelCollapsed(true)} onExpand={() => setLeftPanelCollapsed(false)}>
-            <div className="h-full overflow-y-auto bg-gradient-to-br from-[rgb(14,19,23)] via-[rgb(24,29,37)] to-[rgb(34,38,46)]">
-              <div className="p-4 md:p-6 space-y-4 md:space-y-6">
+        <ResizablePanelGroup direction="horizontal" className="flex-1 relative">
+          <ResizablePanel 
+            defaultSize={45} 
+            minSize={30} 
+            maxSize={70} 
+            collapsible 
+            onCollapse={() => setLeftPanelCollapsed(true)} 
+            onExpand={() => setLeftPanelCollapsed(false)}
+          >
+            <div className="h-full overflow-y-auto bg-[rgb(14,19,23)]">
+              <div className="p-4 md:p-6 lg:p-8 space-y-4 md:space-y-6">
                 {leftPanelCollapsed && (
                   <Button
                     onClick={() => setLeftPanelCollapsed(false)}
                     size="sm"
                     variant="outline"
-                    className="mb-4 border-white/20 text-white hover:bg-white/10"
+                    className="mb-4 border-white/20 text-white hover:bg-white/10 transition-smooth focus-enhanced"
+                    aria-label="Expand left panel"
                   >
                     <ChevronRightIcon className="h-4 w-4 mr-1" />
                     Expand
                   </Button>
                 )}
 
+                {/* Status Header */}
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h1 className="text-xl md:text-2xl font-bold text-white">
-                      {isComplete
-                        ? "🎉 Documentation Ready!"
-                        : hasError
-                        ? "⚠️ Generation Failed"
-                        : "✨ Generating Documentation"}
-                    </h1>
-                  </div>
-                  <p className="text-xs md:text-sm text-white/60">
+                  <h1 className="text-2xl md:text-3xl font-bold text-white">
+                    {isComplete
+                      ? "Documentation Ready"
+                      : hasError
+                      ? "Generation Failed"
+                      : "Generating Documentation"}
+                  </h1>
+                  <p className="text-sm md:text-base text-[rgb(228,232,236)]/70">
                     {isComplete
                       ? "Your professional documentation has been generated successfully"
                       : hasError
                       ? "Something went wrong during generation"
-                      : "AI is creating your Apple-quality documentation"}
+                      : "AI is creating your professional documentation"}
                   </p>
                 </div>
 
+                {/* Error Card */}
                 {hasError && (
-                  <Card className="p-3 md:p-4 bg-gradient-to-br from-red-500/10 to-red-500/5 border-2 border-red-500/50 backdrop-blur-sm shadow-[0_10px_30px_rgba(239,68,68,0.1)]">
+                  <Card className="p-4 md:p-5 glass-effect border-2 border-red-500/50 transition-smooth" role="alert" aria-live="assertive">
                     <div className="flex items-start gap-3">
-                      <ExclamationCircleIcon className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
+                      <ExclamationCircleIcon className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" aria-hidden="true" />
                       <div className="flex-1">
                         <h3 className="text-sm font-semibold text-red-400 mb-1">Error</h3>
-                        <p className="text-xs text-white/80">{errorMessage || "An unexpected error occurred"}</p>
+                        <p className="text-sm text-white/80">{errorMessage || "An unexpected error occurred"}</p>
                       </div>
                     </div>
-                    <div className="mt-4 flex gap-2">
-                      <Button onClick={handleStartNew} size="sm" className="bg-[rgb(102,255,228)] hover:bg-white text-[rgb(14,19,23)] transition-all">
+                    <div className="mt-4 flex gap-2 flex-wrap">
+                      <Button 
+                        onClick={handleStartNew} 
+                        size="sm" 
+                        className="bg-[rgb(102,255,228)] hover:bg-white text-[rgb(14,19,23)] transition-smooth focus-enhanced font-semibold"
+                      >
                         Try Again
                       </Button>
-                      <Button onClick={handleGoBack} size="sm" variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                      <Button 
+                        onClick={handleGoBack} 
+                        size="sm" 
+                        variant="outline" 
+                        className="border-white/20 text-white hover:bg-white/10 transition-smooth focus-enhanced"
+                      >
                         Back to Dashboard
                       </Button>
                     </div>
                   </Card>
                 )}
 
+                {/* Success Card */}
                 {isComplete && !hasError && (
-                  <Card className="p-3 md:p-4 bg-gradient-to-br from-[rgb(102,255,228)]/15 to-[rgb(102,255,228)]/5 border-2 border-[rgb(102,255,228)]/50 backdrop-blur-sm shadow-[0_20px_50px_rgba(102,255,228,0.15)]">
+                  <Card className="p-4 md:p-5 glass-effect border-2 border-[rgb(102,255,228)]/50 transition-smooth" role="status" aria-live="polite">
                     <div className="flex items-start gap-3">
-                      <CheckCircleIcon className="h-5 w-5 text-[rgb(102,255,228)] flex-shrink-0 mt-0.5" />
+                      <CheckCircleIcon className="h-5 w-5 text-[rgb(102,255,228)] flex-shrink-0 mt-0.5" aria-hidden="true" />
                       <div className="flex-1">
-                        <h3 className="text-sm font-semibold text-[rgb(102,255,228)] mb-1">Success!</h3>
-                        <p className="text-xs text-white/80">Your documentation is ready to view and download</p>
+                        <h3 className="text-sm font-semibold text-[rgb(102,255,228)] mb-1">Success</h3>
+                        <p className="text-sm text-white/80">Your documentation is ready to view and download</p>
                       </div>
                     </div>
                     <div className="mt-4 flex gap-2 flex-wrap">
-                      <Button onClick={handleViewDocumentation} size="sm" className="bg-[rgb(102,255,228)] hover:bg-white text-[rgb(14,19,23)] transition-all">
+                      <Button 
+                        onClick={handleViewDocumentation} 
+                        size="sm" 
+                        className="bg-[rgb(102,255,228)] hover:bg-white text-[rgb(14,19,23)] transition-smooth focus-enhanced font-semibold"
+                      >
                         View Documentation
                         <ArrowRightIcon className="ml-2 h-3 w-3" />
                       </Button>
-                      <Button onClick={handleStartNew} size="sm" variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                      <Button 
+                        onClick={handleStartNew} 
+                        size="sm" 
+                        variant="outline" 
+                        className="border-white/20 text-white hover:bg-white/10 transition-smooth focus-enhanced"
+                      >
                         Generate Another
                       </Button>
                     </div>
                   </Card>
                 )}
 
+                {/* Progress Card */}
                 {!isComplete && !hasError && (
-                  <Card className="p-3 md:p-4 bg-gradient-to-br from-white/10 to-white/5 border border-white/20 backdrop-blur-sm transition-all duration-300 hover:border-[rgb(102,255,228)]/50">
+                  <Card className="p-4 md:p-5 glass-effect transition-smooth hover:border-[rgb(102,255,228)]/30" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-white/90">Overall Progress</span>
-                        <span className="text-xs font-bold text-[rgb(102,255,228)]">{progress}%</span>
+                        <span className="text-sm font-semibold text-white/90">Overall Progress</span>
+                        <span className="text-sm font-bold text-[rgb(102,255,228)]">{progress}%</span>
                       </div>
                       <div className="relative">
                         <Progress value={progress} className="h-2 bg-white/10" />
@@ -564,16 +585,17 @@ export default function GenerationProgress() {
                           style={{ width: `${progress}%` }}
                         />
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-white/60">
-                        <ArrowPathIcon className="h-3 w-3 animate-spin text-[rgb(102,255,228)]" />
+                      <div className="flex items-center gap-2 text-sm text-white/60">
+                        <ArrowPathIcon className="h-4 w-4 animate-spin text-[rgb(102,255,228)]" aria-hidden="true" />
                         <span>{stageName || "Initializing..."}</span>
                       </div>
                     </div>
                   </Card>
                 )}
 
-                <div className="space-y-2 md:space-y-3">
-                  <h3 className="text-xs md:text-sm font-semibold text-white/90">Pipeline Stages</h3>
+                {/* Pipeline Stages */}
+                <div className="space-y-3">
+                  <h2 className="text-sm md:text-base font-semibold text-white/90">Pipeline Stages</h2>
                   {stages.map((stage) => {
                     const isActive = currentStage === stage.id;
                     const isCompleted = currentStage > stage.id;
@@ -582,29 +604,32 @@ export default function GenerationProgress() {
                     return (
                       <Card
                         key={stage.id}
-                        className={`p-2 md:p-3 transition-all duration-500 ${
+                        className={`p-3 md:p-4 transition-all duration-500 ${
                           isActive
-                            ? "bg-gradient-to-br from-[rgb(102,255,228)]/20 to-[rgb(102,255,228)]/5 border-2 border-[rgb(102,255,228)]/50 shadow-[0_10px_30px_rgba(102,255,228,0.15)] scale-105"
+                            ? "glass-effect border-2 border-[rgb(102,255,228)]/50 scale-[1.02]"
                             : isCompleted
-                            ? "bg-gradient-to-br from-white/10 to-white/5 border border-white/20 backdrop-blur-sm"
-                            : "bg-gradient-to-br from-white/5 to-white/3 border border-white/10 opacity-50"
+                            ? "glass-effect"
+                            : "bg-white/5 border border-white/10 opacity-60"
                         }`}
+                        role="status"
+                        aria-label={`Stage ${stage.id}: ${stage.name} - ${isActive ? 'In Progress' : isCompleted ? 'Completed' : 'Pending'}`}
                       >
-                        <div className="flex items-start gap-2 md:gap-3">
+                        <div className="flex items-start gap-3">
                           <div
-                            className={`flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center transition-all duration-500 ${
+                            className={`flex-shrink-0 w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center transition-all duration-500 ${
                               isCompleted
-                                ? "bg-[rgb(102,255,228)] shadow-lg shadow-[rgb(102,255,228)]/50"
+                                ? "bg-[rgb(102,255,228)]"
                                 : isActive
-                                ? "bg-[rgb(102,255,228)]/20 border-2 border-[rgb(102,255,228)] animate-pulse"
+                                ? "bg-[rgb(102,255,228)]/20 border-2 border-[rgb(102,255,228)]"
                                 : "bg-white/10 border-2 border-white/20"
                             }`}
+                            aria-hidden="true"
                           >
                             {isCompleted ? (
-                              <CheckIcon className="h-3 w-3 md:h-4 md:w-4 text-[rgb(14,19,23)]" />
+                              <CheckIcon className="h-4 w-4 md:h-5 md:w-5 text-[rgb(14,19,23)]" />
                             ) : (
                               <Icon
-                                className={`h-3 w-3 md:h-4 md:w-4 ${
+                                className={`h-4 w-4 md:h-5 md:w-5 ${
                                   isActive ? "text-[rgb(102,255,228)]" : "text-white/40"
                                 }`}
                               />
@@ -613,21 +638,21 @@ export default function GenerationProgress() {
 
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <h4
-                                className={`text-xs md:text-sm font-semibold ${
+                              <h3
+                                className={`text-sm md:text-base font-semibold ${
                                   isActive ? "text-[rgb(102,255,228)]" : isCompleted ? "text-white" : "text-white/50"
                                 }`}
                               >
                                 {stage.name}
-                              </h4>
+                              </h3>
                               {isActive && (
-                                <span className="px-2 py-0.5 text-[10px] rounded-full bg-[rgb(102,255,228)]/20 border border-[rgb(102,255,228)]/50 text-[rgb(102,255,228)] animate-pulse">
+                                <span className="px-2 py-0.5 text-xs rounded-full bg-[rgb(102,255,228)]/20 border border-[rgb(102,255,228)]/50 text-[rgb(102,255,228)]">
                                   In Progress
                                 </span>
                               )}
                             </div>
                             <p
-                              className={`text-[10px] md:text-xs ${
+                              className={`text-xs md:text-sm ${
                                 isActive ? "text-white/70" : isCompleted ? "text-white/50" : "text-white/40"
                               }`}
                             >
@@ -636,11 +661,12 @@ export default function GenerationProgress() {
                           </div>
 
                           <div
-                            className={`flex-shrink-0 w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center text-[10px] md:text-xs font-bold ${
+                            className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
                               isCompleted || isActive
                                 ? "bg-[rgb(102,255,228)]/20 text-[rgb(102,255,228)]"
                                 : "bg-white/10 text-white/40"
                             }`}
+                            aria-hidden="true"
                           >
                             {stage.id}
                           </div>
@@ -650,38 +676,39 @@ export default function GenerationProgress() {
                   })}
                 </div>
 
-                <div className="space-y-2 md:space-y-3">
+                {/* Activity Log */}
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xs md:text-sm font-semibold text-white/90">Activity Log</h3>
+                    <h2 className="text-sm md:text-base font-semibold text-white/90">Activity Log</h2>
                     <div className="flex gap-1">
                       <Button
                         onClick={copyActivityLog}
                         size="sm"
                         variant="ghost"
-                        className="h-7 w-7 p-0 text-white/60 hover:text-white hover:bg-white/10"
-                        title="Copy to clipboard"
+                        className="h-8 w-8 p-0 text-white/60 hover:text-white hover:bg-white/10 transition-smooth focus-enhanced"
+                        aria-label="Copy activity log to clipboard"
                       >
-                        <DocumentDuplicateIcon className="h-3 w-3" />
+                        <DocumentDuplicateIcon className="h-4 w-4" />
                       </Button>
                       <Button
                         onClick={downloadActivityLog}
                         size="sm"
                         variant="ghost"
-                        className="h-7 w-7 p-0 text-white/60 hover:text-white hover:bg-white/10"
-                        title="Download log"
+                        className="h-8 w-8 p-0 text-white/60 hover:text-white hover:bg-white/10 transition-smooth focus-enhanced"
+                        aria-label="Download activity log"
                       >
-                        <ArrowDownTrayIcon className="h-3 w-3" />
+                        <ArrowDownTrayIcon className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
-                  <Card className="p-2 md:p-3 bg-gradient-to-br from-white/10 to-white/5 border border-white/20 backdrop-blur-sm max-h-48 md:max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
-                    <div className="space-y-1.5 md:space-y-2">
+                  <Card className="p-3 md:p-4 glass-effect max-h-64 overflow-y-auto" role="log" aria-label="Activity log">
+                    <div className="space-y-2">
                       {activityLogs.length === 0 ? (
-                        <p className="text-[10px] md:text-xs text-white/40 italic">Waiting for activity...</p>
+                        <p className="text-xs md:text-sm text-white/40 italic">Waiting for activity...</p>
                       ) : (
                         activityLogs.map((log) => (
-                          <div key={log.id} className="flex items-start gap-2 text-[10px] md:text-xs">
-                            <span className="text-white/40 font-mono flex-shrink-0 text-[9px] md:text-[10px]">
+                          <div key={log.id} className="flex items-start gap-2 text-xs md:text-sm">
+                            <span className="text-white/40 font-mono flex-shrink-0 text-[10px] md:text-xs">
                               {log.timestamp.toLocaleTimeString()}
                             </span>
                             <span className={`flex-1 ${
@@ -708,66 +735,74 @@ export default function GenerationProgress() {
                   </Card>
                 </div>
 
-                <Card className="p-2 md:p-3 bg-gradient-to-br from-white/10 to-white/5 border border-white/20 backdrop-blur-sm">
-                  <h4 className="text-[10px] md:text-xs font-semibold text-white/90 mb-2">💡 Did you know?</h4>
-                  <ul className="space-y-1 md:space-y-1.5 text-[10px] md:text-xs text-white/60">
+                {/* Info Card */}
+                <Card className="p-3 md:p-4 glass-effect">
+                  <h3 className="text-xs md:text-sm font-semibold text-white/90 mb-2">Did you know?</h3>
+                  <ul className="space-y-2 text-xs md:text-sm text-white/60">
                     <li className="flex items-start gap-2">
-                      <span className="text-[rgb(102,255,228)] mt-0.5 text-xs">•</span>
+                      <span className="text-[rgb(102,255,228)] mt-0.5" aria-hidden="true">•</span>
                       <span>We analyze 10+ high-quality sources for comprehensive coverage</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-[rgb(102,255,228)] mt-0.5 text-xs">•</span>
+                      <span className="text-[rgb(102,255,228)] mt-0.5" aria-hidden="true">•</span>
                       <span>Documentation automatically matches your brand colors</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-[rgb(102,255,228)] mt-0.5 text-xs">•</span>
+                      <span className="text-[rgb(102,255,228)] mt-0.5" aria-hidden="true">•</span>
                       <span>SEO optimization and accessibility features included</span>
                     </li>
                   </ul>
                 </Card>
 
-                <div className="text-[10px] text-white/40 text-center">
-                  Press <kbd className="px-1.5 py-0.5 rounded bg-white/10">Ctrl+←</kbd> to toggle this panel
+                <div className="text-xs text-white/40 text-center" aria-label="Keyboard shortcuts">
+                  Press <kbd className="px-2 py-1 rounded bg-white/10 font-mono">Ctrl+←</kbd> to toggle this panel
                 </div>
               </div>
             </div>
           </ResizablePanel>
 
-          <ResizableHandle withHandle className="bg-white/10 hover:bg-[rgb(102,255,228)]/30 transition-colors w-1" />
+          <ResizableHandle withHandle className="bg-white/10 hover:bg-[rgb(102,255,228)]/30 transition-smooth w-1" />
 
-          <ResizablePanel defaultSize={55} minSize={30} collapsible onCollapse={() => setRightPanelCollapsed(true)} onExpand={() => setRightPanelCollapsed(false)}>
-            <div className="h-full bg-gradient-to-br from-[rgb(20,25,30)] via-[rgb(30,35,40)] to-[rgb(36,40,45)] flex flex-col">
-              <div className="px-3 md:px-4 py-2 md:py-3 border-b border-white/10 bg-gradient-to-br from-[rgb(14,19,23)] via-[rgb(20,25,30)] to-[rgb(24,29,35)] backdrop-blur-sm">
+          <ResizablePanel 
+            defaultSize={55} 
+            minSize={30} 
+            collapsible 
+            onCollapse={() => setRightPanelCollapsed(true)} 
+            onExpand={() => setRightPanelCollapsed(false)}
+          >
+            <div className="h-full bg-[rgb(20,25,30)] flex flex-col">
+              <div className="px-4 py-3 border-b border-white/10 bg-[rgb(34,38,46)]">
                 <div className="flex items-center gap-2">
-                  <GlobeAltIcon className="h-3 w-3 md:h-4 md:w-4 text-white/60" />
-                  <span className="text-[10px] md:text-xs text-white/60 font-mono truncate flex-1">{targetUrl}</span>
+                  <GlobeAltIcon className="h-4 w-4 text-white/60" aria-hidden="true" />
+                  <span className="text-xs md:text-sm text-white/60 font-mono truncate flex-1">{targetUrl}</span>
                   {rightPanelCollapsed && (
                     <Button
                       onClick={() => setRightPanelCollapsed(false)}
                       size="sm"
                       variant="outline"
-                      className="border-white/20 text-white hover:bg-white/10"
+                      className="border-white/20 text-white hover:bg-white/10 transition-smooth focus-enhanced"
+                      aria-label="Expand right panel"
                     >
                       <ChevronLeftIcon className="h-4 w-4 mr-1" />
                       Expand
                     </Button>
                   )}
                 </div>
-                <h3 className="text-xs md:text-sm font-semibold text-white mt-1">
+                <h2 className="text-sm md:text-base font-semibold text-white mt-1">
                   {previewContent ? "Documentation Preview" : "Website Preview"}
-                </h3>
+                </h2>
               </div>
               
               <div className="flex-1 relative bg-white overflow-hidden">
                 {previewContent ? (
-                  <div className="p-4 md:p-6 h-full overflow-y-auto bg-gradient-to-br from-white via-gray-50 to-gray-100">
+                  <div className="p-6 h-full overflow-y-auto bg-white">
                     <div className="prose prose-sm md:prose max-w-none">
-                      <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 border-2 border-[rgb(102,255,228)]/30">
+                      <div className="bg-white rounded-lg p-6 border-2 border-[rgb(102,255,228)]/30">
                         <div className="mb-4 pb-4 border-b border-[rgb(102,255,228)]/20">
-                          <span className="text-[10px] md:text-xs text-[rgb(102,255,228)] font-semibold uppercase tracking-wide">Live Preview</span>
+                          <span className="text-xs text-[rgb(102,255,228)] font-semibold uppercase tracking-wide">Live Preview</span>
                         </div>
                         <div 
-                          className="text-xs md:text-sm text-gray-800 leading-relaxed whitespace-pre-wrap"
+                          className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap"
                           dangerouslySetInnerHTML={{ __html: previewContent }}
                         />
                       </div>
@@ -781,28 +816,28 @@ export default function GenerationProgress() {
                     sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
                   />
                 ) : (
-                  <div className="flex items-center justify-center h-full bg-gradient-to-br from-[rgb(20,25,30)] via-[rgb(30,35,40)] to-[rgb(36,40,45)]">
+                  <div className="flex items-center justify-center h-full bg-[rgb(20,25,30)]">
                     <div className="text-center space-y-2">
-                      <DocumentTextIcon className="h-10 w-10 md:h-12 md:w-12 text-white/20 mx-auto" />
-                      <p className="text-xs md:text-sm text-white/40">Preview will appear here</p>
+                      <DocumentTextIcon className="h-12 w-12 text-white/20 mx-auto" aria-hidden="true" />
+                      <p className="text-sm text-white/40">Preview will appear here</p>
                     </div>
                   </div>
                 )}
                 
                 {!isComplete && !hasError && (
-                  <div className="absolute top-3 md:top-4 right-3 md:right-4">
-                    <div className="bg-[rgb(14,19,23)]/95 backdrop-blur-md border border-[rgb(102,255,228)]/50 rounded-lg px-2 md:px-3 py-1.5 md:py-2 flex items-center gap-2 shadow-[0_10px_30px_rgba(102,255,228,0.2)]">
-                      <ArrowPathIcon className="h-2.5 w-2.5 md:h-3 md:w-3 animate-spin text-[rgb(102,255,228)]" />
-                      <span className="text-[10px] md:text-xs font-semibold text-[rgb(102,255,228)]">
+                  <div className="absolute top-4 right-4">
+                    <div className="glass-effect rounded-lg px-3 py-2 flex items-center gap-2">
+                      <ArrowPathIcon className="h-3 w-3 animate-spin text-[rgb(102,255,228)]" aria-hidden="true" />
+                      <span className="text-xs font-semibold text-[rgb(102,255,228)]">
                         Analyzing...
                       </span>
                     </div>
                   </div>
                 )}
 
-                <div className="absolute bottom-3 md:bottom-4 right-3 md:right-4">
-                  <div className="text-[10px] text-white/60 bg-black/50 backdrop-blur-sm px-2 py-1 rounded">
-                    Press <kbd className="px-1 py-0.5 rounded bg-white/10">Ctrl+→</kbd> to toggle
+                <div className="absolute bottom-4 right-4">
+                  <div className="text-xs text-white/60 bg-black/50 backdrop-blur-sm px-2 py-1 rounded" aria-label="Keyboard shortcuts">
+                    Press <kbd className="px-1 py-0.5 rounded bg-white/10 font-mono">Ctrl+→</kbd> to toggle
                   </div>
                 </div>
               </div>
