@@ -272,15 +272,55 @@ const Index = () => {
                 We research how developers actually use your product across 10+ high-quality sources including <strong>Stack Overflow</strong>, <strong>GitHub</strong>, <strong>YouTube</strong>, <strong>Reddit</strong>, <strong>DEV.to</strong>, <strong>CodeProject</strong>, <strong>Stack Exchange</strong>, <strong>Quora</strong>, and official forums then generate beautiful, <strong>Apple-quality docs</strong> that match your brand.
               </p>
 
-              {/* CTA Button */}
-              <div className="pt-6">
-                <Button
-                  size="lg"
-                  asChild
-                  className="h-14 px-10 bg-[rgb(14,19,23)] border-4 border-[rgb(102,255,228)] text-white hover:bg-[rgb(102,255,228)] hover:text-[rgb(14,19,23)] font-bold text-base rounded-full uppercase tracking-wider transition-all duration-200 shadow-xl hover:shadow-2xl hover:scale-105"
-                >
-                  <a href="https://quarkly.io/dashboard">Create Project</a>
-                </Button>
+              {/* URL Input with Generate Button */}
+              <div className="pt-6 max-w-3xl mx-auto">
+                <div className="relative group">
+                  {/* Input Container */}
+                  <div className="relative flex items-center bg-[rgb(14,19,23)] border-4 border-[rgb(102,255,228)] rounded-full shadow-xl group-hover:shadow-2xl transition-all duration-300">
+                    {/* Globe Icon */}
+                    <div className="absolute left-6 pointer-events-none">
+                      <GlobeAltIcon className="h-6 w-6 text-[rgb(102,255,228)]" />
+                    </div>
+                    
+                    {/* URL Input */}
+                    <input
+                      type="url"
+                      value={url}
+                      onChange={(e) => setUrl(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && url) {
+                          handleGenerate();
+                        }
+                      }}
+                      placeholder="Enter your website URL (e.g., https://example.com)"
+                      className="flex-1 h-16 pl-16 pr-4 bg-transparent text-white placeholder-white/50 font-medium text-base focus:outline-none"
+                    />
+                    
+                    {/* Generate Button */}
+                    <Button
+                      onClick={handleGenerate}
+                      disabled={!url || generateMutation.isPending}
+                      className="h-14 px-8 mr-1 bg-[rgb(102,255,228)] hover:bg-white text-[rgb(14,19,23)] font-bold text-base rounded-full uppercase tracking-wider transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {generateMutation.isPending ? (
+                        <span className="flex items-center gap-2">
+                          <ArrowPathIcon className="h-5 w-5 animate-spin" />
+                          Generating...
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          <RocketLaunchIcon className="h-5 w-5" />
+                          Generate Docs
+                        </span>
+                      )}
+                    </Button>
+                  </div>
+                  
+                  {/* Helper Text */}
+                  <p className="mt-4 text-sm text-white/60 text-center font-light">
+                    ✨ Free tier: 1 documentation per month • Pro: Unlimited generations
+                  </p>
+                </div>
               </div>
             </div>
           </div>
