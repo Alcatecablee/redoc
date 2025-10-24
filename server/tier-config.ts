@@ -28,7 +28,7 @@ export const TIER_CONFIG: Record<string, TierLimits> = {
   free: {
     name: 'Free',
     price: 0,
-    maxGenerationsPerMonth: 1,
+    maxGenerationsPerMonth: 3,
     maxSourcesStackOverflow: 5,
     maxSourcesGitHub: 5,
     maxSourcesSearch: 10,
@@ -43,7 +43,7 @@ export const TIER_CONFIG: Record<string, TierLimits> = {
     maxSourcesForums: 3,
     allowedFormats: ['pdf'],
     features: [
-      '1 documentation per month',
+      '3 documentations per month',
       'Basic research depth (5 SO + 5 GitHub + 5 YouTube + 5 Reddit + 3 DEV.to + 3 CodeProject + 5 StackExchange + 3 Quora + 3 Forums)',
       'PDF export only',
       '8-12 sections',
