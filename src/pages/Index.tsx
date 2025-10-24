@@ -122,20 +122,6 @@ const Index = () => {
   });
 
   const handleGenerate = async () => {
-    // Check auth
-    try {
-      const { data } = await supabase.auth.getUser();
-      if (!data?.user) {
-        setShowSignIn(true);
-        toast({ title: 'Sign in required', description: 'Please sign in to generate documentation' });
-        return;
-      }
-    } catch (e) {
-      console.warn('Auth check failed', e);
-      setShowSignIn(true);
-      return;
-    }
-
     if (!url) {
       toast({
         title: "URL Required",
@@ -145,23 +131,21 @@ const Index = () => {
       return;
     }
 
-    // Generate a unique session ID
-    const sessionId = crypto.randomUUID();
+    // Validate URL format
+    try {
+      new URL(url.startsWith('http') ? url : `https://${url}`);
+    } catch (e) {
+      toast({
+        title: "Invalid URL",
+        description: "Please enter a valid website URL (e.g., https://example.com)",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    // Persist generation data in localStorage for refresh resilience
-    localStorage.setItem(`generation_${sessionId}`, JSON.stringify({
-      url,
-      subdomain: subdomain || undefined,
-      timestamp: Date.now(),
-    }));
-
-    // Navigate to generation progress page with URL and session data
-    navigate(`/generate/${sessionId}`, {
-      state: {
-        url,
-        subdomain: subdomain || undefined,
-      },
-    });
+    // Navigate to quotation page for instant quote
+    const normalizedUrl = url.startsWith('http') ? url : `https://${url}`;
+    navigate(`/quotation?url=${encodeURIComponent(normalizedUrl)}`);
   };
 
   const downloadBlob = async (path: string, filename: string) => {

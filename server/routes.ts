@@ -2199,6 +2199,10 @@ router.get('/api/idempotency/stats', verifySupabaseAuth, async (req, res) => {
 const customOrdersRouter = (await import('./routes/custom-orders')).default;
 router.use('/api/custom-orders', customOrdersRouter);
 
+// Complexity Analysis Route (Pay-per-doc model)
+const analyzeComplexityRouter = (await import('./routes/analyze-complexity')).default;
+router.use('/api/analyze-complexity', analyzeComplexityRouter);
+
 // Legacy pricing calculation endpoint (keep for backward compatibility)
 router.post('/api/pricing/calculate', async (req, res) => {
   try {
