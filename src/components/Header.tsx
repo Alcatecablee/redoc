@@ -12,9 +12,9 @@ const Header = () => {
 
   // Navigation links based on actual site sections and pages
   const navLinks = [
-    { name: "How It Works", href: "#pipeline" },
+    { name: "Demo", href: "#demo" },
+    { name: "How It Works", href: "#how-it-works" },
     { name: "Features", href: "#features" },
-    { name: "Quality", href: "#quality-exports" },
     { name: "Pricing", href: "/pricing" },
     { name: "Custom Projects", href: "/custom-projects" },
   ];
