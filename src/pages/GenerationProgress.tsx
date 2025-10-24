@@ -160,15 +160,6 @@ export default function GenerationProgress() {
       type,
       data,
     }]);
-    
-    if (data) {
-      setMetrics(prev => ({
-        ...prev,
-        sourcesAnalyzed: data.sourcesFound || prev.sourcesAnalyzed,
-        pagesProcessed: data.pagesProcessed || prev.pagesProcessed,
-        sectionsGenerated: data.sectionsGenerated || prev.sectionsGenerated,
-      }));
-    }
   }, []);
 
   const copyActivityLog = useCallback(() => {
@@ -288,6 +279,31 @@ export default function GenerationProgress() {
         setStageName(progressData.stageName || "");
         setStageDescription(progressData.description || "");
         
+        // Extract and update metrics from multiple sources
+        if (progressData.activity?.data || progressData.metrics) {
+          setMetrics(prev => {
+            const newMetrics = { ...prev };
+            
+            // Extract from activity.data
+            const activityData = progressData.activity?.data;
+            if (activityData) {
+              if (activityData.urlsDiscovered) newMetrics.pagesProcessed = Math.max(newMetrics.pagesProcessed, activityData.urlsDiscovered);
+              if (activityData.pagesProcessed) newMetrics.pagesProcessed = Math.max(newMetrics.pagesProcessed, activityData.pagesProcessed);
+              if (activityData.sourcesFound) newMetrics.sourcesAnalyzed = Math.max(newMetrics.sourcesAnalyzed, activityData.sourcesFound);
+              if (activityData.sectionsGenerated) newMetrics.sectionsGenerated = Math.max(newMetrics.sectionsGenerated, activityData.sectionsGenerated);
+            }
+            
+            // Extract from metrics object - compare against latest newMetrics values
+            const metricsData = progressData.metrics;
+            if (metricsData) {
+              if (metricsData.itemsProcessed) newMetrics.pagesProcessed = Math.max(newMetrics.pagesProcessed, metricsData.itemsProcessed);
+              if (metricsData.sources) newMetrics.sourcesAnalyzed = Math.max(newMetrics.sourcesAnalyzed, metricsData.sources.length);
+            }
+            
+            return newMetrics;
+          });
+        }
+        
         if (progressData.activity) {
           addActivityLog(
             progressData.activity.message,
@@ -303,7 +319,7 @@ export default function GenerationProgress() {
         }
 
         if (progressData.metrics) {
-          if (progressData.metrics.sources) {
+          if (progressData.metrics.sources && progressData.metrics.sources.length > 0) {
             addActivityLog(
               `✅ Discovered ${progressData.metrics.sources.length} high-quality external sources`,
               'success',
