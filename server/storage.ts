@@ -1,5 +1,7 @@
 import { type Documentation, type InsertDocumentation } from "@shared/schema";
-import { createClient } from '@supabase/supabase-js';
+import { db } from "./db";
+import { documentations } from "../shared/schema";
+import { eq, desc } from "drizzle-orm";
 
 export interface IStorage {
   getDocumentation(id: number): Promise<Documentation | undefined>;
@@ -10,75 +12,66 @@ export interface IStorage {
   deleteDocumentation(id: number, userId?: string): Promise<Documentation | undefined>;
 }
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
-
-let supabaseClient: ReturnType<typeof createClient> | null = null;
-if (SUPABASE_URL && SUPABASE_ANON_KEY) {
-  supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: { persistSession: false },
-  });
-} else {
-  console.warn('SUPABASE_URL or SUPABASE_ANON_KEY not set; Supabase storage disabled.');
-}
-
-class SupabaseStorage implements IStorage {
-  private client: ReturnType<typeof createClient>;
-  constructor(client: ReturnType<typeof createClient>) {
-    this.client = client;
-  }
-
+// Drizzle-based PostgreSQL storage
+class DrizzleStorage implements IStorage {
   async getDocumentation(id: number): Promise<Documentation | undefined> {
-    const { data, error } = await this.client.from('documentations').select('*').eq('id', id).limit(1).single();
-    if (error) throw error;
-    return data as Documentation | undefined;
+    if (!db) throw new Error('Database not initialized');
+    const results = await db.select().from(documentations).where(eq(documentations.id, id)).limit(1);
+    return results[0];
   }
 
   async getDocumentationBySubdomain(subdomain: string): Promise<Documentation | undefined> {
-    const { data, error} = await this.client.from('documentations').select('*').eq('subdomain', subdomain).limit(1).single();
-    if (error) {
-      if (error.code === 'PGRST116') return undefined; // Not found
-      throw error;
-    }
-    return data as Documentation | undefined;
+    if (!db) throw new Error('Database not initialized');
+    const results = await db.select().from(documentations).where(eq(documentations.subdomain, subdomain)).limit(1);
+    return results[0];
   }
 
   async getAllDocumentations(userId?: string): Promise<Documentation[]> {
-    let query = this.client.from('documentations').select('*').order('generated_at', { ascending: false });
+    if (!db) throw new Error('Database not initialized');
+    let query = db.select().from(documentations);
+    
     if (userId) {
-      query = query.eq('user_id', userId);
+      // @ts-ignore - userId might be string or number depending on implementation
+      query = query.where(eq(documentations.user_id, parseInt(userId)));
     }
-    const { data, error } = await query;
-    if (error) throw error;
-    return (data as any) || [];
+    
+    const results = await query.orderBy(desc(documentations.generatedAt));
+    return results;
   }
 
   async createDocumentation(data: InsertDocumentation): Promise<Documentation> {
-    const { data: inserted, error } = await this.client.from('documentations').insert([{ ...data }]).select().single();
-    if (error) throw error;
-    return inserted as Documentation;
+    if (!db) throw new Error('Database not initialized');
+    const results = await db.insert(documentations).values(data).returning();
+    return results[0];
   }
 
   async updateDocumentation(id: number, updates: Partial<Documentation>): Promise<Documentation> {
-    const { data, error } = await this.client
-      .from('documentations')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
-    if (error) throw error;
-    return data as Documentation;
+    if (!db) throw new Error('Database not initialized');
+    const results = await db
+      .update(documentations)
+      .set(updates)
+      .where(eq(documentations.id, id))
+      .returning();
+    
+    if (results.length === 0) {
+      throw new Error('Documentation not found');
+    }
+    
+    return results[0];
   }
 
   async deleteDocumentation(id: number, userId?: string): Promise<Documentation | undefined> {
-    // If userId provided, ensure deletion only affects that user's doc
-    let query = this.client.from('documentations').delete().eq('id', id).limit(1).select();
+    if (!db) throw new Error('Database not initialized');
+    
+    let query = db.delete(documentations).where(eq(documentations.id, id));
+    
     if (userId) {
-      query = query.eq('user_id', userId);
+      // @ts-ignore - userId might be string or number depending on implementation
+      query = query.where(eq(documentations.user_id, parseInt(userId)));
     }
-    const { data, error } = await query;
-    if (error) throw error;
-    return (data && data[0]) as Documentation | undefined;
+    
+    const results = await query.returning();
+    return results[0];
   }
 }
 
@@ -96,12 +89,12 @@ class InMemoryStorage implements IStorage {
   }
 
   async getAllDocumentations(userId?: string): Promise<Documentation[]> {
-    const docs = userId ? this.docs.filter(d => d.user_id === userId) : this.docs;
+    const docs = userId ? this.docs.filter(d => d.user_id === parseInt(userId)) : this.docs;
     return [...docs].sort((a, b) => new Date((b as any).generatedAt || b.generatedAt).getTime() - new Date((a as any).generatedAt || a.generatedAt).getTime());
   }
 
   async createDocumentation(data: InsertDocumentation): Promise<Documentation> {
-    const createdAt = new Date().toISOString();
+    const createdAt = new Date();
     const doc: any = {
       id: this.nextId++,
       url: data.url,
@@ -109,6 +102,9 @@ class InMemoryStorage implements IStorage {
       content: data.content,
       user_id: (data as any).user_id || null,
       subdomain: (data as any).subdomain || null,
+      theme_id: (data as any).theme_id || null,
+      current_version: 1,
+      search_vector: null,
       generatedAt: createdAt,
     };
     this.docs.push(doc);
@@ -123,11 +119,11 @@ class InMemoryStorage implements IStorage {
   }
 
   async deleteDocumentation(id: number, userId?: string): Promise<Documentation | undefined> {
-    const idx = this.docs.findIndex(d => d.id === id && (userId ? d.user_id === userId : true));
+    const idx = this.docs.findIndex(d => d.id === id && (userId ? d.user_id === parseInt(userId) : true));
     if (idx === -1) return undefined;
     const [removed] = this.docs.splice(idx, 1);
     return removed;
   }
 }
 
-export const storage: IStorage = supabaseClient ? new SupabaseStorage(supabaseClient) : new InMemoryStorage();
+export const storage: IStorage = db ? new DrizzleStorage() : new InMemoryStorage();
