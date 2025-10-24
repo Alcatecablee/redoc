@@ -1,67 +1,86 @@
 /**
  * Authentication Middleware
  * 
- * Provides authentication functions for API key verification and temporary mock auth.
- * Note: Supabase auth has been removed - you should implement proper authentication.
+ * Provides authentication functions for Supabase and API key verification.
+ * Used across multiple route modules to avoid circular dependencies.
  */
 
 import { db } from '../db';
 import { users } from '../../shared/schema';
 import { eq } from 'drizzle-orm';
 
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+
 /**
- * Temporary mock authentication middleware
- * WARNING: This is for development only. Implement proper authentication before production!
+ * Verify Supabase JWT token
  */
 export async function verifySupabaseAuth(req: any, res: any, next: any) {
   try {
-    // For development: Create/use a default test user
-    if (!db) {
-      console.warn('[AUTH] Database not initialized, allowing request without auth');
-      req.user = {
-        id: 'dev-user',
-        email: 'dev@example.com',
-        databaseId: 1,
-      };
+    const auth = req.headers.authorization || req.headers.Authorization;
+    const token = auth && typeof auth === 'string' ? auth.split(' ')[1] : null;
+    if (!token) {
+      return res.status(401).json({ error: 'Unauthorized: missing access token' });
+    }
+
+    if (!SUPABASE_URL) {
+      return res.status(500).json({ error: 'SUPABASE_URL not configured on server' });
+    }
+
+    const userResp = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        apikey: SUPABASE_ANON_KEY || '',
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!userResp.ok) {
+      const text = await userResp.text();
+      console.warn('Supabase auth verify failed:', userResp.status, text);
+      return res.status(401).json({ error: 'Unauthorized', details: text });
+    }
+
+    const userData = await userResp.json();
+    const email = userData.email;
+
+    if (!email || !db) {
+      req.user = userData;
       return next();
     }
 
-    // Check if we have a test user in the database
-    const testEmail = 'dev@example.com';
-    const existingUsers = await db.select().from(users).where(eq(users.email, testEmail)).limit(1);
+    try {
+      const existingUsers = await db.select().from(users).where(eq(users.email, email)).limit(1);
 
-    if (existingUsers.length > 0) {
-      req.user = {
-        id: `user-${existingUsers[0].id}`,
-        email: existingUsers[0].email,
-        databaseId: existingUsers[0].id,
-      };
-    } else {
-      // Create a default test user
-      const newUsers = await db.insert(users).values({
-        email: testEmail,
-        name: 'Development User',
-        plan: 'free',
-        generation_count: 0,
-      }).returning();
+      if (existingUsers.length > 0) {
+        req.user = {
+          ...userData,
+          databaseId: existingUsers[0].id,
+          email: email,
+        };
+      } else {
+        const newUsers = await db.insert(users).values({
+          email: email,
+          plan: 'free',
+          generation_count: 0,
+        }).returning();
 
-      req.user = {
-        id: `user-${newUsers[0].id}`,
-        email: newUsers[0].email,
-        databaseId: newUsers[0].id,
-      };
+        req.user = {
+          ...userData,
+          databaseId: newUsers[0].id,
+          email: email,
+        };
+      }
+    } catch (dbErr: any) {
+      console.warn('Failed to sync Supabase user with database:', dbErr?.message);
+      req.user = userData;
     }
 
     return next();
   } catch (err: any) {
-    console.error('[AUTH] Error in mock auth middleware:', err);
-    // Allow request to proceed even if there's an error
-    req.user = {
-      id: 'dev-user',
-      email: 'dev@example.com',
-      databaseId: 1,
-    };
-    return next();
+    console.error('Error verifying supabase token', err);
+    return res.status(500).json({ error: 'Auth verification failed' });
   }
 }
 

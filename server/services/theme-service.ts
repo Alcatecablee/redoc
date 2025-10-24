@@ -1,24 +1,32 @@
+import { createClient } from '@supabase/supabase-js';
 import type { Theme } from '@shared/themes';
 import { evaluateThemeAccessibility, mergeThemeWithDefaults, getDefaultTheme } from '@shared/themes';
-import { db } from '../db';
-import { themes } from '../../shared/schema';
-import { eq, or, and, desc } from 'drizzle-orm';
+
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+
+let supabaseClient: ReturnType<typeof createClient> | null = null;
+if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+  supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: false },
+  });
+}
 
 export interface ThemeRecord {
   id: number;
   name: string;
-  user_id: number;
+  user_id: string;
   tokens: any; // JSONB
-  is_default: string | null;
+  is_default: string;
   source_url: string | null;
   confidence_score: string | null;
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface CreateThemeInput {
   name: string;
-  userId: number;
+  userId: string;
   theme: Partial<Theme>;
   sourceUrl?: string;
   confidenceScore?: number;
@@ -32,99 +40,96 @@ export interface UpdateThemeInput {
 }
 
 export class ThemeService {
-  /**
-   * Get all themes for a user
-   */
-  async listThemes(userId: number): Promise<ThemeRecord[]> {
-    if (!db) throw new Error('Database not initialized');
-    
-    const results = await db
-      .select()
-      .from(themes)
-      .where(eq(themes.user_id, userId))
-      .orderBy(desc(themes.created_at));
+  private client: ReturnType<typeof createClient>;
 
-    return results as ThemeRecord[];
+  constructor(client?: ReturnType<typeof createClient>) {
+    if (!client && !supabaseClient) {
+      throw new Error('Supabase client not initialized');
+    }
+    this.client = client || supabaseClient!;
   }
 
   /**
-   * Get all themes including system defaults (user_id = 0 for system)
+   * Get all themes for a user
    */
-  async listAllThemes(userId: number): Promise<ThemeRecord[]> {
-    if (!db) throw new Error('Database not initialized');
-    
-    const results = await db
-      .select()
-      .from(themes)
-      .where(or(eq(themes.user_id, userId), eq(themes.user_id, 0)))
-      .orderBy(desc(themes.created_at));
+  async listThemes(userId: string): Promise<ThemeRecord[]> {
+    const { data, error } = await this.client
+      .from('themes')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
 
-    return results as ThemeRecord[];
+    if (error) throw error;
+    return data || [];
+  }
+
+  /**
+   * Get all themes including system defaults
+   */
+  async listAllThemes(userId: string): Promise<ThemeRecord[]> {
+    const { data, error } = await this.client
+      .from('themes')
+      .select('*')
+      .or(`user_id.eq.${userId},user_id.eq.system`)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
   }
 
   /**
    * Get a specific theme by ID
    */
-  async getTheme(themeId: number, userId: number): Promise<ThemeRecord | null> {
-    if (!db) throw new Error('Database not initialized');
-    
-    const results = await db
-      .select()
-      .from(themes)
-      .where(
-        and(
-          eq(themes.id, themeId),
-          or(eq(themes.user_id, userId), eq(themes.user_id, 0))
-        )
-      )
-      .limit(1);
+  async getTheme(themeId: number, userId: string): Promise<ThemeRecord | null> {
+    const { data, error } = await this.client
+      .from('themes')
+      .select('*')
+      .eq('id', themeId)
+      .or(`user_id.eq.${userId},user_id.eq.system`)
+      .single();
 
-    return results.length > 0 ? (results[0] as ThemeRecord) : null;
+    if (error) {
+      if (error.code === 'PGRST116') return null; // Not found
+      throw error;
+    }
+
+    return data;
   }
 
   /**
    * Get the default theme for a user
    */
-  async getDefaultTheme(userId: number): Promise<ThemeRecord | null> {
-    if (!db) throw new Error('Database not initialized');
-    
-    // Try to get user's default theme
-    const userResults = await db
-      .select()
-      .from(themes)
-      .where(
-        and(
-          eq(themes.user_id, userId),
-          eq(themes.is_default, 'true')
-        )
-      )
-      .limit(1);
+  async getDefaultTheme(userId: string): Promise<ThemeRecord | null> {
+    const { data, error } = await this.client
+      .from('themes')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('is_default', 'true')
+      .single();
 
-    if (userResults.length > 0) {
-      return userResults[0] as ThemeRecord;
+    if (error) {
+      if (error.code === 'PGRST116') {
+        // No user default, get system default
+        const { data: systemDefault, error: systemError } = await this.client
+          .from('themes')
+          .select('*')
+          .eq('user_id', 'system')
+          .eq('is_default', 'true')
+          .single();
+
+        if (systemError) return null;
+        return systemDefault;
+      }
+      throw error;
     }
 
-    // Fallback to system default (user_id = 0)
-    const systemResults = await db
-      .select()
-      .from(themes)
-      .where(
-        and(
-          eq(themes.user_id, 0),
-          eq(themes.is_default, 'true')
-        )
-      )
-      .limit(1);
-
-    return systemResults.length > 0 ? (systemResults[0] as ThemeRecord) : null;
+    return data;
   }
 
   /**
    * Create a new theme
    */
   async createTheme(input: CreateThemeInput): Promise<ThemeRecord> {
-    if (!db) throw new Error('Database not initialized');
-    
     const { name, userId, theme, sourceUrl, confidenceScore } = input;
 
     // Merge with defaults to ensure all required fields
@@ -142,12 +147,14 @@ export class ThemeService {
       confidence_score: confidenceScore ? String(confidenceScore) : null,
     };
 
-    const results = await db
-      .insert(themes)
-      .values(themeRecord)
-      .returning();
+    const { data, error } = await this.client
+      .from('themes')
+      .insert([themeRecord])
+      .select()
+      .single();
 
-    return results[0] as ThemeRecord;
+    if (error) throw error;
+    return data;
   }
 
   /**
@@ -155,11 +162,9 @@ export class ThemeService {
    */
   async updateTheme(
     themeId: number,
-    userId: number,
+    userId: string,
     updates: UpdateThemeInput
   ): Promise<ThemeRecord> {
-    if (!db) throw new Error('Database not initialized');
-    
     // Get existing theme
     const existing = await this.getTheme(themeId, userId);
     if (!existing) {
@@ -171,8 +176,8 @@ export class ThemeService {
       throw new Error('Permission denied');
     }
 
-    const updateData: Partial<typeof themes.$inferInsert> = {
-      updated_at: new Date(),
+    const updateData: Partial<ThemeRecord> = {
+      updated_at: new Date().toISOString(),
     };
 
     if (updates.name) {
@@ -194,48 +199,36 @@ export class ThemeService {
       updateData.confidence_score = String(updates.confidenceScore);
     }
 
-    const results = await db
-      .update(themes)
-      .set(updateData)
-      .where(
-        and(
-          eq(themes.id, themeId),
-          eq(themes.user_id, userId)
-        )
-      )
-      .returning();
+    const { data, error } = await this.client
+      .from('themes')
+      .update(updateData)
+      .eq('id', themeId)
+      .eq('user_id', userId)
+      .select()
+      .single();
 
-    if (results.length === 0) {
-      throw new Error('Theme update failed');
-    }
-
-    return results[0] as ThemeRecord;
+    if (error) throw error;
+    return data;
   }
 
   /**
    * Delete a theme
    */
-  async deleteTheme(themeId: number, userId: number): Promise<boolean> {
-    if (!db) throw new Error('Database not initialized');
-    
-    await db
-      .delete(themes)
-      .where(
-        and(
-          eq(themes.id, themeId),
-          eq(themes.user_id, userId)
-        )
-      );
+  async deleteTheme(themeId: number, userId: string): Promise<boolean> {
+    const { error } = await this.client
+      .from('themes')
+      .delete()
+      .eq('id', themeId)
+      .eq('user_id', userId);
 
+    if (error) throw error;
     return true;
   }
 
   /**
    * Set a theme as the user's default
    */
-  async setDefaultTheme(themeId: number, userId: number): Promise<ThemeRecord> {
-    if (!db) throw new Error('Database not initialized');
-    
+  async setDefaultTheme(themeId: number, userId: string): Promise<ThemeRecord> {
     // Verify theme exists and belongs to user
     const theme = await this.getTheme(themeId, userId);
     if (!theme) {
@@ -247,33 +240,23 @@ export class ThemeService {
     }
 
     // Unset any existing default for this user
-    await db
-      .update(themes)
-      .set({ is_default: 'false' })
-      .where(
-        and(
-          eq(themes.user_id, userId),
-          eq(themes.is_default, 'true')
-        )
-      );
+    await this.client
+      .from('themes')
+      .update({ is_default: 'false' })
+      .eq('user_id', userId)
+      .eq('is_default', 'true');
 
     // Set new default
-    const results = await db
-      .update(themes)
-      .set({ is_default: 'true', updated_at: new Date() })
-      .where(
-        and(
-          eq(themes.id, themeId),
-          eq(themes.user_id, userId)
-        )
-      )
-      .returning();
+    const { data, error } = await this.client
+      .from('themes')
+      .update({ is_default: 'true', updated_at: new Date().toISOString() })
+      .eq('id', themeId)
+      .eq('user_id', userId)
+      .select()
+      .single();
 
-    if (results.length === 0) {
-      throw new Error('Failed to set default theme');
-    }
-
-    return results[0] as ThemeRecord;
+    if (error) throw error;
+    return data;
   }
 
   /**
@@ -281,7 +264,7 @@ export class ThemeService {
    */
   async cloneTheme(
     themeId: number,
-    userId: number,
+    userId: string,
     newName: string
   ): Promise<ThemeRecord> {
     const existing = await this.getTheme(themeId, userId);
@@ -299,4 +282,4 @@ export class ThemeService {
 }
 
 // Export singleton instance
-export const themeService = new ThemeService();
+export const themeService = supabaseClient ? new ThemeService() : null;
