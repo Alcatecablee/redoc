@@ -75,23 +75,18 @@ const Header = () => {
                   {link.name}
                 </a>
               ))}
-              {user ? (
-                <a
-                  href="/dashboard"
-                  className="relative px-3 py-2 text-xs font-bold text-[rgb(228,232,236)] hover:text-white uppercase tracking-widest transition-colors duration-300"
-                >
-                  Dashboard
-                </a>
-              ) : null}
             </nav>
 
             {/* CTA Buttons */}
             <div className="hidden md:flex items-center gap-3">
               {user ? (
                 <div className="flex items-center gap-3">
-                  <div className="px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20">
-                    <span className="text-xs font-medium text-white/90">{user.email?.split('@')[0] || 'User'}</span>
-                  </div>
+                  <a
+                    href="/dashboard"
+                    className="px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300"
+                  >
+                    <span className="text-xs font-medium text-white/90">Dashboard</span>
+                  </a>
                   <Button
                     variant="ghost"
                     size="sm"
