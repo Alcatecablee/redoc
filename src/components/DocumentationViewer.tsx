@@ -30,6 +30,7 @@ interface ContentBlock {
   url?: string;
   alt?: string;
   caption?: string;
+  source?: string;
 }
 
 interface Section {
