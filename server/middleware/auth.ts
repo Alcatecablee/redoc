@@ -14,17 +14,22 @@ const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 
 /**
  * Verify Supabase JWT token
+ * Falls back to allowing unauthenticated access if Supabase is not configured
  */
 export async function verifySupabaseAuth(req: any, res: any, next: any) {
   try {
     const auth = req.headers.authorization || req.headers.Authorization;
     const token = auth && typeof auth === 'string' ? auth.split(' ')[1] : null;
+    
+    // If Supabase is not configured, allow unauthenticated access
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+      console.log('Supabase not configured - allowing unauthenticated access');
+      req.user = null;
+      return next();
+    }
+    
     if (!token) {
       return res.status(401).json({ error: 'Unauthorized: missing access token' });
-    }
-
-    if (!SUPABASE_URL) {
-      return res.status(500).json({ error: 'SUPABASE_URL not configured on server' });
     }
 
     const userResp = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
