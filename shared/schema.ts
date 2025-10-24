@@ -16,6 +16,7 @@ export const users = pgTable("users", {
   email: text("email").notNull().unique(),
   name: text("name"),
   plan: text("plan").notNull().default("free"), // 'free', 'pro', 'enterprise'
+  is_admin: boolean("is_admin").notNull().default(false), // Platform admin access
   subscription_id: text("subscription_id"), // PayPal subscription ID
   subscription_status: text("subscription_status"), // 'active', 'cancelled', 'expired'
   generation_count: integer("generation_count").notNull().default(0), // For free tier limit (resets monthly)

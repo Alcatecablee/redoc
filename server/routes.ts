@@ -25,6 +25,7 @@ import analyticsRouter from './routes/analytics';
 import auditRouter from './routes/audit';
 import dashboardRouter from './routes/dashboard';
 import validationRouter from './routes/validation';
+import adminRouter from './routes/admin';
 import { fetchImagesForExport, limitImagesForExport } from './image-utils';
 import { db } from './db';
 import { users } from '../shared/schema';
@@ -2150,6 +2151,9 @@ router.use('/api/dashboard', dashboardRouter);
 
 // Mount validation router
 router.use('/api/validate', validationRouter);
+
+// Mount admin router
+router.use(adminRouter);
 
 // Mount themes router
 router.use('/api/themes', themesRouter);
