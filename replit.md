@@ -13,13 +13,14 @@ Viberdoc is an AI-powered documentation intelligence platform designed for Devel
 - Live pricing breakdown with transparent formula display
 
 **Security Hardening & API Verification**: Comprehensive credential management audit and service testing:
-- ✅ All 8 required API services tested and verified working (AI providers, database, auth, payments, search)
+- ✅ All 10 API services tested and verified working (3 AI providers, database, auth, payments, 2 search APIs, video, Redis queue)
 - ✅ Removed all hardcoded API keys from repository files
 - ✅ Added `.env`, `.env.local`, `.env.production` to `.gitignore`
 - ✅ Cleaned up `.env.example` template file
 - ✅ Verified all credentials load from Replit Secrets and authenticate successfully
 - ✅ PayPal configured for Production mode (ready for real payments)
-- ✅ SerpAPI quota verified (187 searches remaining)
+- ✅ Dual search providers: SerpAPI (187 searches) + Brave Search API (automatic fallback)
+- ✅ Redis production queue configured for persistent job storage
 - ✅ YouTube API operational for video research
 - See API_CREDENTIALS_STATUS.md for complete service status report
 
