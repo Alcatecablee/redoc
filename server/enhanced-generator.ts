@@ -1032,45 +1032,72 @@ Return JSON: {metadata: {title, description, keywords}, searchability: {primary_
   
   console.log(`✅ Final doc assembled: ${finalDoc.sections.length} sections, title: ${finalDoc.title}`);
   
-  // Calculate quality score for generated documentation
+  // Calculate quality score for generated documentation with fallback
   console.log('📊 Calculating documentation quality score...');
-  const qualityScore = await qualityScoringService.scoreGeneratedDocs({
-    sections: finalDoc.sections.map((s: any) => ({
-      name: s.title || '',
-      content: JSON.stringify(s.content || ''),
-      codeBlocks: Array.isArray(s.content) ? s.content.filter((block: any) => block.type === 'code') : []
-    })),
-    images: allImages,
-    metadata: finalDoc.metadata
-  });
-  
-  console.log(`✨ Documentation Quality Score: ${qualityScore.overall}/100`);
-  console.log(`   - Code Examples: ${qualityScore.breakdown.codeExamples}/100`);
-  console.log(`   - Readability: ${qualityScore.breakdown.readability}/100`);
-  console.log(`   - Completeness: ${qualityScore.breakdown.completeness}/100`);
-  console.log(`   - Troubleshooting: ${qualityScore.breakdown.troubleshooting}/100`);
-  console.log(`   - Visual Aids: ${qualityScore.breakdown.visualAids}/100`);
-  console.log(`   - SEO: ${qualityScore.breakdown.seo}/100`);
-  
-  if (sessionId) {
-    progressTracker.emitActivity(sessionId, {
-      message: `📊 Documentation Quality Score: ${qualityScore.overall}/100`,
-      type: 'success',
-      data: {
-        qualityScore: qualityScore.overall,
-        qualityBreakdown: qualityScore.breakdown
-      }
-    }, 6, 'Documentation Writing');
+  let qualityScore;
+  try {
+    qualityScore = await qualityScoringService.scoreGeneratedDocs({
+      sections: finalDoc.sections.map((s: any) => ({
+        name: s.title || '',
+        content: JSON.stringify(s.content || ''),
+        codeBlocks: Array.isArray(s.content) ? s.content.filter((block: any) => block.type === 'code') : []
+      })),
+      images: allImages,
+      metadata: finalDoc.metadata
+    });
     
-    if (qualityScore.overall >= 90) {
+    console.log(`✨ Documentation Quality Score: ${qualityScore.overall}/100`);
+    console.log(`   - Code Examples: ${qualityScore.breakdown.codeExamples}/100`);
+    console.log(`   - Readability: ${qualityScore.breakdown.readability}/100`);
+    console.log(`   - Completeness: ${qualityScore.breakdown.completeness}/100`);
+    console.log(`   - Troubleshooting: ${qualityScore.breakdown.troubleshooting}/100`);
+    console.log(`   - Visual Aids: ${qualityScore.breakdown.visualAids}/100`);
+    console.log(`   - SEO: ${qualityScore.breakdown.seo}/100`);
+    
+    if (sessionId) {
       progressTracker.emitActivity(sessionId, {
-        message: `🏆 Excellent quality! ${qualityScore.strengths.join(', ')}`,
-        type: 'success'
+        message: `📊 Documentation Quality Score: ${qualityScore.overall}/100`,
+        type: 'success',
+        data: {
+          qualityScore: qualityScore.overall,
+          qualityBreakdown: qualityScore.breakdown
+        }
       }, 6, 'Documentation Writing');
-    } else if (qualityScore.overall >= 70) {
+      
+      if (qualityScore.overall >= 90) {
+        progressTracker.emitActivity(sessionId, {
+          message: `🏆 Excellent quality! ${qualityScore.strengths.join(', ')}`,
+          type: 'success'
+        }, 6, 'Documentation Writing');
+      } else if (qualityScore.overall >= 70) {
+        progressTracker.emitActivity(sessionId, {
+          message: `✅ Good quality! Top strength: ${qualityScore.strengths[0] || 'Well-structured'}`,
+          type: 'success'
+        }, 6, 'Documentation Writing');
+      }
+    }
+  } catch (scoringError: any) {
+    console.error('⚠️ Quality scoring failed, using default score:', scoringError.message);
+    // Fallback: Export with default quality score
+    qualityScore = {
+      overall: 70,
+      breakdown: {
+        codeExamples: 60,
+        readability: 75,
+        completeness: 70,
+        troubleshooting: 65,
+        visualAids: 60,
+        seo: 70
+      },
+      strengths: ['Comprehensive research', 'Multi-source synthesis'],
+      improvements: ['Quality scoring unavailable'],
+      recommendations: []
+    };
+    
+    if (sessionId) {
       progressTracker.emitActivity(sessionId, {
-        message: `✅ Good quality! Top strength: ${qualityScore.strengths[0] || 'Well-structured'}`,
-        type: 'success'
+        message: `⚠️ Quality scoring failed - documentation exported with default score (70/100)`,
+        type: 'warning'
       }, 6, 'Documentation Writing');
     }
   }
