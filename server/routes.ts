@@ -2242,28 +2242,37 @@ router.post('/api/consulting/order', async (req, res) => {
       console.log('🧪 [DEV MODE] Skipping PayPal payment - test mode enabled');
       const baseUrl = `${req.protocol}://${req.get('host')}`;
       const mockOrderId = `TEST_ORDER_${Date.now()}`;
+      const { v4: uuidv4 } = await import('uuid');
+      const sessionId = uuidv4();
       
-      // Store test order data in URL params for success handler
-      const testMetadata = encodeURIComponent(JSON.stringify({
-        url,
-        githubRepo,
-        sections,
-        sourceDepth,
-        delivery,
-        formats,
-        branding,
-        customRequirements,
-        calculatedPrice: serverPricing.total,
-        currency: currency || 'USD',
-        email,
-      }));
+      // Start documentation generation immediately in test mode
+      const { generateDocumentationPipeline } = await import('./documentation-pipeline');
       
+      console.log(`🧪 [DEV MODE] Starting doc generation for session: ${sessionId}`);
+      
+      // Start generation in background
+      setImmediate(async () => {
+        try {
+          const result = await generateDocumentationPipeline(
+            url,
+            null,
+            sessionId,
+            'enterprise'
+          );
+          console.log(`🧪 [DEV MODE] Documentation generated successfully`, result);
+        } catch (error: any) {
+          console.error(`🧪 [DEV MODE] Doc generation failed:`, error.message);
+        }
+      });
+      
+      // Return session ID to redirect to progress page
       return res.json({
         paypalOrderId: mockOrderId,
-        approvalUrl: `${baseUrl}/api/consulting/success?token=${mockOrderId}&test=true&metadata=${testMetadata}`,
+        approvalUrl: `${baseUrl}/generation/${sessionId}`,
         amount: serverPricing.total,
         currency: currency || 'USD',
         testMode: true,
+        sessionId,
       });
     }
 
