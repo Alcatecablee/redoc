@@ -1038,7 +1038,7 @@ Return JSON: {metadata: {title, description, keywords}, searchability: {primary_
     sections: finalDoc.sections.map((s: any) => ({
       name: s.title || '',
       content: JSON.stringify(s.content || ''),
-      codeBlocks: s.content?.filter((block: any) => block.type === 'code') || []
+      codeBlocks: Array.isArray(s.content) ? s.content.filter((block: any) => block.type === 'code') : []
     })),
     images: allImages,
     metadata: finalDoc.metadata

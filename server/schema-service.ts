@@ -156,9 +156,11 @@ Output as JSON:
         return this.getDefaultFAQSchema(targetUrl);
       }
 
-      const response = await this.aiProvider.generateContent(prompt);
+      const response = await this.aiProvider.generateCompletion([
+        { role: 'user', content: prompt }
+      ], { jsonMode: true });
       
-      return validateFAQSchema(response);
+      return validateFAQSchema(response.content);
 
     } catch (error) {
       console.error('FAQ schema generation error:', error);
@@ -204,10 +206,12 @@ Output as JSON:
         return this.getDefaultHowToSchema(section.name, productName, targetUrl);
       }
 
-      const response = await this.aiProvider.generateContent(prompt);
+      const response = await this.aiProvider.generateCompletion([
+        { role: 'user', content: prompt }
+      ], { jsonMode: true });
       
       try {
-        return JSON.parse(response);
+        return JSON.parse(response.content);
       } catch (parseError) {
         console.error('HowTo schema parsing error:', parseError);
         return this.getDefaultHowToSchema(section.name, productName, targetUrl);

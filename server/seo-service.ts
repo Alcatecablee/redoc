@@ -90,9 +90,11 @@ Constraints:
         return this.getDefaultSEOMetadata(productName, targetUrl);
       }
 
-      const response = await this.aiProvider.generateContent(prompt);
+      const response = await this.aiProvider.generateCompletion([
+        { role: 'user', content: prompt }
+      ], { jsonMode: true });
       
-      const metadata = validateSEOResponse(response);
+      const metadata = validateSEOResponse(response.content);
       return this.validateSEOMetadata(metadata, productName, targetUrl);
 
     } catch (error) {
@@ -135,10 +137,12 @@ Output as JSON:
         return this.getDefaultSEOAnalysis(productName);
       }
 
-      const response = await this.aiProvider.generateContent(prompt);
+      const response = await this.aiProvider.generateCompletion([
+        { role: 'user', content: prompt }
+      ], { jsonMode: true });
       
       try {
-        return JSON.parse(response);
+        return JSON.parse(response.content);
       } catch (parseError) {
         console.error('SEO analysis parsing error:', parseError);
         return this.getDefaultSEOAnalysis(productName);
@@ -175,10 +179,12 @@ Output as JSON array of strings:
         return this.getDefaultKeywordSuggestions(productName, sectionName);
       }
 
-      const response = await this.aiProvider.generateContent(prompt);
+      const response = await this.aiProvider.generateCompletion([
+        { role: 'user', content: prompt }
+      ], { jsonMode: true });
       
       try {
-        return JSON.parse(response);
+        return JSON.parse(response.content);
       } catch (parseError) {
         console.error('Keyword suggestions parsing error:', parseError);
         return this.getDefaultKeywordSuggestions(productName, sectionName);
