@@ -265,29 +265,36 @@ export default function Quotation() {
     }
   };
 
-  if (analyzing) {
+  if (analyzing || processing) {
+    const loadingTitle = analyzing ? 'Analyzing Your Project' : 'Processing Payment';
+    const loadingDescription = analyzing 
+      ? 'Scanning community footprint and calculating complexity' 
+      : 'Redirecting to payment...';
+    
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[rgb(14,19,23)] via-[rgb(24,29,37)] to-[rgb(34,38,46)]">
+      <div className="fixed inset-0 bg-gradient-to-br from-[rgb(14,19,23)] via-[rgb(24,29,37)] to-[rgb(34,38,46)] z-50">
         <Header />
-        <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="absolute inset-0 flex items-center justify-center p-6" style={{ marginTop: '80px' }}>
           <div className="relative bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-3xl p-12 text-center backdrop-blur-sm shadow-[0_20px_50px_rgba(0,0,0,0.3)] max-w-xl w-full">
             <ArrowPathIcon className="w-16 h-16 mx-auto mb-6 animate-spin text-[rgb(102,255,228)]" />
-            <h2 className="text-3xl font-bold mb-3 text-white">Analyzing Your Project</h2>
-            <p className="text-white/70 text-lg mb-8">Scanning community footprint and calculating complexity</p>
-            <div className="space-y-3 text-left">
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
-                <CheckCircleIcon className="w-5 h-5 text-[rgb(102,255,228)] flex-shrink-0" />
-                <span className="text-white/80">Checking Stack Overflow questions</span>
+            <h2 className="text-3xl font-bold mb-3 text-white">{loadingTitle}</h2>
+            <p className="text-white/70 text-lg mb-8">{loadingDescription}</p>
+            {analyzing && (
+              <div className="space-y-3 text-left">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
+                  <CheckCircleIcon className="w-5 h-5 text-[rgb(102,255,228)] flex-shrink-0" />
+                  <span className="text-white/80">Checking Stack Overflow questions</span>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
+                  <CheckCircleIcon className="w-5 h-5 text-[rgb(102,255,228)] flex-shrink-0" />
+                  <span className="text-white/80">Scanning GitHub repositories</span>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
+                  <CheckCircleIcon className="w-5 h-5 text-[rgb(102,255,228)] flex-shrink-0" />
+                  <span className="text-white/80">Discovering YouTube tutorials</span>
+                </div>
               </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
-                <CheckCircleIcon className="w-5 h-5 text-[rgb(102,255,228)] flex-shrink-0" />
-                <span className="text-white/80">Scanning GitHub repositories</span>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
-                <CheckCircleIcon className="w-5 h-5 text-[rgb(102,255,228)] flex-shrink-0" />
-                <span className="text-white/80">Discovering YouTube tutorials</span>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
