@@ -4,6 +4,12 @@
 Viberdoc is an AI-powered documentation intelligence platform designed for Developer Relations teams at established companies with vibrant ecosystems (Stripe, Supabase, Next.js, etc.). The platform aggregates scattered community knowledge from 10+ sources (Stack Overflow, GitHub, YouTube, Reddit, DEV.to, etc.) and generates professional, Apple-style documentation. The system employs a 3-stage AI pipeline to analyze websites, research community sources, and produce enterprise-quality documentation in various formats (PDF, DOCX, web).
 
 ## Recent Changes (October 25, 2025)
+**Removed Legacy Custom Projects Page**: Cleaned up outdated multi-step wizard system from subscription era:
+- ✅ **Deleted /custom-projects Route**: Removed CustomProjects.tsx page and all references
+- ✅ **Removed Navigation Links**: Cleaned up Header.tsx navigation menu
+- ✅ **Removed Old Components**: Deleted CustomPricingFormWizard.tsx component
+- ✅ **Streamlined Architecture**: Now only quotation flow (/quotation) for instant project quotes
+
 **New Transparent Pricing Page**: Complete redesign of pricing page to reflect DevRel quotation model:
 - ✅ **Transparent Formula Display**: Shows exact pricing calculation ($300 + Resources × $5 × Complexity)
 - ✅ **Real-World Examples**: 4 example projects (Starter FREE, Growing $675, Established $1,800, Major $5,000)
