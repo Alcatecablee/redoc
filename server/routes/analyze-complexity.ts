@@ -38,13 +38,21 @@ interface PricingQuote {
 async function fetchSitemap(url: string): Promise<string[]> {
   try {
     const sitemapUrl = `${url}/sitemap.xml`;
-    const response = await fetch(sitemapUrl, { timeout: 5000 });
+    const response = await fetch(sitemapUrl, { 
+      timeout: 5000,
+      headers: {
+        'Accept-Encoding': 'identity', // Disable compression to avoid decompression errors
+        'User-Agent': 'Viberdoc-Analyzer/1.0'
+      }
+    });
+    
     if (!response.ok) return [];
     
     const xml = await response.text();
     const urls = xml.match(/<loc>(.*?)<\/loc>/g) || [];
     return urls.map(u => u.replace(/<\/?loc>/g, ''));
-  } catch (e) {
+  } catch (e: any) {
+    console.warn('Sitemap fetch error:', e.message);
     return [];
   }
 }
@@ -56,14 +64,27 @@ async function estimatePageCount(url: string): Promise<number> {
   
   // Fallback: check homepage for links
   try {
-    const response = await fetch(url, { timeout: 5000 });
+    const response = await fetch(url, { 
+      timeout: 5000,
+      headers: {
+        'Accept-Encoding': 'identity', // Disable compression to avoid decompression errors
+        'User-Agent': 'Viberdoc-Analyzer/1.0'
+      }
+    });
+    
+    if (!response.ok) {
+      console.warn(`Failed to fetch ${url}: ${response.status}`);
+      return 10;
+    }
+    
     const html = await response.text();
     const $ = cheerio.load(html);
     const internalLinks = $('a[href^="/"], a[href^="' + url + '"]').length;
     // Estimate based on link count, with reasonable min/max for pricing accuracy
     // Min 5 (tiny sites), soft cap at 100 (very large sites priced accurately)
     return Math.min(Math.max(internalLinks, 5), 100);
-  } catch (e) {
+  } catch (e: any) {
+    console.warn(`Error estimating page count for ${url}:`, e.message);
     return 10; // Default estimate
   }
 }
@@ -119,7 +140,18 @@ async function checkExternalResources(siteName: string, url: string) {
 // Analyze technical complexity from homepage
 async function analyzeTechnicalComplexity(url: string): Promise<'simple' | 'moderate' | 'complex'> {
   try {
-    const response = await fetch(url, { timeout: 5000 });
+    const response = await fetch(url, { 
+      timeout: 5000,
+      headers: {
+        'Accept-Encoding': 'identity', // Disable compression to avoid decompression errors
+        'User-Agent': 'Viberdoc-Analyzer/1.0'
+      }
+    });
+    
+    if (!response.ok) {
+      return 'moderate'; // Default if fetch fails
+    }
+    
     const html = await response.text();
     const $ = cheerio.load(html);
     
@@ -313,10 +345,14 @@ router.post('/', async (req, res) => {
     });
     
   } catch (error: any) {
-    console.error('❌ Complexity analysis error:', error);
+    console.error('❌ Complexity analysis error:', error.message || error);
+    
+    // Return a user-friendly error message
     res.status(500).json({ 
+      success: false,
       error: 'Failed to analyze URL', 
-      message: error.message 
+      message: 'Unable to fetch website content. The site may be blocking automated requests or experiencing issues.',
+      details: error.message
     });
   }
 });
