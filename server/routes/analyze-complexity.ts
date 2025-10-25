@@ -136,40 +136,86 @@ async function analyzeTechnicalComplexity(url: string): Promise<'simple' | 'mode
   }
 }
 
-// Calculate pricing based on complexity
+// Calculate pricing based on NEW quotation model
 function calculatePricing(factors: ComplexityFactors): PricingQuote {
-  // Base price per page - charge for ALL pages, not capped
-  const pricePerPage = 2; // $2 per page
-  const basePagesPrice = factors.estimatedPages * pricePerPage;
+  // Count total resources across all platforms
+  const totalResources = 
+    factors.stackOverflowQuestions + 
+    factors.githubRepoCount + 
+    factors.youtubeVideos + 
+    factors.redditDiscussions +
+    factors.estimatedPages; // Include pages as resources
   
-  // External research pricing
-  let externalResearch = 0;
-  if (factors.hasGitHub) externalResearch += 10 * Math.min(factors.githubRepoCount, 5);
-  if (factors.hasStackOverflow) externalResearch += 5 * Math.min(factors.stackOverflowQuestions, 10);
-  if (factors.hasYouTube) externalResearch += 15 * Math.min(factors.youtubeVideos, 5);
-  if (factors.hasReddit) externalResearch += 5 * Math.min(factors.redditDiscussions, 5);
+  // Determine complexity tier based on resource count
+  let complexityMultiplier = 1.0;
+  let complexityTier = 'Low';
   
-  // Complexity multiplier
-  let complexityBonus = 0;
-  if (factors.technicalComplexity === 'complex') complexityBonus = 20;
-  else if (factors.technicalComplexity === 'moderate') complexityBonus = 10;
+  if (totalResources > 200) {
+    complexityMultiplier = 2.0;
+    complexityTier = 'High';
+  } else if (totalResources > 50) {
+    complexityMultiplier = 1.5;
+    complexityTier = 'Medium';
+  }
   
-  const estimatedTotal = basePagesPrice + externalResearch + complexityBonus;
+  // NEW FORMULA: $300 minimum + (Resource Count × $5 × Complexity Multiplier)
+  // Example: 100 resources at Medium (1.5x) = $300 + (100 × $5 × 1.5) = $300 + $750 = $1,050
+  const resourceValue = totalResources * 5;
+  const complexityAdjustedValue = resourceValue * complexityMultiplier;
+  const baseCalculation = 300 + complexityAdjustedValue;
   
-  // Free tier logic: < 10 pages AND no external research
-  const isFree = factors.estimatedPages < 10 && externalResearch === 0;
+  // Cap at $5,000 for base package as per roadmap
+  const basePrice = Math.min(baseCalculation, 5000);
+  
+  // Breakdown for transparency
+  const multiplierBonus = resourceValue * (complexityMultiplier - 1);
+  
+  // Free tier: Very small projects (<20 resources, no external presence)
+  const hasExternalPresence = factors.hasGitHub || factors.hasStackOverflow || factors.hasYouTube || factors.hasReddit;
+  const isFree = totalResources < 20 && !hasExternalPresence;
+  
+  // Check if cap was applied
+  const wasCapped = baseCalculation > 5000;
+  const capDiscount = wasCapped ? baseCalculation - 5000 : 0;
+  
+  // Adjust breakdown to match actual payable total
+  let finalBreakdown;
+  if (isFree) {
+    // Zero out all breakdown when free
+    finalBreakdown = {
+      basePages: 0,
+      externalResearch: 0,
+      complexity: 0,
+    };
+  } else if (wasCapped) {
+    // Show cap discount as separate line
+    finalBreakdown = {
+      basePages: 300,
+      externalResearch: resourceValue,
+      complexity: multiplierBonus,
+      capDiscount: -capDiscount, // Negative to show discount
+    };
+  } else {
+    // Normal breakdown
+    finalBreakdown = {
+      basePages: 300,
+      externalResearch: resourceValue,
+      complexity: multiplierBonus,
+    };
+  }
   
   return {
-    basePrice: basePagesPrice,
-    complexityFactors: factors,
-    breakdown: {
-      basePages: basePagesPrice,
-      externalResearch,
-      complexity: complexityBonus,
-    },
-    estimatedTotal: isFree ? 0 : estimatedTotal,
+    basePrice: basePrice,
+    complexityFactors: {
+      ...factors,
+      // Add total resource count for display
+      totalResources: totalResources,
+      complexityTier: complexityTier,
+    } as any,
+    breakdown: finalBreakdown,
+    estimatedTotal: isFree ? 0 : basePrice,
     isFree,
-    freeReason: isFree ? 'Small project with no external research - FREE!' : undefined,
+    freeReason: isFree ? `Starter project (${totalResources} resources) - FREE!` : undefined,
     currency: 'USD',
   };
 }

@@ -58,12 +58,70 @@ interface Addon {
 }
 
 const addons: Addon[] = [
-  { id: 'pdf', name: 'PDF Export', description: 'Professional PDF document', price: 10, icon: FileText, category: 'format' },
-  { id: 'docx', name: 'Word Export', description: 'Editable DOCX format', price: 10, icon: FileText, category: 'format' },
-  { id: 'youtube', name: 'YouTube Integration', description: 'Include video tutorials', price: 50, icon: Youtube, category: 'feature' },
-  { id: 'seo', name: 'SEO Optimization', description: 'Meta tags & indexing', price: 75, icon: Search, category: 'feature' },
-  { id: 'branding', name: 'Custom Branding', description: 'Your logo & colors', price: 100, icon: Sparkles, category: 'feature' },
-  { id: 'rush', name: 'Rush Delivery (24h)', description: '10x faster generation', price: 200, icon: Zap, category: 'delivery' },
+  { 
+    id: 'extended_research', 
+    name: 'Extended Research', 
+    description: 'Deep dive into 50+ YouTube tutorials, 200+ Stack Overflow, Discord/forums', 
+    price: 500, 
+    icon: Search, 
+    category: 'feature' 
+  },
+  { 
+    id: 'code_snippets', 
+    name: 'Code Snippets & Validation', 
+    description: 'Extract/test 50-200 code samples, multi-language support', 
+    price: 700, 
+    icon: FileText, 
+    category: 'feature' 
+  },
+  { 
+    id: 'migration_guides', 
+    name: 'Migration Guides', 
+    description: '"Getting Started", competitor migration paths, integration workflows', 
+    price: 850, 
+    icon: Sparkles, 
+    category: 'feature' 
+  },
+  { 
+    id: 'troubleshooting', 
+    name: 'Troubleshooting Hub', 
+    description: '50-100 error solutions, debug guides, comprehensive FAQs', 
+    price: 500, 
+    icon: Globe, 
+    category: 'feature' 
+  },
+  { 
+    id: 'api_reference', 
+    name: 'API Reference', 
+    description: 'Auto-generate endpoint docs, auth guides, rate limits', 
+    price: 1400, 
+    icon: FileText, 
+    category: 'feature' 
+  },
+  { 
+    id: 'white_label', 
+    name: 'White-Label Branding', 
+    description: 'Custom themes, logo integration, subdomain hosting', 
+    price: 350, 
+    icon: Sparkles, 
+    category: 'feature' 
+  },
+  { 
+    id: 'quarterly_updates', 
+    name: 'Quarterly Updates', 
+    description: 'Re-run research every 3 months, track community changes', 
+    price: 200, 
+    icon: Clock, 
+    category: 'feature' 
+  },
+  { 
+    id: 'rush', 
+    name: 'Rush Delivery (24-48h)', 
+    description: 'Priority processing and expedited delivery', 
+    price: 500, 
+    icon: Zap, 
+    category: 'delivery' 
+  },
 ];
 
 export default function Quotation() {
@@ -205,11 +263,25 @@ export default function Quotation() {
 
   if (analyzing) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-600 flex items-center justify-center">
-        <Card className="p-12 text-center">
-          <Loader2 className="w-16 h-16 mx-auto mb-4 animate-spin text-purple-600" />
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="p-12 text-center glass-effect border-primary/20">
+          <Loader2 className="w-16 h-16 mx-auto mb-4 animate-spin text-primary" />
           <h2 className="text-2xl font-bold mb-2">Analyzing Your Project</h2>
-          <p className="text-gray-600">Calculating complexity and pricing...</p>
+          <p className="text-muted-foreground">Scanning community footprint and calculating complexity...</p>
+          <div className="mt-6 space-y-2 text-sm text-left text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-primary" />
+              <span>Checking Stack Overflow questions...</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-primary" />
+              <span>Scanning GitHub repositories...</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-primary" />
+              <span>Discovering YouTube tutorials...</span>
+            </div>
+          </div>
         </Card>
       </div>
     );
@@ -219,101 +291,188 @@ export default function Quotation() {
 
   const total = calculateTotal();
 
+  const totalResources = (quote.complexityFactors as any).totalResources || 0;
+  const complexityTier = (quote.complexityFactors as any).complexityTier || 'Low';
+  
+  // Calculate ROI savings
+  const manualResearchHours = totalResources * 0.5; // Assume 30min per resource
+  const manualResearchCost = manualResearchHours * 100; // $100/hour rate
+  const savingsAmount = Math.max(0, manualResearchCost - total);
+  const savingsPercentage = manualResearchCost > 0 ? Math.round((savingsAmount / manualResearchCost) * 100) : 0;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-600 py-12 px-4">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-background py-12 px-4">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-4">Your Instant Quote</h1>
-          <p className="text-white/90 text-lg">{url}</p>
+        <div className="text-center mb-12">
+          <Badge className="mb-4 px-4 py-2" variant={quote.isFree ? "default" : "outline"}>
+            {quote.isFree ? "Free Tier" : "Custom Project Quote"}
+          </Badge>
+          <h1 className="text-5xl font-bold mb-4 text-gradient">Your Instant Quote</h1>
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">{url}</p>
+          
+          {/* Complexity Badge */}
+          <div className="flex justify-center gap-4 mt-6">
+            <Badge 
+              className="text-lg px-6 py-2" 
+              variant={complexityTier === 'High' ? 'destructive' : complexityTier === 'Medium' ? 'default' : 'secondary'}
+            >
+              {complexityTier} Complexity
+            </Badge>
+            <Badge className="text-lg px-6 py-2 bg-primary/10 text-primary border-primary/20">
+              {totalResources} Resources Found
+            </Badge>
+          </div>
         </div>
 
         {/* Free Tier Banner */}
         {quote.isFree && (
-          <Card className="p-6 mb-6 bg-green-50 border-2 border-green-500">
+          <Card className="p-6 mb-8 glass-effect border-green-500/50 bg-green-500/10">
             <div className="flex items-center gap-3">
-              <CheckCircle className="w-8 h-8 text-green-600" />
+              <CheckCircle className="w-8 h-8 text-green-400" />
               <div>
-                <h3 className="text-xl font-bold text-green-900">{quote.freeReason}</h3>
-                <p className="text-green-700">Your project qualifies for free documentation generation!</p>
+                <h3 className="text-xl font-bold text-green-300">{quote.freeReason}</h3>
+                <p className="text-green-200/80">Your project qualifies for free documentation generation!</p>
               </div>
             </div>
           </Card>
         )}
 
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Left Column - Analysis & Pricing */}
-          <Card className="p-6">
-            <h2 className="text-2xl font-bold mb-4">Project Analysis</h2>
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Left Column - Resource Analysis */}
+          <Card className="p-6 glass-effect border-primary/10">
+            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+              <Globe className="w-6 h-6 text-primary" />
+              Community Footprint
+            </h2>
             
             <div className="space-y-4">
-              {/* Page Count */}
-              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <Globe className="w-5 h-5 text-blue-600" />
-                  <span>Estimated Pages</span>
-                </div>
-                <Badge>{quote.complexityFactors.estimatedPages}</Badge>
+              {/* Total Resources - Prominent */}
+              <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
+                <div className="text-sm text-muted-foreground mb-1">Total Resources Discovered</div>
+                <div className="text-4xl font-bold text-primary">{totalResources}</div>
+                <div className="text-xs text-muted-foreground mt-1">Across all platforms</div>
               </div>
 
-              {/* External Resources */}
-              {quote.complexityFactors.hasGitHub && (
-                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                  <span>GitHub Repositories</span>
-                  <Badge variant="secondary">{quote.complexityFactors.githubRepoCount}</Badge>
+              {/* Resource Breakdown */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center p-3 rounded-lg bg-card/50 hover:bg-card/80 transition-smooth">
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-primary" />
+                    <span className="text-sm">Documentation Pages</span>
+                  </div>
+                  <Badge variant="outline">{quote.complexityFactors.estimatedPages}</Badge>
                 </div>
-              )}
 
-              {quote.complexityFactors.hasStackOverflow && (
-                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                  <span>Stack Overflow Questions</span>
-                  <Badge variant="secondary">{quote.complexityFactors.stackOverflowQuestions}</Badge>
-                </div>
-              )}
-
-              {/* Complexity */}
-              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                <span>Technical Complexity</span>
-                <Badge variant={quote.complexityFactors.technicalComplexity === 'complex' ? 'destructive' : 'default'}>
-                  {quote.complexityFactors.technicalComplexity}
-                </Badge>
-              </div>
-            </div>
-
-            {/* Pricing Breakdown */}
-            <div className="mt-6 pt-6 border-t">
-              <h3 className="text-xl font-bold mb-4">Price Breakdown</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span>Base Documentation</span>
-                  <span>${quote.breakdown.basePages.toFixed(2)}</span>
-                </div>
-                {quote.breakdown.externalResearch > 0 && (
-                  <div className="flex justify-between">
-                    <span>External Research</span>
-                    <span>${quote.breakdown.externalResearch.toFixed(2)}</span>
+                {quote.complexityFactors.hasStackOverflow && (
+                  <div className="flex justify-between items-center p-3 rounded-lg bg-card/50 hover:bg-card/80 transition-smooth">
+                    <div className="flex items-center gap-2">
+                      <Search className="w-4 h-4 text-orange-400" />
+                      <span className="text-sm">Stack Overflow</span>
+                    </div>
+                    <Badge variant="outline">{quote.complexityFactors.stackOverflowQuestions}</Badge>
                   </div>
                 )}
-                {quote.breakdown.complexity > 0 && (
-                  <div className="flex justify-between">
-                    <span>Complexity Bonus</span>
-                    <span>${quote.breakdown.complexity.toFixed(2)}</span>
+
+                {quote.complexityFactors.hasGitHub && (
+                  <div className="flex justify-between items-center p-3 rounded-lg bg-card/50 hover:bg-card/80 transition-smooth">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-purple-400" />
+                      <span className="text-sm">GitHub Repos</span>
+                    </div>
+                    <Badge variant="outline">{quote.complexityFactors.githubRepoCount}</Badge>
                   </div>
                 )}
-                <div className="flex justify-between font-bold text-lg pt-2 border-t">
-                  <span>Base Total</span>
-                  <span>${quote.estimatedTotal.toFixed(2)}</span>
+
+                {quote.complexityFactors.hasYouTube && (
+                  <div className="flex justify-between items-center p-3 rounded-lg bg-card/50 hover:bg-card/80 transition-smooth">
+                    <div className="flex items-center gap-2">
+                      <Youtube className="w-4 h-4 text-red-400" />
+                      <span className="text-sm">YouTube Videos</span>
+                    </div>
+                    <Badge variant="outline">{quote.complexityFactors.youtubeVideos}</Badge>
+                  </div>
+                )}
+
+                {quote.complexityFactors.hasReddit && (
+                  <div className="flex justify-between items-center p-3 rounded-lg bg-card/50 hover:bg-card/80 transition-smooth">
+                    <div className="flex items-center gap-2">
+                      <Globe className="w-4 h-4 text-orange-500" />
+                      <span className="text-sm">Reddit Discussions</span>
+                    </div>
+                    <Badge variant="outline">{quote.complexityFactors.redditDiscussions}</Badge>
+                  </div>
+                )}
+              </div>
+
+              {/* Pricing Formula Display */}
+              <div className="mt-6 pt-6 border-t border-border/50">
+                <h3 className="text-sm font-semibold mb-3 text-muted-foreground">PRICING FORMULA</h3>
+                <div className="p-3 rounded-lg bg-card/50 border border-border/50 text-sm space-y-2">
+                  {quote.isFree ? (
+                    <div className="text-center py-4 text-green-400 font-semibold">
+                      All components included FREE!
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Base minimum</span>
+                        <span>${quote.breakdown.basePages.toFixed(0)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">{totalResources} resources × $5</span>
+                        <span>${quote.breakdown.externalResearch.toFixed(0)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">{complexityTier} tier (×{complexityTier === 'High' ? '2.0' : complexityTier === 'Medium' ? '1.5' : '1.0'})</span>
+                        <span>+${quote.breakdown.complexity.toFixed(0)}</span>
+                      </div>
+                      {(quote.breakdown as any).capDiscount && (
+                        <div className="flex justify-between text-green-400">
+                          <span>Max quote discount</span>
+                          <span>${((quote.breakdown as any).capDiscount).toFixed(0)}</span>
+                        </div>
+                      )}
+                    </>
+                  )}
+                  <div className="flex justify-between font-bold text-base pt-2 border-t border-border/50">
+                    <span className="text-primary">Base Package</span>
+                    <span className="text-primary">${quote.estimatedTotal.toFixed(0)}</span>
+                  </div>
                 </div>
               </div>
+
+              {/* ROI Calculator */}
+              {!quote.isFree && savingsAmount > 0 && (
+                <div className="mt-4 p-4 rounded-lg bg-green-500/10 border border-green-500/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Sparkles className="w-4 h-4 text-green-400" />
+                    <span className="text-sm font-semibold text-green-300">Value Analysis</span>
+                  </div>
+                  <div className="space-y-1 text-sm">
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>Manual research cost:</span>
+                      <span>${manualResearchCost.toFixed(0)}</span>
+                    </div>
+                    <div className="flex justify-between text-green-300 font-semibold">
+                      <span>You save:</span>
+                      <span>${savingsAmount.toFixed(0)} ({savingsPercentage}%)</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </Card>
 
-          {/* Right Column - Addons */}
-          <Card className="p-6">
-            <h2 className="text-2xl font-bold mb-4">Enhance Your Documentation</h2>
-            <p className="text-gray-600 mb-6">Select optional features to boost your documentation's value</p>
+          {/* Middle Column - Add-ons */}
+          <Card className="p-6 glass-effect border-primary/10 lg:col-span-1">
+            <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
+              <Sparkles className="w-6 h-6 text-primary" />
+              Premium Add-ons
+            </h2>
+            <p className="text-muted-foreground mb-6 text-sm">Enhance your documentation with optional features</p>
 
-            <div className="space-y-3">
+            <div className="space-y-2 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
               {addons.map((addon) => {
                 const Icon = addon.icon;
                 const isSelected = selectedAddons.has(addon.id);
@@ -322,81 +481,157 @@ export default function Quotation() {
                   <div
                     key={addon.id}
                     onClick={() => toggleAddon(addon.id)}
-                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                    className={`p-3 rounded-lg border cursor-pointer transition-all hover:scale-[1.02] ${
                       isSelected
-                        ? 'border-purple-500 bg-purple-50'
-                        : 'border-gray-200 hover:border-purple-300'
+                        ? 'border-primary bg-primary/10'
+                        : 'border-border hover:border-primary/50 bg-card/30'
                     }`}
                   >
                     <div className="flex items-start gap-3">
                       <Checkbox checked={isSelected} className="mt-1" />
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <Icon className="w-5 h-5 text-purple-600" />
-                          <span className="font-semibold">{addon.name}</span>
-                          <Badge className="ml-auto">${addon.price}</Badge>
+                          <Icon className={`w-4 h-4 flex-shrink-0 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
+                          <span className="font-semibold text-sm">{addon.name}</span>
+                          <Badge className="ml-auto flex-shrink-0" variant={isSelected ? "default" : "outline"}>
+                            +${addon.price}
+                          </Badge>
                         </div>
-                        <p className="text-sm text-gray-600">{addon.description}</p>
+                        <p className="text-xs text-muted-foreground leading-tight">{addon.description}</p>
                       </div>
                     </div>
                   </div>
                 );
               })}
             </div>
+          </Card>
 
-            {/* Final Total */}
-            <div className="mt-6 pt-6 border-t">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-xl font-bold">Total Price</span>
+          {/* Right Column - Summary & Checkout */}
+          <Card className="p-6 glass-effect border-primary/10 lg:col-span-1">
+            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+              <DollarSign className="w-6 h-6 text-primary" />
+              Order Summary
+            </h2>
+
+            {/* What's Included */}
+            <div className="mb-6 p-4 rounded-lg bg-card/50 border border-border/50">
+              <h3 className="text-sm font-semibold mb-3 text-muted-foreground">BASE PACKAGE INCLUDES</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span>Crawl up to 50 pages + sitemap parsing</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span>Top 50 Stack Overflow + 20 GitHub issues</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span>10 Reddit threads + 5 DEV.to articles</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span>Getting Started, FAQs, Troubleshooting</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span>1 export format (PDF or Markdown)</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span>15-day email support</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Pricing Summary */}
+            <div className="space-y-3 mb-6">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Base Package</span>
+                <span className="font-semibold">${quote.estimatedTotal.toFixed(0)}</span>
+              </div>
+              
+              {selectedAddons.size > 0 && (
+                <>
+                  <div className="border-t border-border/50 pt-3">
+                    <div className="text-xs font-semibold mb-2 text-muted-foreground">SELECTED ADD-ONS</div>
+                    {Array.from(selectedAddons).map((addonId) => {
+                      const addon = addons.find(a => a.id === addonId);
+                      return addon ? (
+                        <div key={addonId} className="flex justify-between text-sm mb-2">
+                          <span className="text-muted-foreground">{addon.name}</span>
+                          <span className="font-semibold">+${addon.price}</span>
+                        </div>
+                      ) : null;
+                    })}
+                  </div>
+                </>
+              )}
+              
+              <div className="border-t border-border/50 pt-3 flex justify-between items-center">
+                <span className="text-lg font-bold">Total Price</span>
                 <div className="text-right">
-                  <div className="text-3xl font-bold text-purple-600">
-                    ${total.toFixed(2)}
+                  <div className="text-3xl font-bold text-primary">
+                    ${total.toFixed(0)}
                   </div>
                   {total > 0 && (
-                    <div className="text-sm text-gray-600">One-time payment</div>
+                    <div className="text-xs text-muted-foreground">One-time payment</div>
                   )}
                 </div>
               </div>
-
-              {total > 0 && (
-                <input
-                  type="email"
-                  placeholder="Your email for receipt"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full p-3 border rounded-lg mb-4"
-                  required
-                />
-              )}
-
-              <Button
-                onClick={handleProceed}
-                disabled={processing || (total > 0 && !email)}
-                className="w-full h-12 text-lg"
-                size="lg"
-              >
-                {processing ? (
-                  <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Processing...
-                  </>
-                ) : total === 0 ? (
-                  <>
-                    <CheckCircle className="w-5 h-5 mr-2" />
-                    Generate Free Documentation
-                  </>
-                ) : (
-                  <>
-                    <DollarSign className="w-5 h-5 mr-2" />
-                    Proceed to Payment
-                  </>
-                )}
-              </Button>
-
-              <p className="text-xs text-center text-gray-500 mt-3">
-                Secure payment via PayPal • No recurring charges
-              </p>
             </div>
+
+            {/* Delivery Time */}
+            <div className="mb-6 p-3 rounded-lg bg-primary/10 border border-primary/20">
+              <div className="flex items-center gap-2 text-sm">
+                <Clock className="w-4 h-4 text-primary" />
+                <span className="font-semibold">
+                  {selectedAddons.has('rush') ? '24-48 hours' : '3-5 business days'}
+                </span>
+                <span className="text-muted-foreground">delivery</span>
+              </div>
+            </div>
+
+            {/* Email Input */}
+            {total > 0 && (
+              <input
+                type="email"
+                placeholder="Your email for receipt & delivery"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full p-3 border border-border rounded-lg mb-4 bg-background focus:border-primary focus:ring-1 focus:ring-primary transition-smooth"
+                required
+              />
+            )}
+
+            {/* CTA Button */}
+            <Button
+              onClick={handleProceed}
+              disabled={processing || (total > 0 && !email)}
+              className="w-full h-14 text-lg hover-glow hover-scale"
+              size="lg"
+            >
+              {processing ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : total === 0 ? (
+                <>
+                  <CheckCircle className="w-5 h-5 mr-2" />
+                  Generate Free Documentation
+                </>
+              ) : (
+                <>
+                  <DollarSign className="w-5 h-5 mr-2" />
+                  Proceed to PayPal Checkout
+                </>
+              )}
+            </Button>
+
+            <p className="text-xs text-center text-muted-foreground mt-3">
+              🔒 Secure payment via PayPal • No recurring charges
+            </p>
           </Card>
         </div>
       </div>
