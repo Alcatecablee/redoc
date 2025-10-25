@@ -2218,7 +2218,7 @@ router.post('/api/pricing/calculate', async (req, res) => {
 // Create consulting order with PayPal
 router.post('/api/consulting/order', async (req, res) => {
   try {
-    const { url, githubRepo, sections, sourceDepth, delivery, formats, branding, customRequirements, currency } = req.body;
+    const { url, githubRepo, sections, sourceDepth, delivery, formats, branding, customRequirements, currency, email } = req.body;
     
     if (!url) {
       return res.status(400).json({ error: 'Website URL is required' });
@@ -2234,6 +2234,38 @@ router.post('/api/consulting/order', async (req, res) => {
       branding,
       customRequirements,
     }, currency || 'USD');
+
+    // DEV MODE: Skip PayPal if environment variable is set
+    const DEV_SKIP_PAYMENT = process.env.DEV_SKIP_PAYMENT === 'true';
+    
+    if (DEV_SKIP_PAYMENT) {
+      console.log('🧪 [DEV MODE] Skipping PayPal payment - test mode enabled');
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      const mockOrderId = `TEST_ORDER_${Date.now()}`;
+      
+      // Store test order data in URL params for success handler
+      const testMetadata = encodeURIComponent(JSON.stringify({
+        url,
+        githubRepo,
+        sections,
+        sourceDepth,
+        delivery,
+        formats,
+        branding,
+        customRequirements,
+        calculatedPrice: serverPricing.total,
+        currency: currency || 'USD',
+        email,
+      }));
+      
+      return res.json({
+        paypalOrderId: mockOrderId,
+        approvalUrl: `${baseUrl}/api/consulting/success?token=${mockOrderId}&test=true&metadata=${testMetadata}`,
+        amount: serverPricing.total,
+        currency: currency || 'USD',
+        testMode: true,
+      });
+    }
 
     const { createOrder } = await import('./paypal-client');
     
@@ -2273,12 +2305,92 @@ router.post('/api/consulting/order', async (req, res) => {
 // Handle PayPal success callback
 router.get('/api/consulting/success', async (req, res) => {
   try {
-    const { token } = req.query;
+    const { token, test, metadata: testMetadata } = req.query;
     
     if (!token) {
       return res.status(400).send('Invalid payment session');
     }
 
+    // Handle test mode
+    if (test === 'true' && testMetadata) {
+      console.log('🧪 [DEV MODE] Processing test payment success');
+      const metadata = JSON.parse(decodeURIComponent(testMetadata as string));
+      
+      const { getSectionCount, getSourceLimits } = await import('./pricing');
+      const sessionId = uuidv4();
+      const sectionCount = getSectionCount(metadata.sections);
+      const sourceLimits = getSourceLimits(metadata.sourceDepth);
+      
+      console.log(`🧪 [DEV MODE] Simulated payment for ${token}. Starting doc generation:`, {
+        url: metadata.url,
+        sections: sectionCount,
+        sourceLimits,
+        email: metadata.email
+      });
+      
+      // Start documentation generation in background
+      setImmediate(async () => {
+        try {
+          const result = await generateDocumentationPipeline(
+            metadata.url,
+            null, // No payer ID in test mode
+            sessionId,
+            'enterprise' // Test orders get enterprise features
+          );
+          console.log(`🧪 [DEV MODE] Documentation generated successfully`, result);
+        } catch (error: any) {
+          console.error(`🧪 [DEV MODE] Doc generation failed:`, error.message);
+        }
+      });
+      
+      // Return success page
+      return res.send(`
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Test Payment Successful</title>
+          <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+            .container { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 600px; text-align: center; }
+            .test-badge { background: #fbbf24; color: #78350f; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; display: inline-block; margin-bottom: 20px; }
+            .success-icon { width: 80px; height: 80px; margin: 0 auto 20px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+            .success-icon svg { width: 50px; height: 50px; color: white; }
+            h1 { color: #1f2937; margin-bottom: 10px; }
+            p { color: #6b7280; margin-bottom: 20px; line-height: 1.6; }
+            .details { background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: left; }
+            .details strong { color: #1f2937; }
+            .button { display: inline-block; padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border-radius: 8px; margin-top: 20px; font-weight: 500; }
+            .button:hover { background: #5568d3; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="test-badge">🧪 TEST MODE</div>
+            <div class="success-icon">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <h1>Test Payment Successful!</h1>
+            <p>Your test documentation order has been received and we're processing it now.</p>
+            <div class="details">
+              <p><strong>Order ID:</strong> ${token}</p>
+              <p><strong>Amount:</strong> ${metadata.currency} ${metadata.calculatedPrice}</p>
+              <p><strong>Website:</strong> ${metadata.url}</p>
+              <p><strong>Sections:</strong> ${metadata.sections}</p>
+              <p><strong>Research Depth:</strong> ${metadata.sourceDepth}</p>
+            </div>
+            <p>This is a test order - no payment was charged. The documentation generation is running in the background.</p>
+            <a href="/generation/${sessionId}" class="button">View Generation Progress</a>
+            <a href="/" class="button" style="background: #6b7280; margin-left: 10px;">Return Home</a>
+          </div>
+        </body>
+        </html>
+      `);
+    }
+    
+    // Regular PayPal flow
     const { captureOrder, getOrder } = await import('./paypal-client');
     
     const orderDetails = await getOrder(token as string);
