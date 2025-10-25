@@ -2373,7 +2373,24 @@ router.get('/api/consulting/success', async (req, res) => {
             .details strong { color: #1f2937; }
             .button { display: inline-block; padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border-radius: 8px; margin-top: 20px; font-weight: 500; }
             .button:hover { background: #5568d3; }
+            .redirect-msg { color: #6b7280; font-size: 14px; margin-top: 20px; }
           </style>
+          <script>
+            // Store generation data in localStorage
+            const sessionId = '${sessionId}';
+            const generationData = {
+              url: '${metadata.url.replace(/'/g, "\\'")}',
+              timestamp: Date.now(),
+              sessionId: sessionId,
+              testMode: true
+            };
+            localStorage.setItem('generation_' + sessionId, JSON.stringify(generationData));
+            
+            // Auto-redirect after 2 seconds
+            setTimeout(function() {
+              window.location.href = '/generation/' + sessionId;
+            }, 2000);
+          </script>
         </head>
         <body>
           <div class="container">
@@ -2391,7 +2408,8 @@ router.get('/api/consulting/success', async (req, res) => {
               <p><strong>Research Depth:</strong> ${metadata.sourceDepth}</p>
             </div>
             <p>This is a test order - no payment was charged. The documentation generation is running in the background.</p>
-            <a href="/generation/${sessionId}" class="button">View Generation Progress</a>
+            <p class="redirect-msg">Redirecting to generation progress in 2 seconds...</p>
+            <a href="/generation/${sessionId}" class="button">View Generation Progress Now</a>
             <a href="/" class="button" style="background: #6b7280; margin-left: 10px;">Return Home</a>
           </div>
         </body>
@@ -2479,7 +2497,24 @@ router.get('/api/consulting/success', async (req, res) => {
             .details strong { color: #1f2937; }
             .button { display: inline-block; padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border-radius: 8px; margin-top: 20px; font-weight: 500; }
             .button:hover { background: #5568d3; }
+            .redirect-msg { color: #6b7280; font-size: 14px; margin-top: 20px; }
           </style>
+          <script>
+            // Store generation data in localStorage
+            const sessionId = '${sessionId}';
+            const generationData = {
+              url: '${metadata.url.replace(/'/g, "\\'")}',
+              timestamp: Date.now(),
+              sessionId: sessionId,
+              payerEmail: '${captureResult.payerEmail}'
+            };
+            localStorage.setItem('generation_' + sessionId, JSON.stringify(generationData));
+            
+            // Auto-redirect after 2 seconds
+            setTimeout(function() {
+              window.location.href = '/generation/' + sessionId;
+            }, 2000);
+          </script>
         </head>
         <body>
           <div class="container">
@@ -2495,7 +2530,9 @@ router.get('/api/consulting/success', async (req, res) => {
               <p><strong>Delivery:</strong> ${metadata.delivery === 'same-day' ? '12 hours' : metadata.delivery === 'rush' ? '24 hours' : '3 days'}</p>
             </div>
             <p>We're generating your documentation now. Check your email (${captureResult.payerEmail}) for the download link when it's ready!</p>
-            <a href="/" class="button">Return to Homepage</a>
+            <p class="redirect-msg">Redirecting to generation progress in 2 seconds...</p>
+            <a href="/generation/${sessionId}" class="button">View Generation Progress Now</a>
+            <a href="/" class="button" style="background: #6b7280; margin-left: 10px;">Return Home</a>
           </div>
         </body>
         </html>
