@@ -344,7 +344,36 @@ export async function extractMultiPageContent(urls: string[], sessionId?: string
         throw new Error(`HTTP ${response.status}`);
       }
       
-      const html = await response.text();
+      let html: string;
+      try {
+        html = await response.text();
+      } catch (decompressionError: any) {
+        // Handle decompression errors (corrupted/incomplete gzip streams)
+        const isDecompressionError = 
+          decompressionError.code === 'Z_DATA_ERROR' ||
+          decompressionError.code === 'Z_BUF_ERROR' ||
+          decompressionError.code === 'ERR_STREAM_PREMATURE_CLOSE' ||
+          (decompressionError.type === 'system' && decompressionError.cause?.code?.startsWith('Z_')) ||
+          decompressionError.message?.includes('Decompression') ||
+          decompressionError.message?.includes('ShortRead') ||
+          decompressionError.message?.includes('invalid stored block lengths') ||
+          decompressionError.message?.includes('incorrect header check') ||
+          decompressionError.message?.includes('unexpected end of file');
+        
+        if (isDecompressionError) {
+          console.warn(`⚠️ Decompression failed for ${url}: ${decompressionError.message || decompressionError.code}`);
+          if (sessionId) {
+            progressTracker.emitActivity(sessionId, {
+              message: `⚠️ Skipped 1 page with corrupted data (continuing with remaining pages)`,
+              type: 'warning'
+            }, 2, 'Content Extraction');
+          }
+          throw new Error(`Decompression failed: ${decompressionError.message || decompressionError.code}`, {
+            cause: decompressionError
+          });
+        }
+        throw decompressionError;
+      }
       const $ = cheerio.load(html);
       
       // Extract code blocks
