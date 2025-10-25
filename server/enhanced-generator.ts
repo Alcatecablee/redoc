@@ -319,13 +319,20 @@ export async function discoverSiteStructure(baseUrl: string, sessionId?: string)
     });
 
     // Parse sitemaps from base and discovered hosts
-    const sitemapUrls = await fetchSitemaps(baseUrl, discoveredHosts);
-    
-    if (sessionId && sitemapUrls.length > 0) {
-      progressTracker.emitActivity(sessionId, {
-        message: `📑 Found sitemap with ${sitemapUrls.length} additional URLs`,
-        type: 'success'
-      }, 1, 'Site Discovery');
+    let sitemapUrls: string[] = [];
+    try {
+      sitemapUrls = await fetchSitemaps(baseUrl, discoveredHosts);
+      
+      if (sessionId && sitemapUrls.length > 0) {
+        progressTracker.emitActivity(sessionId, {
+          message: `📑 Found sitemap with ${sitemapUrls.length} additional URLs`,
+          type: 'success'
+        }, 1, 'Site Discovery');
+      }
+    } catch (sitemapError: any) {
+      console.warn(`⚠️ Sitemap fetching failed:`, sitemapError.message);
+      // Continue without sitemap URLs - not critical for documentation generation
+      sitemapUrls = [];
     }
 
     return {
