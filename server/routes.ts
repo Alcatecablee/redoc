@@ -2245,30 +2245,26 @@ router.post('/api/consulting/order', async (req, res) => {
       const { v4: uuidv4 } = await import('uuid');
       const sessionId = uuidv4();
       
-      // Start documentation generation immediately in test mode
-      const { generateDocumentationPipeline } = await import('./generator');
+      // Build metadata to pass to success page
+      const metadata = encodeURIComponent(JSON.stringify({
+        url,
+        githubRepo,
+        sections,
+        sourceDepth,
+        delivery,
+        formats,
+        branding,
+        customRequirements,
+        calculatedPrice: serverPricing.total,
+        currency: currency || 'USD',
+        email: email || 'test@example.com',
+        sessionId,
+      }));
       
-      console.log(`🧪 [DEV MODE] Starting doc generation for session: ${sessionId}`);
-      
-      // Start generation in background
-      setImmediate(async () => {
-        try {
-          const result = await generateDocumentationPipeline(
-            url,
-            null,
-            sessionId,
-            'enterprise'
-          );
-          console.log(`🧪 [DEV MODE] Documentation generated successfully`, result);
-        } catch (error: any) {
-          console.error(`🧪 [DEV MODE] Doc generation failed:`, error.message);
-        }
-      });
-      
-      // Return session ID to redirect to progress page
+      // Return redirect to success page which will handle generation and redirect
       return res.json({
         paypalOrderId: mockOrderId,
-        approvalUrl: `${baseUrl}/generation/${sessionId}`,
+        approvalUrl: `${baseUrl}/api/consulting/success?token=${mockOrderId}&test=true&metadata=${metadata}`,
         amount: serverPricing.total,
         currency: currency || 'USD',
         testMode: true,
@@ -2326,7 +2322,7 @@ router.get('/api/consulting/success', async (req, res) => {
       const metadata = JSON.parse(decodeURIComponent(testMetadata as string));
       
       const { getSectionCount, getSourceLimits } = await import('./pricing');
-      const sessionId = uuidv4();
+      const sessionId = metadata.sessionId || uuidv4();
       const sectionCount = getSectionCount(metadata.sections);
       const sourceLimits = getSourceLimits(metadata.sourceDepth);
       
@@ -2334,12 +2330,14 @@ router.get('/api/consulting/success', async (req, res) => {
         url: metadata.url,
         sections: sectionCount,
         sourceLimits,
-        email: metadata.email
+        email: metadata.email,
+        sessionId
       });
       
       // Start documentation generation in background
       setImmediate(async () => {
         try {
+          const { generateDocumentationPipeline } = await import('./generator');
           const result = await generateDocumentationPipeline(
             metadata.url,
             null, // No payer ID in test mode
