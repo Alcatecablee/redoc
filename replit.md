@@ -4,11 +4,22 @@
 Viberdoc is an AI-powered documentation intelligence platform designed for Developer Relations teams at established companies with vibrant ecosystems (Stripe, Supabase, Next.js, etc.). The platform aggregates scattered community knowledge from 10+ sources (Stack Overflow, GitHub, YouTube, Reddit, DEV.to, etc.) and generates professional, Apple-style documentation. The system employs a 3-stage AI pipeline to analyze websites, research community sources, and produce enterprise-quality documentation in various formats (PDF, DOCX, web).
 
 ## Recent Changes (October 25, 2025)
-**Strategic Pivot to DevRel Market**: Repositioned Viberdoc from general "documentation generator" to a DevRel intelligence platform targeting established products with vibrant ecosystems. Key changes:
-- Landing page redesigned with DevRel-focused messaging while preserving core hero heading
-- Problem statements reframed to address DevRel team challenges (20-40 hours/month manual research, docs falling out of sync with community reality)
-- Target pricing: $199-$499/month for DevRel-focused enterprise tier
-- Value proposition: Automated community intelligence that saves 20-40 hours/month compared to $75-125/hour technical writers or $150-300/hour DevRel consultants
+**Quotation-Based Pricing System**: Implemented sophisticated instant pricing calculator for DevRel documentation projects:
+- **Pricing Formula**: $300 minimum + (Resource Count × $5 × Complexity Multiplier), capped at $5,000
+- Complexity tiers: Low (1.0x), Medium (1.5x), High (2.0x) based on community footprint
+- Professional 3-column quotation page with glass morphism design
+- Premium add-ons: Extended Research ($500), Code Snippets ($700), Migration Guides ($850), API Reference ($1,500), Rush Delivery ($500)
+- ROI calculator showing $8,000+ savings vs manual research
+- Live pricing breakdown with transparent formula display
+
+**Security Hardening**: Comprehensive credential management audit and fixes:
+- Removed all hardcoded API keys from repository files
+- Added `.env`, `.env.local`, `.env.production` to `.gitignore`
+- Cleaned up `.env.example` template file
+- Verified all credentials load from Replit Secrets (DATABASE_URL, GROQ_API_KEY, DEEPSEEK_API_KEY, OPENAI_API_KEY, SUPABASE credentials, PAYPAL credentials)
+- No hardcoded credentials found in source code (TypeScript/JavaScript files)
+
+**Strategic Pivot to DevRel Market**: Repositioned Viberdoc from general "documentation generator" to a DevRel intelligence platform targeting established products with vibrant ecosystems.
 - See DEVREL_PIVOT_STRATEGIC_ROADMAP.md for complete strategic details
 
 ## User Preferences
