@@ -4,6 +4,15 @@
 Viberdoc is an AI-powered documentation intelligence platform designed for Developer Relations teams at established companies with vibrant ecosystems (Stripe, Supabase, Next.js, etc.). The platform aggregates scattered community knowledge from 10+ sources (Stack Overflow, GitHub, YouTube, Reddit, DEV.to, etc.) and generates professional, Apple-style documentation. The system employs a 3-stage AI pipeline to analyze websites, research community sources, and produce enterprise-quality documentation in various formats (PDF, DOCX, web).
 
 ## Recent Changes (October 25, 2025)
+**Quotation Page Theme Redesign**: Complete visual overhaul to match established homepage "How It Works" section:
+- ✅ **Color Scheme**: Dark gradient background (rgb(14,19,23) to rgb(34,38,46)) with cyan-blue accents (rgb(102,255,228))
+- ✅ **Removed Emojis**: Eliminated all emoji characters from production UI (user preference)
+- ✅ **Glass Morphism**: Consistent glass morphism effects (from-white/10 to-white/5, border-white/20, backdrop-blur-sm)
+- ✅ **Icons**: Switched from lucide-react to Heroicons for visual consistency with homepage
+- ✅ **Typography**: Matching font sizes, weights, and spacing from established theme
+- ✅ **Loading State**: Analysis loading screen now matches homepage design language
+- ✅ **Visual Harmony**: Complete alignment with "How It Works" section styling
+
 **Quotation-Based Pricing System**: Implemented sophisticated instant pricing calculator for DevRel documentation projects:
 - **Pricing Formula**: $300 minimum + (Resource Count × $5 × Complexity Multiplier), capped at $5,000
 - Complexity tiers: Low (1.0x), Medium (1.5x), High (2.0x) based on community footprint
@@ -29,7 +38,7 @@ Viberdoc is an AI-powered documentation intelligence platform designed for Devel
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
-Design preferences: Clean cyan-blue color scheme like Replit (no purple), solid colors only (no gradients), dark theme, modern glassmorphism effects.
+Design preferences: Clean cyan-blue color scheme like Replit using rgb(102,255,228) - NO emojis in production UI, NO gradients (except dark background gradients), dark theme (rgb(14,19,23) to rgb(34,38,46)), modern glassmorphism effects (from-white/10 to-white/5 with backdrop-blur-sm), Heroicons for consistency.
 
 ## System Architecture
 
