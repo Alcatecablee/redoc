@@ -91,7 +91,28 @@ async function fetchSitemaps(baseUrl: string, extraHosts: string[] = []): Promis
       try {
         const resp = await fetch(target, { signal });
         if (resp.ok) {
-          const xml = await resp.text();
+          let xml: string;
+          try {
+            xml = await resp.text();
+          } catch (decompressionError: any) {
+            // Handle decompression errors (corrupted/incomplete gzip streams)
+            const isDecompressionError = 
+              decompressionError.code === 'Z_DATA_ERROR' ||
+              decompressionError.code === 'Z_BUF_ERROR' ||
+              decompressionError.code === 'ERR_STREAM_PREMATURE_CLOSE' ||
+              (decompressionError.type === 'system' && decompressionError.cause?.code?.startsWith('Z_')) ||
+              decompressionError.message?.includes('Decompression') ||
+              decompressionError.message?.includes('ShortRead') ||
+              decompressionError.message?.includes('invalid stored block lengths') ||
+              decompressionError.message?.includes('incorrect header check') ||
+              decompressionError.message?.includes('unexpected end of file');
+            
+            if (isDecompressionError) {
+              console.warn(`⚠️ Sitemap decompression failed for ${target}`);
+              return [];
+            }
+            throw decompressionError;
+          }
           return extractUrlsFromSitemap(xml, combo.root);
         }
       } catch {}
@@ -130,7 +151,34 @@ export async function discoverSiteStructure(baseUrl: string, sessionId?: string)
       throw new Error(`Failed to fetch homepage: ${homepage.statusText}`);
     }
     
-    const html = await homepage.text();
+    let html: string;
+    try {
+      html = await homepage.text();
+    } catch (decompressionError: any) {
+      // Handle decompression errors (corrupted/incomplete gzip streams)
+      const isDecompressionError = 
+        decompressionError.code === 'Z_DATA_ERROR' ||
+        decompressionError.code === 'Z_BUF_ERROR' ||
+        decompressionError.code === 'ERR_STREAM_PREMATURE_CLOSE' ||
+        (decompressionError.type === 'system' && decompressionError.cause?.code?.startsWith('Z_')) ||
+        decompressionError.message?.includes('Decompression') ||
+        decompressionError.message?.includes('ShortRead') ||
+        decompressionError.message?.includes('invalid stored block lengths') ||
+        decompressionError.message?.includes('incorrect header check') ||
+        decompressionError.message?.includes('unexpected end of file');
+      
+      if (isDecompressionError) {
+        console.warn(`⚠️ Homepage decompression failed for ${baseUrl} - continuing with external research`);
+        if (sessionId) {
+          progressTracker.emitActivity(sessionId, {
+            message: `⚠️ Homepage has corrupted data - using external research only`,
+            type: 'warning'
+          }, 1, 'Site Discovery');
+        }
+        throw new Error(`Homepage decompression failed - using external sources only`);
+      }
+      throw decompressionError;
+    }
     const $ = cheerio.load(html);
     
     // Extract product name
