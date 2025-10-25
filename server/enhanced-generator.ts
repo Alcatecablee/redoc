@@ -91,31 +91,19 @@ async function fetchSitemaps(baseUrl: string, extraHosts: string[] = []): Promis
       try {
         const resp = await fetch(target, { signal });
         if (resp.ok) {
-          let xml: string;
           try {
-            xml = await resp.text();
-          } catch (decompressionError: any) {
-            // Handle decompression errors (corrupted/incomplete gzip streams)
-            const isDecompressionError = 
-              decompressionError.code === 'Z_DATA_ERROR' ||
-              decompressionError.code === 'Z_BUF_ERROR' ||
-              decompressionError.code === 'ERR_STREAM_PREMATURE_CLOSE' ||
-              (decompressionError.type === 'system' && decompressionError.cause?.code?.startsWith('Z_')) ||
-              decompressionError.message?.includes('Decompression') ||
-              decompressionError.message?.includes('ShortRead') ||
-              decompressionError.message?.includes('invalid stored block lengths') ||
-              decompressionError.message?.includes('incorrect header check') ||
-              decompressionError.message?.includes('unexpected end of file');
-            
-            if (isDecompressionError) {
-              console.warn(`⚠️ Sitemap decompression failed for ${target}`);
-              return [];
-            }
-            throw decompressionError;
+            const xml = await resp.text();
+            return extractUrlsFromSitemap(xml, combo.root);
+          } catch (textError: any) {
+            // Catch ALL errors from response.text() including decompression errors
+            console.warn(`⚠️ Failed to read sitemap ${target}:`, textError.message || textError.code);
+            return [];
           }
-          return extractUrlsFromSitemap(xml, combo.root);
         }
-      } catch {}
+      } catch (fetchError: any) {
+        // Catch network errors
+        console.warn(`⚠️ Failed to fetch sitemap ${target}:`, fetchError.message);
+      }
       return [];
     },
     { concurrency: 10, timeoutMs: 5000 }
@@ -154,30 +142,16 @@ export async function discoverSiteStructure(baseUrl: string, sessionId?: string)
     let html: string;
     try {
       html = await homepage.text();
-    } catch (decompressionError: any) {
-      // Handle decompression errors (corrupted/incomplete gzip streams)
-      const isDecompressionError = 
-        decompressionError.code === 'Z_DATA_ERROR' ||
-        decompressionError.code === 'Z_BUF_ERROR' ||
-        decompressionError.code === 'ERR_STREAM_PREMATURE_CLOSE' ||
-        (decompressionError.type === 'system' && decompressionError.cause?.code?.startsWith('Z_')) ||
-        decompressionError.message?.includes('Decompression') ||
-        decompressionError.message?.includes('ShortRead') ||
-        decompressionError.message?.includes('invalid stored block lengths') ||
-        decompressionError.message?.includes('incorrect header check') ||
-        decompressionError.message?.includes('unexpected end of file');
-      
-      if (isDecompressionError) {
-        console.warn(`⚠️ Homepage decompression failed for ${baseUrl} - continuing with external research`);
-        if (sessionId) {
-          progressTracker.emitActivity(sessionId, {
-            message: `⚠️ Homepage has corrupted data - using external research only`,
-            type: 'warning'
-          }, 1, 'Site Discovery');
-        }
-        throw new Error(`Homepage decompression failed - using external sources only`);
+    } catch (textError: any) {
+      // Catch ALL errors from response.text() including decompression errors
+      console.warn(`⚠️ Failed to read homepage ${baseUrl}:`, textError.message || textError.code);
+      if (sessionId) {
+        progressTracker.emitActivity(sessionId, {
+          message: `⚠️ Homepage has corrupted data - using external research only`,
+          type: 'warning'
+        }, 1, 'Site Discovery');
       }
-      throw decompressionError;
+      throw new Error(`Homepage read failed - using external sources only`);
     }
     const $ = cheerio.load(html);
     
@@ -402,32 +376,10 @@ export async function extractMultiPageContent(urls: string[], sessionId?: string
       let html: string;
       try {
         html = await response.text();
-      } catch (decompressionError: any) {
-        // Handle decompression errors (corrupted/incomplete gzip streams)
-        const isDecompressionError = 
-          decompressionError.code === 'Z_DATA_ERROR' ||
-          decompressionError.code === 'Z_BUF_ERROR' ||
-          decompressionError.code === 'ERR_STREAM_PREMATURE_CLOSE' ||
-          (decompressionError.type === 'system' && decompressionError.cause?.code?.startsWith('Z_')) ||
-          decompressionError.message?.includes('Decompression') ||
-          decompressionError.message?.includes('ShortRead') ||
-          decompressionError.message?.includes('invalid stored block lengths') ||
-          decompressionError.message?.includes('incorrect header check') ||
-          decompressionError.message?.includes('unexpected end of file');
-        
-        if (isDecompressionError) {
-          console.warn(`⚠️ Decompression failed for ${url}: ${decompressionError.message || decompressionError.code}`);
-          if (sessionId) {
-            progressTracker.emitActivity(sessionId, {
-              message: `⚠️ Skipped 1 page with corrupted data (continuing with remaining pages)`,
-              type: 'warning'
-            }, 2, 'Content Extraction');
-          }
-          throw new Error(`Decompression failed: ${decompressionError.message || decompressionError.code}`, {
-            cause: decompressionError
-          });
-        }
-        throw decompressionError;
+      } catch (textError: any) {
+        // Catch ALL errors from response.text() including decompression errors
+        console.warn(`⚠️ Failed to read page ${url.substring(0, 50)}:`, textError.message || textError.code);
+        throw new Error(`Page read failed: ${textError.message || textError.code}`);
       }
       const $ = cheerio.load(html);
       
