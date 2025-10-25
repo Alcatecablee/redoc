@@ -1,0 +1,47 @@
+client:495 [vite] connecting...
+client:618 [vite] connected.
+chunk-W6L2VRDA.js?v=00b3b925:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+react-router-dom.js?v=00b3b925:4393 ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+warnOnce @ react-router-dom.js?v=00b3b925:4393
+logDeprecation @ react-router-dom.js?v=00b3b925:4396
+logV6DeprecationWarnings @ react-router-dom.js?v=00b3b925:4399
+(anonymous) @ react-router-dom.js?v=00b3b925:5271
+commitHookEffectListMount @ chunk-W6L2VRDA.js?v=00b3b925:16915
+commitPassiveMountOnFiber @ chunk-W6L2VRDA.js?v=00b3b925:18156
+commitPassiveMountEffects_complete @ chunk-W6L2VRDA.js?v=00b3b925:18129
+commitPassiveMountEffects_begin @ chunk-W6L2VRDA.js?v=00b3b925:18119
+commitPassiveMountEffects @ chunk-W6L2VRDA.js?v=00b3b925:18109
+flushPassiveEffectsImpl @ chunk-W6L2VRDA.js?v=00b3b925:19490
+flushPassiveEffects @ chunk-W6L2VRDA.js?v=00b3b925:19447
+performSyncWorkOnRoot @ chunk-W6L2VRDA.js?v=00b3b925:18868
+flushSyncCallbacks @ chunk-W6L2VRDA.js?v=00b3b925:9119
+commitRootImpl @ chunk-W6L2VRDA.js?v=00b3b925:19432
+commitRoot @ chunk-W6L2VRDA.js?v=00b3b925:19277
+finishConcurrentRender @ chunk-W6L2VRDA.js?v=00b3b925:18805
+performConcurrentWorkOnRoot @ chunk-W6L2VRDA.js?v=00b3b925:18718
+workLoop @ chunk-W6L2VRDA.js?v=00b3b925:197
+flushWork @ chunk-W6L2VRDA.js?v=00b3b925:176
+performWorkUntilDeadline @ chunk-W6L2VRDA.js?v=00b3b925:384
+react-router-dom.js?v=00b3b925:4393 ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+warnOnce @ react-router-dom.js?v=00b3b925:4393
+logDeprecation @ react-router-dom.js?v=00b3b925:4396
+logV6DeprecationWarnings @ react-router-dom.js?v=00b3b925:4402
+(anonymous) @ react-router-dom.js?v=00b3b925:5271
+commitHookEffectListMount @ chunk-W6L2VRDA.js?v=00b3b925:16915
+commitPassiveMountOnFiber @ chunk-W6L2VRDA.js?v=00b3b925:18156
+commitPassiveMountEffects_complete @ chunk-W6L2VRDA.js?v=00b3b925:18129
+commitPassiveMountEffects_begin @ chunk-W6L2VRDA.js?v=00b3b925:18119
+commitPassiveMountEffects @ chunk-W6L2VRDA.js?v=00b3b925:18109
+flushPassiveEffectsImpl @ chunk-W6L2VRDA.js?v=00b3b925:19490
+flushPassiveEffects @ chunk-W6L2VRDA.js?v=00b3b925:19447
+performSyncWorkOnRoot @ chunk-W6L2VRDA.js?v=00b3b925:18868
+flushSyncCallbacks @ chunk-W6L2VRDA.js?v=00b3b925:9119
+commitRootImpl @ chunk-W6L2VRDA.js?v=00b3b925:19432
+commitRoot @ chunk-W6L2VRDA.js?v=00b3b925:19277
+finishConcurrentRender @ chunk-W6L2VRDA.js?v=00b3b925:18805
+performConcurrentWorkOnRoot @ chunk-W6L2VRDA.js?v=00b3b925:18718
+workLoop @ chunk-W6L2VRDA.js?v=00b3b925:197
+flushWork @ chunk-W6L2VRDA.js?v=00b3b925:176
+performWorkUntilDeadline @ chunk-W6L2VRDA.js?v=00b3b925:384
+[Violation] Forced reflow while executing JavaScript took 35ms
+content.js:3 time: ƒ getTime() { [native code] }
