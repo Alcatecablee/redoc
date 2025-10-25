@@ -2246,7 +2246,7 @@ router.post('/api/consulting/order', async (req, res) => {
       const sessionId = uuidv4();
       
       // Start documentation generation immediately in test mode
-      const { generateDocumentationPipeline } = await import('./documentation-pipeline');
+      const { generateDocumentationPipeline } = await import('./generator');
       
       console.log(`🧪 [DEV MODE] Starting doc generation for session: ${sessionId}`);
       
