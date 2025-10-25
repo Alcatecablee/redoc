@@ -1,7 +1,15 @@
 # Viberdoc - AI-Powered Documentation Generator
 
 ## Overview
-Viberdoc is an AI-powered web application that generates professional, Apple-style documentation from any website. Users provide a URL, and the system employs a 3-stage AI pipeline to analyze the site, extract content, and produce enterprise-quality documentation in various formats (PDF, DOCX, web). The project aims to deliver clear, professional help center documentation, addressing business vision, market potential, and project ambitions.
+Viberdoc is an AI-powered documentation intelligence platform designed for Developer Relations teams at established companies with vibrant ecosystems (Stripe, Supabase, Next.js, etc.). The platform aggregates scattered community knowledge from 10+ sources (Stack Overflow, GitHub, YouTube, Reddit, DEV.to, etc.) and generates professional, Apple-style documentation. The system employs a 3-stage AI pipeline to analyze websites, research community sources, and produce enterprise-quality documentation in various formats (PDF, DOCX, web).
+
+## Recent Changes (October 25, 2025)
+**Strategic Pivot to DevRel Market**: Repositioned Viberdoc from general "documentation generator" to a DevRel intelligence platform targeting established products with vibrant ecosystems. Key changes:
+- Landing page redesigned with DevRel-focused messaging while preserving core hero heading
+- Problem statements reframed to address DevRel team challenges (20-40 hours/month manual research, docs falling out of sync with community reality)
+- Target pricing: $199-$499/month for DevRel-focused enterprise tier
+- Value proposition: Automated community intelligence that saves 20-40 hours/month compared to $75-125/hour technical writers or $150-300/hour DevRel consultants
+- See DEVREL_PIVOT_STRATEGIC_ROADMAP.md for complete strategic details
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
