@@ -196,9 +196,11 @@ export const calculatePrice = (config: PricingConfig, currency: 'USD' | 'ZAR' = 
     youtubeTranscripts: 200,
   };
   
-  config.youtubeOptions.forEach(option => {
-    youtubeAddon += youtubePricing[option as keyof typeof youtubePricing] || 0;
-  });
+  if (config.youtubeOptions && Array.isArray(config.youtubeOptions)) {
+    config.youtubeOptions.forEach(option => {
+      youtubeAddon += youtubePricing[option as keyof typeof youtubePricing] || 0;
+    });
+  }
   
   // Calculate SEO addon
   let seoAddon = 0;
@@ -210,9 +212,11 @@ export const calculatePrice = (config: PricingConfig, currency: 'USD' | 'ZAR' = 
     contentRefresh: 100,
   };
   
-  config.seoOptions.forEach(option => {
-    seoAddon += seoPricing[option as keyof typeof seoPricing] || 0;
-  });
+  if (config.seoOptions && Array.isArray(config.seoOptions)) {
+    config.seoOptions.forEach(option => {
+      seoAddon += seoPricing[option as keyof typeof seoPricing] || 0;
+    });
+  }
   
   // Calculate enterprise features addon
   let enterpriseFeaturesAddon = 0;
