@@ -270,7 +270,7 @@ export function idempotencyMiddleware(options: IdempotencyOptions = {}) {
       });
     }
 
-    const existingRecord = globalStore.get(idempotencyKey);
+    const existingRecord = await globalStore.get(idempotencyKey);
 
     if (existingRecord) {
       if (existingRecord.status === 'processing') {
@@ -316,21 +316,24 @@ export function idempotencyMiddleware(options: IdempotencyOptions = {}) {
     };
 
     res.json = function (body: any) {
-      const updatedRecord = globalStore.get(idempotencyKey);
-      
-      if (updatedRecord) {
-        if (statusCode >= 200 && statusCode < 300) {
-          updatedRecord.status = 'completed';
-          updatedRecord.statusCode = statusCode;
-          updatedRecord.response = body;
-        } else {
-          updatedRecord.status = 'failed';
-          updatedRecord.statusCode = statusCode;
-          updatedRecord.error = body?.error || 'Request failed';
+      // Update idempotency record asynchronously (fire-and-forget)
+      globalStore.get(idempotencyKey).then(updatedRecord => {
+        if (updatedRecord) {
+          if (statusCode >= 200 && statusCode < 300) {
+            updatedRecord.status = 'completed';
+            updatedRecord.statusCode = statusCode;
+            updatedRecord.response = body;
+          } else {
+            updatedRecord.status = 'failed';
+            updatedRecord.statusCode = statusCode;
+            updatedRecord.error = body?.error || 'Request failed';
+          }
+          
+          globalStore.set(idempotencyKey, updatedRecord);
         }
-        
-        globalStore.set(idempotencyKey, updatedRecord);
-      }
+      }).catch(err => {
+        console.error('Failed to update idempotency record:', err);
+      });
 
       return originalJson(body);
     };
@@ -374,9 +377,9 @@ export function getIdempotencyStats() {
 /**
  * Clear a specific idempotency key (admin/testing only)
  */
-export function clearIdempotencyKey(key: string): boolean {
-  if (globalStore.has(key)) {
-    globalStore.delete(key);
+export async function clearIdempotencyKey(key: string): Promise<boolean> {
+  if (await globalStore.has(key)) {
+    await globalStore.delete(key);
     return true;
   }
   return false;
@@ -384,10 +387,16 @@ export function clearIdempotencyKey(key: string): boolean {
 
 /**
  * Clear all idempotency keys (admin/testing only)
+ * Note: Only works with in-memory store
  */
-export function clearAllIdempotencyKeys(): number {
-  const stats = globalStore.getStats();
-  const total = stats.total;
-  globalStore.destroy();
+export async function clearAllIdempotencyKeys(): Promise<number> {
+  const stats = await globalStore.getStats();
+  const total = stats.total || 0;
+  
+  // Only in-memory store has destroy method
+  if ('destroy' in globalStore && typeof (globalStore as any).destroy === 'function') {
+    (globalStore as any).destroy();
+  }
+  
   return total;
 }
