@@ -240,7 +240,7 @@ const Index = () => {
 
               {/* Description - Secondary */}
               <p className="text-lg lg:text-xl text-white/80 leading-relaxed max-w-3xl mx-auto font-light text-center">
-                We research how developers actually use your product across 10+ high-quality sources including <strong>Stack Overflow</strong>, <strong>GitHub</strong>, <strong>YouTube</strong>, <strong>Reddit</strong>, <strong>DEV.to</strong>, <strong>CodeProject</strong>, <strong>Stack Exchange</strong>, <strong>Quora</strong>, and official forums then generate beautiful, <strong>Apple-quality docs</strong> that match your brand.
+                For products with vibrant ecosystems—<strong>Stripe, Supabase, Next.js</strong>—your community has already documented you. We aggregate knowledge across <strong>Stack Overflow</strong>, <strong>GitHub</strong>, <strong>YouTube</strong>, <strong>Reddit</strong>, and 10+ sources then generate beautiful, <strong>Apple-quality docs</strong> that match your brand.
               </p>
 
               {/* URL Input with Generate Button */}
@@ -289,7 +289,7 @@ const Index = () => {
                   
                   {/* Helper Text */}
                   <p className="mt-4 text-sm text-white/60 text-center font-light">
-                    ✨ Free tier: 1 documentation per month • Pro: Unlimited generations
+                    ✨ Built for DevRel teams • Aggregates 10+ community sources • Enterprise-ready
                   </p>
                 </div>
               </div>
@@ -711,10 +711,10 @@ const Index = () => {
                 <span className="text-sm font-semibold text-gray-900 uppercase tracking-wide">The Problem</span>
               </div>
               <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
-                Traditional Tools Only Scratch the Surface
+                Your Community is Documenting You Already
               </h2>
               <p className="text-xl md:text-2xl text-gray-800 max-w-3xl mx-auto leading-relaxed">
-                Your website tells <strong>one part of the story</strong>. Real knowledge lives in Stack Overflow, GitHub, and community discussions.
+                <strong>DevRel teams</strong> at established companies spend 20-40 hours per month manually researching Stack Overflow, GitHub, and community discussions. <strong>We automate it.</strong>
               </p>
             </div>
 
@@ -723,38 +723,38 @@ const Index = () => {
               {[
                 {
                   icon: MagnifyingGlassIcon,
-                  title: "Missing Community Knowledge",
+                  title: "Community Knowledge is Scattered",
                   problems: [
-                    "Ignore Stack Overflow solutions to common problems",
-                    "Miss GitHub Issues where users report real bugs",
-                    "Skip community forums with best practices"
+                    "Stack Overflow has 200+ questions about your product",
+                    "GitHub Issues reveal real bugs users are hitting",
+                    "YouTube tutorials show how people actually use it"
                   ]
                 },
                 {
                   icon: QuestionMarkCircleIcon,
-                  title: "Incomplete Troubleshooting",
+                  title: "DevRel Teams are Drowning",
                   problems: [
-                    "FAQs based on guesses, not real user questions",
-                    "Missing edge cases and error messages",
-                    "No validation of content quality or sources"
+                    "20-40 hours/month manually searching community sources",
+                    "Official docs fall out of sync with community reality",
+                    "No systematic way to track what users are saying"
                   ]
                 },
                 {
                   icon: SwatchIcon,
-                  title: "Manual Styling Required",
+                  title: "Documentation Gets Outdated",
                   problems: [
-                    "Generic templates that don't match your brand",
-                    "Manual color and font configuration",
-                    "Inconsistent formatting across export formats"
+                    "Community evolves faster than docs can keep up",
+                    "New edge cases emerge in Stack Overflow daily",
+                    "Support tickets repeat questions already answered online"
                   ]
                 },
                 {
                   icon: ShieldCheckIcon,
-                  title: "Lack of Transparency",
+                  title: "Expensive Manual Process",
                   problems: [
-                    "No visibility into what sources were used",
-                    "Single-point failures kill the entire pipeline",
-                    "No quality scores or source attribution"
+                    "Technical writers cost $75-125/hour to research manually",
+                    "DevRel consultants charge $150-300/hour",
+                    "Documentation projects take weeks, cost $5K-$20K each"
                   ]
                 }
               ].map((item, idx) => (
@@ -788,9 +788,9 @@ const Index = () => {
             <div className="mt-16 text-center">
               <div className="inline-flex flex-col items-center gap-4 px-10 py-8 rounded-3xl bg-white/70 backdrop-blur-sm border-2 border-gray-900/20 shadow-2xl">
                 <CheckBadgeIcon className="h-12 w-12 text-gray-900" strokeWidth={1.5} />
-                <h4 className="text-2xl md:text-3xl font-bold text-gray-900">We Solve All of This</h4>
+                <h4 className="text-2xl md:text-3xl font-bold text-gray-900">We Solve All of This for DevRel Teams</h4>
                 <p className="text-lg text-gray-800 max-w-xl">
-                  Multi-source research, automated styling, complete transparency, and enterprise-grade reliability built in.
+                  Automated community intelligence, continuous documentation refresh, and enterprise-grade reliability—all for less than one technical writer's hourly rate.
                 </p>
                 <Button
                   size="lg"
@@ -1305,7 +1305,7 @@ const Index = () => {
 
               {/* Description */}
               <p className="text-lg md:text-2xl lg:text-3xl text-[rgb(228,232,236)] leading-relaxed max-w-3xl mx-auto font-light">
-                Join&nbsp;<strong className="font-semibold">teams</strong>&nbsp;who've stopped guessing and started researching. Get comprehensive, accurate docs that match your brand&nbsp;<strong className="font-semibold">automatically</strong>
+                Join&nbsp;<strong className="font-semibold">DevRel teams</strong>&nbsp;at established companies who've automated their community research. Save 20-40 hours per month and keep docs aligned with reality&nbsp;<strong className="font-semibold">automatically</strong>
               </p>
 
               {/* CTA Button */}
