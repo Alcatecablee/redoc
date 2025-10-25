@@ -4,6 +4,15 @@
 Viberdoc is an AI-powered documentation intelligence platform designed for Developer Relations teams at established companies with vibrant ecosystems (Stripe, Supabase, Next.js, etc.). The platform aggregates scattered community knowledge from 10+ sources (Stack Overflow, GitHub, YouTube, Reddit, DEV.to, etc.) and generates professional, Apple-style documentation. The system employs a 3-stage AI pipeline to analyze websites, research community sources, and produce enterprise-quality documentation in various formats (PDF, DOCX, web).
 
 ## Recent Changes (October 25, 2025)
+**New Transparent Pricing Page**: Complete redesign of pricing page to reflect DevRel quotation model:
+- ✅ **Transparent Formula Display**: Shows exact pricing calculation ($300 + Resources × $5 × Complexity)
+- ✅ **Real-World Examples**: 4 example projects (Starter FREE, Growing $675, Established $1,800, Major $5,000)
+- ✅ **Mathematically Accurate**: All calculations verified and waiver policy explicitly shown
+- ✅ **Premium Add-ons Grid**: Visual showcase of $500-$1,400 enhancement options
+- ✅ **ROI Comparison**: Demonstrates 70% savings vs $8,000-$15,000 manual research
+- ✅ **Strong CTAs**: Multiple "Get Your Instant Quote" buttons driving to quotation flow
+- ✅ **Theme Consistency**: Matches established homepage design (dark gradients, cyan-blue, glass morphism)
+
 **Quotation Page Theme Redesign**: Complete visual overhaul to match established homepage "How It Works" section:
 - ✅ **Color Scheme**: Dark gradient background (rgb(14,19,23) to rgb(34,38,46)) with cyan-blue accents (rgb(102,255,228))
 - ✅ **Removed Emojis**: Eliminated all emoji characters from production UI (user preference)
