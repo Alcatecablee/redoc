@@ -247,15 +247,23 @@ export default function Quotation() {
         }),
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create payment order');
+      }
+
       const data = await response.json();
+      console.log('Payment order response:', data);
       
-      if (data.paypalOrderId && data.approvalUrl) {
-        // Redirect to PayPal
+      if (data.approvalUrl) {
+        console.log('Redirecting to:', data.approvalUrl);
+        // Redirect to PayPal or test success page
         window.location.href = data.approvalUrl;
       } else {
-        throw new Error('Failed to create payment order');
+        throw new Error('No approval URL received from server');
       }
     } catch (error: any) {
+      console.error('Payment error:', error);
       toast({
         title: 'Payment Error',
         description: error.message || 'Could not process payment',
