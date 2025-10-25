@@ -115,7 +115,20 @@ export async function discoverSiteStructure(baseUrl: string, sessionId?: string)
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
       }
     });
-    if (!homepage.ok) throw new Error(`Failed to fetch homepage: ${homepage.statusText}`);
+    
+    if (!homepage.ok) {
+      // Provide specific feedback for 403 Forbidden errors
+      if (homepage.status === 403) {
+        if (sessionId) {
+          progressTracker.emitActivity(sessionId, {
+            message: `ℹ️ This site blocks automated access - continuing with external research only`,
+            type: 'info'
+          }, 1, 'Site Discovery');
+        }
+        throw new Error(`Site blocks automated access (403 Forbidden) - using external sources only`);
+      }
+      throw new Error(`Failed to fetch homepage: ${homepage.statusText}`);
+    }
     
     const html = await homepage.text();
     const $ = cheerio.load(html);
@@ -275,8 +288,21 @@ export async function discoverSiteStructure(baseUrl: string, sessionId?: string)
       allInternalLinks: [...new Set(allLinks)].slice(0, 200),
       sitemapUrls
     };
-  } catch (error) {
-    console.error('Site discovery failed:', error);
+  } catch (error: any) {
+    const is403Error = error.message?.includes('403') || error.message?.includes('Forbidden');
+    
+    if (is403Error) {
+      console.warn(`⚠️ Site blocks automated access (403): ${baseUrl} - Documentation will be based on external research only`);
+      if (sessionId) {
+        progressTracker.emitActivity(sessionId, {
+          message: `📚 Using ${baseUrl.replace(/^https?:\/\//, '')} name and external research (GitHub, Stack Overflow, etc.) for documentation`,
+          type: 'info'
+        }, 1, 'Site Discovery');
+      }
+    } else {
+      console.error('Site discovery failed:', error);
+    }
+    
     // Return fallback with base URL to continue pipeline
     return {
       productName: 'Unknown Product',
